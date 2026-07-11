@@ -56,24 +56,24 @@
         border-inline-color: rgba(255, 211, 106, 0.1);
     }
 
-    .dark .forum-demo-theme [class~="dark:text-peach"],
+    .dark .forum-demo-theme [class~="dark:text-mint"],
     .dark .forum-demo-theme [class~="text-dark-green"] {
         color: #f2c866 !important;
     }
 
-    .dark .forum-demo-theme [class~="dark:bg-peach"],
+    .dark .forum-demo-theme [class~="dark:bg-mint"],
     .dark .forum-demo-theme [class~="bg-dark-green"] {
         background-color: #f2c866 !important;
         color: #241700 !important;
     }
 
-    .dark .forum-demo-theme [class~="dark:bg-peach/10"],
+    .dark .forum-demo-theme [class~="dark:bg-mint/10"],
     .dark .forum-demo-theme [class~="bg-dark-green/10"] {
         background-color: rgba(242, 200, 102, 0.12) !important;
         color: #f2c866 !important;
     }
 
-    .dark .forum-demo-theme [class*="border-peach"],
+    .dark .forum-demo-theme [class*="border-mint"],
     .dark .forum-demo-theme [class*="border-dark-green"] {
         border-color: rgba(242, 200, 102, 0.24) !important;
     }

@@ -16,7 +16,7 @@ export default {
       colors: {
         'black': '#111827',
         'true-black': '#000000',
-        'peach': '#8FE3B4',
+        'mint': '#8FE3B4',
         'white': '#F6FAF7',
         'true-white': '#FFFFFF',
         'dark-green': '#0F6B4F'

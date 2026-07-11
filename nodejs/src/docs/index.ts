@@ -48,8 +48,8 @@ if (searchInput && resultContainer) {
           : payload.results.map((result) => `
               <a href="/docs/${escapeHtml(result.slug)}" class="block py-5">
                 <div class="flex flex-wrap items-center gap-2">
-                  <h2 class="font-concert-one text-2xl text-dark-green dark:text-peach">${escapeHtml(result.title)}</h2>
-                  <span class="rounded-full border border-dark-green/15 px-2 py-0.5 text-xs font-semibold text-black/55 dark:border-peach/20 dark:text-white/55">${escapeHtml(result.section)}</span>
+                  <h2 class="font-concert-one text-2xl text-dark-green dark:text-mint">${escapeHtml(result.title)}</h2>
+                  <span class="rounded-full border border-dark-green/15 px-2 py-0.5 text-xs font-semibold text-black/55 dark:border-mint/20 dark:text-white/55">${escapeHtml(result.section)}</span>
                 </div>
                 <p class="mt-2 text-sm leading-6 text-black/65 dark:text-white/65">${escapeHtml(result.excerpt)}</p>
               </a>

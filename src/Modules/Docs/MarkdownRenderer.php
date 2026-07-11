@@ -55,19 +55,19 @@ final class MarkdownRenderer
 
             $header = array_shift($table);
             $headCells = array_map(
-                static fn(string $cell): string => '<th class="border-b border-dark-green/15 px-3 py-2 text-left font-semibold text-dark-green dark:border-peach/20 dark:text-peach">' . self::inline($cell) . '</th>',
+                static fn(string $cell): string => '<th class="border-b border-dark-green/15 px-3 py-2 text-left font-semibold text-dark-green dark:border-mint/20 dark:text-mint">' . self::inline($cell) . '</th>',
                 $header
             );
             $bodyRows = array_map(static function (array $row): string {
                 $cells = array_map(
-                    static fn(string $cell): string => '<td class="border-b border-dark-green/10 px-3 py-2 align-top text-black/75 dark:border-peach/10 dark:text-white/75">' . self::inline($cell) . '</td>',
+                    static fn(string $cell): string => '<td class="border-b border-dark-green/10 px-3 py-2 align-top text-black/75 dark:border-mint/10 dark:text-white/75">' . self::inline($cell) . '</td>',
                     $row
                 );
 
                 return '<tr>' . implode('', $cells) . '</tr>';
             }, $table);
 
-            $html[] = '<div class="mt-5 overflow-x-auto rounded-lg border border-dark-green/15 bg-true-white shadow-sm dark:border-peach/20 dark:bg-true-black"><table class="w-full min-w-max border-collapse text-sm"><thead><tr>' . implode('', $headCells) . '</tr></thead><tbody>' . implode('', $bodyRows) . '</tbody></table></div>';
+            $html[] = '<div class="mt-5 overflow-x-auto rounded-lg border border-dark-green/15 bg-true-white shadow-sm dark:border-mint/20 dark:bg-true-black"><table class="w-full min-w-max border-collapse text-sm"><thead><tr>' . implode('', $headCells) . '</tr></thead><tbody>' . implode('', $bodyRows) . '</tbody></table></div>';
             $table = [];
         };
 
@@ -76,7 +76,7 @@ final class MarkdownRenderer
                 if ($inCode) {
                     $languageClass = $codeLanguage !== '' ? ' data-language="' . self::escape($codeLanguage) . '"' : '';
                     $codeLanguageAttribute = $codeLanguage !== '' ? ' code-lang="' . self::escape($codeLanguage) . '"' : '';
-                    $html[] = '<pre class="mt-5 overflow-x-auto rounded-lg border border-dark-green/15 bg-true-white p-4 text-sm text-black shadow-sm dark:border-peach/20 dark:bg-true-black dark:text-white"' . $languageClass . '><code' . $codeLanguageAttribute . '>' . self::escape(implode("\n", $code)) . '</code></pre>';
+                    $html[] = '<pre class="mt-5 overflow-x-auto rounded-lg border border-dark-green/15 bg-true-white p-4 text-sm text-black shadow-sm dark:border-mint/20 dark:bg-true-black dark:text-white"' . $languageClass . '><code' . $codeLanguageAttribute . '>' . self::escape(implode("\n", $code)) . '</code></pre>';
                     $inCode = false;
                     $code = [];
                     $codeLanguage = '';
@@ -133,7 +133,7 @@ final class MarkdownRenderer
                     3 => 'mt-8 text-xl md:text-2xl',
                     default => 'mt-6 text-lg md:text-xl',
                 };
-                $html[] = '<h' . $level . ' id="' . self::escape($id) . '" class="' . $class . ' scroll-mt-28 font-concert-one text-dark-green dark:text-peach">' . self::inline($text) . '</h' . $level . '>';
+                $html[] = '<h' . $level . ' id="' . self::escape($id) . '" class="' . $class . ' scroll-mt-28 font-concert-one text-dark-green dark:text-mint">' . self::inline($text) . '</h' . $level . '>';
                 continue;
             }
 
@@ -167,8 +167,8 @@ final class MarkdownRenderer
     private static function inline(string $value): string
     {
         $escaped = self::escape($value);
-        $escaped = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a class="font-semibold text-dark-green underline decoration-dark-green/30 underline-offset-4 hover:decoration-dark-green dark:text-peach dark:decoration-peach/30 dark:hover:decoration-peach" href="$2">$1</a>', $escaped) ?? $escaped;
-        $escaped = preg_replace('/`([^`]+)`/', '<code class="rounded bg-dark-green/10 px-1.5 py-0.5 text-sm text-dark-green dark:bg-peach/10 dark:text-peach">$1</code>', $escaped) ?? $escaped;
+        $escaped = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a class="font-semibold text-dark-green underline decoration-dark-green/30 underline-offset-4 hover:decoration-dark-green dark:text-mint dark:decoration-mint/30 dark:hover:decoration-mint" href="$2">$1</a>', $escaped) ?? $escaped;
+        $escaped = preg_replace('/`([^`]+)`/', '<code class="rounded bg-dark-green/10 px-1.5 py-0.5 text-sm text-dark-green dark:bg-mint/10 dark:text-mint">$1</code>', $escaped) ?? $escaped;
         $escaped = preg_replace('/\*\*([^*]+)\*\*/', '<strong>$1</strong>', $escaped) ?? $escaped;
         return $escaped;
     }

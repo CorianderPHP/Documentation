@@ -576,7 +576,7 @@
       block.classList.add("relative");
       const button = document.createElement("button");
       button.type = "button";
-      button.className = "absolute right-2 top-2 rounded-md border border-dark-green/20 bg-true-white/95 px-2 py-1 text-xs font-semibold text-dark-green shadow-sm transition hover:border-dark-green hover:bg-dark-green hover:text-true-white focus:outline-none focus:ring-2 focus:ring-dark-green/20 dark:border-peach/30 dark:bg-true-black/95 dark:text-peach dark:hover:border-peach dark:hover:bg-peach dark:hover:text-black dark:focus:ring-peach/20";
+      button.className = "absolute right-2 top-2 rounded-md border border-dark-green/20 bg-true-white/95 px-2 py-1 text-xs font-semibold text-dark-green shadow-sm transition hover:border-dark-green hover:bg-dark-green hover:text-true-white focus:outline-none focus:ring-2 focus:ring-dark-green/20 dark:border-mint/30 dark:bg-true-black/95 dark:text-mint dark:hover:border-mint dark:hover:bg-mint dark:hover:text-black dark:focus:ring-mint/20";
       button.textContent = "Copy";
       button.addEventListener("click", async () => {
         const copied = await this.copyText(code.textContent ?? "");

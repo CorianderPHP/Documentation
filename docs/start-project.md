@@ -180,9 +180,9 @@ $summary = $summary ?? [];
 ?>
 
 <section class="px-4 py-10 font-poppins sm:px-6 lg:px-8">
-    <h1 class="font-concert-one text-5xl text-dark-green dark:text-peach">Feature</h1>
+    <h1 class="font-concert-one text-5xl text-dark-green dark:text-mint">Feature</h1>
 
-    <div class="mt-8 divide-y divide-dark-green/10 dark:divide-peach/10">
+    <div class="mt-8 divide-y divide-dark-green/10 dark:divide-mint/10">
         <?php foreach ($summary as $item): ?>
             <div class="grid gap-2 py-4 md:grid-cols-[12rem_1fr]">
                 <span class="font-semibold"><?= htmlspecialchars($item['label'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>

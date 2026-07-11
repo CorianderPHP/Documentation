@@ -576,7 +576,7 @@
       block.classList.add("relative");
       const button = document.createElement("button");
       button.type = "button";
-      button.className = "absolute right-2 top-2 rounded-md border border-dark-green/20 bg-true-white/95 px-2 py-1 text-xs font-semibold text-dark-green shadow-sm transition hover:border-dark-green hover:bg-dark-green hover:text-true-white focus:outline-none focus:ring-2 focus:ring-dark-green/20 dark:border-peach/30 dark:bg-true-black/95 dark:text-peach dark:hover:border-peach dark:hover:bg-peach dark:hover:text-black dark:focus:ring-peach/20";
+      button.className = "absolute right-2 top-2 rounded-md border border-dark-green/20 bg-true-white/95 px-2 py-1 text-xs font-semibold text-dark-green shadow-sm transition hover:border-dark-green hover:bg-dark-green hover:text-true-white focus:outline-none focus:ring-2 focus:ring-dark-green/20 dark:border-mint/30 dark:bg-true-black/95 dark:text-mint dark:hover:border-mint dark:hover:bg-mint dark:hover:text-black dark:focus:ring-mint/20";
       button.textContent = "Copy";
       button.addEventListener("click", async () => {
         const copied = await this.copyText(code.textContent ?? "");
@@ -650,8 +650,8 @@
         resultContainer.innerHTML = payload.results.length === 0 ? '<p class="py-5 text-black/70 dark:text-white/70">No documentation pages matched this search scope.</p>' : payload.results.map((result) => `
               <a href="/docs/${escapeHtml2(result.slug)}" class="block py-5">
                 <div class="flex flex-wrap items-center gap-2">
-                  <h2 class="font-concert-one text-2xl text-dark-green dark:text-peach">${escapeHtml2(result.title)}</h2>
-                  <span class="rounded-full border border-dark-green/15 px-2 py-0.5 text-xs font-semibold text-black/55 dark:border-peach/20 dark:text-white/55">${escapeHtml2(result.section)}</span>
+                  <h2 class="font-concert-one text-2xl text-dark-green dark:text-mint">${escapeHtml2(result.title)}</h2>
+                  <span class="rounded-full border border-dark-green/15 px-2 py-0.5 text-xs font-semibold text-black/55 dark:border-mint/20 dark:text-white/55">${escapeHtml2(result.section)}</span>
                 </div>
                 <p class="mt-2 text-sm leading-6 text-black/65 dark:text-white/65">${escapeHtml2(result.excerpt)}</p>
               </a>
