@@ -79,14 +79,21 @@
     }
 
     html,
-    .scrollbar,
+    .scrollbar {
+        scrollbar-width: auto;
+        scrollbar-color: rgba(15, 107, 79, 0.48) rgba(15, 107, 79, 0.08);
+    }
+
+    html::-webkit-scrollbar,
+    .scrollbar::-webkit-scrollbar {
+        width: 0.85rem;
+    }
+
     .y-slider {
         scrollbar-width: thin;
         scrollbar-color: rgba(15, 107, 79, 0.48) rgba(15, 107, 79, 0.08);
     }
 
-    html::-webkit-scrollbar,
-    .scrollbar::-webkit-scrollbar,
     .y-slider::-webkit-scrollbar {
         width: 0.55rem;
     }
@@ -112,7 +119,10 @@
     }
 
     .dark,
-    .dark .scrollbar,
+    .dark .scrollbar {
+        scrollbar-color: rgba(143, 227, 180, 0.56) rgba(143, 227, 180, 0.1);
+    }
+
     .dark .y-slider {
         scrollbar-color: rgba(143, 227, 180, 0.56) rgba(143, 227, 180, 0.1);
     }

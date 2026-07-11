@@ -37,4 +37,19 @@ MD);
 
         self::assertStringContainsString('data-language="structure"', $result['html']);
     }
+
+    public function testRendersMarkdownTables(): void
+    {
+        $result = (new MarkdownRenderer())->render(<<<'MD'
+| Step | Why |
+| --- | --- |
+| Routes | URL contract |
+| Controllers | Request flow |
+MD);
+
+        self::assertStringContainsString('<table', $result['html']);
+        self::assertStringContainsString('<th', $result['html']);
+        self::assertStringContainsString('Routes', $result['html']);
+        self::assertStringNotContainsString('| --- |', $result['html']);
+    }
 }

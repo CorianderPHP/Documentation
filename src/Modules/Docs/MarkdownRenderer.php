@@ -15,6 +15,7 @@ final class MarkdownRenderer
         $headings = [];
         $paragraph = [];
         $list = [];
+        $table = [];
         $inCode = false;
         $code = [];
         $codeLanguage = '';
@@ -35,6 +36,29 @@ final class MarkdownRenderer
             $items = array_map(static fn(string $item): string => '<li>' . self::inline($item) . '</li>', $list);
             $html[] = '<ul class="mt-4 list-disc space-y-2 pl-6 text-black/80 dark:text-white/80">' . implode('', $items) . '</ul>';
             $list = [];
+        };
+
+        $flushTable = static function () use (&$table, &$html): void {
+            if ($table === []) {
+                return;
+            }
+
+            $header = array_shift($table);
+            $headCells = array_map(
+                static fn(string $cell): string => '<th class="border-b border-dark-green/15 px-3 py-2 text-left font-semibold text-dark-green dark:border-peach/20 dark:text-peach">' . self::inline($cell) . '</th>',
+                $header
+            );
+            $bodyRows = array_map(static function (array $row): string {
+                $cells = array_map(
+                    static fn(string $cell): string => '<td class="border-b border-dark-green/10 px-3 py-2 align-top text-black/75 dark:border-peach/10 dark:text-white/75">' . self::inline($cell) . '</td>',
+                    $row
+                );
+
+                return '<tr>' . implode('', $cells) . '</tr>';
+            }, $table);
+
+            $html[] = '<div class="mt-5 overflow-x-auto rounded-lg border border-dark-green/15 bg-true-white shadow-sm dark:border-peach/20 dark:bg-true-black"><table class="w-full min-w-max border-collapse text-sm"><thead><tr>' . implode('', $headCells) . '</tr></thead><tbody>' . implode('', $bodyRows) . '</tbody></table></div>';
+            $table = [];
         };
 
         foreach ($lines as $line) {
@@ -65,8 +89,22 @@ final class MarkdownRenderer
             if ($trimmed === '') {
                 $flushParagraph();
                 $flushList();
+                $flushTable();
                 continue;
             }
+
+            if (self::isTableSeparator($trimmed)) {
+                continue;
+            }
+
+            if (self::isTableRow($trimmed)) {
+                $flushParagraph();
+                $flushList();
+                $table[] = self::parseTableRow($trimmed);
+                continue;
+            }
+
+            $flushTable();
 
             if (preg_match('/^(#{1,4})\s+(.+)$/', $trimmed, $matches) === 1) {
                 $flushParagraph();
@@ -97,6 +135,7 @@ final class MarkdownRenderer
 
         $flushParagraph();
         $flushList();
+        $flushTable();
 
         return ['html' => implode("\n", $html), 'headings' => $headings];
     }
@@ -114,6 +153,34 @@ final class MarkdownRenderer
     {
         $slug = strtolower((string) preg_replace('/[^A-Za-z0-9]+/', '-', $value));
         return trim($slug, '-') !== '' ? trim($slug, '-') : 'section';
+    }
+
+    private static function isTableRow(string $line): bool
+    {
+        return str_contains($line, '|') && str_starts_with($line, '|') && str_ends_with($line, '|');
+    }
+
+    private static function isTableSeparator(string $line): bool
+    {
+        if (!self::isTableRow($line)) {
+            return false;
+        }
+
+        $cells = self::parseTableRow($line);
+        return $cells !== [] && array_reduce(
+            $cells,
+            static fn(bool $valid, string $cell): bool => $valid && preg_match('/^:?-{3,}:?$/', trim($cell)) === 1,
+            true
+        );
+    }
+
+    /**
+     * @return array<int,string>
+     */
+    private static function parseTableRow(string $line): array
+    {
+        $line = trim($line, '|');
+        return array_map(static fn(string $cell): string => trim($cell), explode('|', $line));
     }
 
     private static function escape(string $value): string
