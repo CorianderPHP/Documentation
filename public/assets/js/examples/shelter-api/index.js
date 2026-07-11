@@ -1,4 +1,732 @@
-"use strict";(()=>{var A=Object.defineProperty;var W=(a,t,s)=>t in a?A(a,t,{enumerable:!0,configurable:!0,writable:!0,value:s}):a[t]=s;var h=(a,t,s)=>W(a,typeof t!="symbol"?t+"":t,s);function r(a){let t=document.createElement("span");return t.textContent=a,t.innerHTML}var x=class{highlight(t){return r(t).replace(/^([A-Z0-9_]+)(=)(.*)$/gm,'<span class="text-cyan-500">$1</span>$2<span class="text-orange-400">$3</span>')}};var m=class{constructor(){h(this,"keywords",new Set(["as","catch","class","const","declare","default","echo","else","elseif","endforeach","endif","extends","final","finally","foreach","function","if","implements","interface","match","namespace","new","parent","private","protected","public","readonly","return","self","static","throw","trait","try","use","while"]));h(this,"literals",new Set(["false","null","true"]));h(this,"primitiveTypes",new Set(["array","bool","callable","float","int","iterable","mixed","never","object","string","void"]))}highlight(t){let s="",e=0;for(;e<t.length;){if(t.startsWith("<?php",e)){s+=this.wrap(t.slice(e,e+5),"text-fuchsia-500"),e+=5;continue}if(t.startsWith("<?=",e)){s+=this.wrap(t.slice(e,e+3),"text-fuchsia-500"),e+=3;continue}if(t.startsWith("?>",e)){s+=this.wrap(t.slice(e,e+2),"text-fuchsia-500"),e+=2;continue}if(t.startsWith("//",e)||t.startsWith("#",e)){let i=this.findLineEnd(t,e);s+=this.wrap(t.slice(e,i),"text-emerald-600"),e=i;continue}if(t.startsWith("/*",e)){let i=t.indexOf("*/",e+2),l=i===-1?t.length:i+2;s+=this.wrap(t.slice(e,l),"text-emerald-600"),e=l;continue}let n=t[e]??"";if(n==='"'||n==="'"||n==="`"){let i=this.findStringEnd(t,e,n);s+=this.wrap(t.slice(e,i),"text-orange-400"),e=i;continue}if(n==="$"){let i=t.slice(e).match(/^\$[A-Za-z_][A-Za-z0-9_]*/);if(i){s+=this.wrap(i[0],"text-cyan-500"),e+=i[0].length;continue}}if(/\d/.test(n)){let i=t.slice(e).match(/^\d+(?:\.\d+)?/);if(i){s+=this.wrap(i[0],"text-violet-500"),e+=i[0].length;continue}}if(/[A-Za-z_\\]/.test(n)){let i=t.slice(e).match(/^(?:\\?[A-Za-z_][A-Za-z0-9_]*)+/);if(i){s+=this.highlightIdentifier(t,e,i[0]),e+=i[0].length;continue}}s+=r(n),e+=1}return s}highlightIdentifier(t,s,e){let n=e.toLowerCase(),i=this.previousIdentifier(t,s),l=this.nextNonWhitespace(t,s+e.length);return this.keywords.has(n)?this.wrap(e,"text-sky-500"):this.literals.has(n)?this.wrap(e,"text-violet-500"):this.primitiveTypes.has(n)?this.wrap(e,"text-amber-500"):/^[A-Z][A-Za-z0-9_]*$/.test(e)||/^[A-Z0-9_]+$/.test(e)||e.includes("\\")?this.wrap(e,"text-amber-500"):i==="function"&&l==="("?this.wrap(e,"text-blue-500"):l==="("?this.wrap(e,"text-blue-500"):r(e)}findLineEnd(t,s){let e=t.indexOf(`
-`,s);return e===-1?t.length:e}findStringEnd(t,s,e){let n=s+1;for(;n<t.length;){if(t[n]==="\\"){n+=2;continue}if(t[n]===e)return n+1;n+=1}return t.length}previousIdentifier(t,s){return t.slice(0,s).trimEnd().match(/([A-Za-z_][A-Za-z0-9_]*)$/)?.[1]?.toLowerCase()??null}nextNonWhitespace(t,s){return t.slice(s).match(/\S/)?.[0]??null}wrap(t,s){return`<span class="${s}">${r(t)}</span>`}};var y=class{constructor(){h(this,"phpHighlighter",new m)}highlight(t){let s="",e=0;for(;e<t.length;){if(t.startsWith("<!--",e)){let n=t.indexOf("-->",e+4),i=n===-1?t.length:n+3;s+=this.wrap(t.slice(e,i),"text-emerald-600"),e=i;continue}if(t.startsWith("<?",e)){let n=t.indexOf("?>",e+2),i=n===-1?t.length:n+2;s+=this.phpHighlighter.highlight(t.slice(e,i)),e=i;continue}if(t[e]==="<"){let n=this.findTagEnd(t,e);s+=this.highlightTag(t.slice(e,n)),e=n;continue}s+=r(t[e]??""),e+=1}return s}highlightTag(t){if(t.startsWith("</")){let i=t.match(/^<\/\s*([A-Za-z][A-Za-z0-9:-]*)([\s\S]*?)>$/);return i?`<span class="text-sky-500">&lt;/${i[1]}</span>${r(i[2]??"")}<span class="text-sky-500">&gt;</span>`:r(t)}if(t.startsWith("<!"))return this.wrap(t,"text-sky-500");let s=t.match(/^<([A-Za-z][A-Za-z0-9:-]*)/);if(!s)return r(t);let e=`<span class="text-sky-500">&lt;${s[1]}</span>`,n=s[0].length;for(;n<t.length;){if(t.startsWith("/>",n)){e+='<span class="text-sky-500">/&gt;</span>',n+=2;continue}if(t[n]===">"){e+='<span class="text-sky-500">&gt;</span>',n+=1;continue}if(/\s/.test(t[n]??"")){e+=r(t[n]??""),n+=1;continue}let i=t.slice(n).match(/^[^\s=/>]+/);if(!i){e+=r(t[n]??""),n+=1;continue}for(e+=this.wrap(i[0],"text-cyan-500"),n+=i[0].length;n<t.length&&/\s/.test(t[n]??"");)e+=r(t[n]??""),n+=1;if(t[n]!=="=")continue;for(e+="=",n+=1;n<t.length&&/\s/.test(t[n]??"");)e+=r(t[n]??""),n+=1;let l=t[n]??"";if(l==='"'||l==="'"){let p=this.findStringEnd(t,n,l);e+=this.highlightAttributeValue(t.slice(n,p)),n=p;continue}let c=t.slice(n).match(/^[^\s>]+/);c&&(e+=this.wrap(c[0],"text-orange-400"),n+=c[0].length)}return e}highlightAttributeValue(t){if(!t.includes("<?"))return this.wrap(t,"text-orange-400");let s=t[0]??"",e=t.slice(1,-1),n=t[t.length-1]??"";return[this.wrap(s,"text-orange-400"),this.highlightTextWithPhp(e,"text-orange-400"),this.wrap(n,"text-orange-400")].join("")}highlightTextWithPhp(t,s){let e="",n=0;for(;n<t.length;){if(t.startsWith("<?",n)){let c=t.indexOf("?>",n+2),p=c===-1?t.length:c+2;e+=this.phpHighlighter.highlight(t.slice(n,p)),n=p;continue}let i=t.indexOf("<?",n),l=i===-1?t.length:i;e+=this.wrap(t.slice(n,l),s),n=l}return e}findTagEnd(t,s){let e=null,n=s+1;for(;n<t.length;){let i=t[n]??"";if(e!==null){i===e&&(e=null),n+=1;continue}if(i==='"'||i==="'"){e=i,n+=1;continue}if(i===">")return n+1;n+=1}return t.length}findStringEnd(t,s,e){let n=s+1;for(;n<t.length;){if(t[n]===e)return n+1;n+=1}return t.length}wrap(t,s){return`<span class="${s}">${r(t)}</span>`}};var b=class{highlight(t){return r(t).replace(/\b(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD)\b/g,'<span class="text-sky-500">$1</span>').replace(/\s(\/[^\s]*)/g,' <span class="text-cyan-500">$1</span>').replace(/\b(HTTP\/\d(?:\.\d)?|20\d|30\d|40\d|50\d)\b/g,'<span class="text-violet-500">$1</span>')}};var w=class{highlight(t){return t.split(/("(?:\\.|[^"])*"\s*:)|("(?:\\.|[^"])*")|\b(true|false|null)\b|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g).map(e=>this.highlightPart(e??"")).join("")}highlightPart(t){return t===""?"":/^"(?:\\.|[^"])*"\s*:$/.test(t)?`<span class="text-cyan-500">${r(t.slice(0,t.lastIndexOf(":")))}</span>:`:t.startsWith('"')?`<span class="text-orange-400">${r(t)}</span>`:t==="true"||t==="false"||t==="null"?`<span class="text-violet-500">${t}</span>`:/^-?\d/.test(t)?`<span class="text-violet-500">${t}</span>`:r(t)}};var v=class{highlight(t){return r(t)}};var L=class{highlight(t){return r(t).replace(/(^|\n)(\s*#.*)/g,'$1<span class="text-emerald-600">$2</span>').replace(/\b(composer|php|npm|node|curl|git)\b/g,'<span class="text-sky-500">$1</span>').replace(/\b(install|run|make:[a-z-]+|migrate)\b/g,'<span class="text-cyan-500">$1</span>')}};var E=class{constructor(){h(this,"keywords",new Set(["add","and","as","asc","autoincrement","by","check","constraint","create","current_timestamp","default","delete","desc","drop","exists","foreign","from","group","if","in","index","inner","insert","integer","into","is","join","key","left","like","limit","not","null","on","or","order","primary","references","select","set","table","text","unique","update","values","where"]))}highlight(t){return r(t).split(/(--.*|\/\*[\s\S]*?\*\/|"(?:\\.|[^"])*"|'(?:\\.|[^'])*'|:[A-Za-z_][A-Za-z0-9_]*|\b\d+(?:\.\d+)?\b|\b[A-Za-z_][A-Za-z0-9_]*\b)/g).map(n=>this.highlightPart(n)).join("")}highlightPart(t){return t===""?"":t.startsWith("--")||t.startsWith("/*")?`<span class="text-emerald-600">${t}</span>`:t.startsWith('"')||t.startsWith("'")?`<span class="text-orange-400">${t}</span>`:t.startsWith(":")?`<span class="text-cyan-500">${t}</span>`:/^\d/.test(t)?`<span class="text-violet-500">${t}</span>`:this.keywords.has(t.toLowerCase())?`<span class="text-sky-500">${t}</span>`:t}};var H=class{highlight(t){return r(t).split(`
-`).map(s=>this.highlightLine(s)).join(`
-`)}highlightLine(t){let s=t.match(/^(\s*)(.+)$/);if(!s)return t;let[,e,n]=s,i=n.endsWith("/"),l=n.endsWith(".php"),c=n.endsWith(".md"),p=/\.(ts|js|css|sql|sqlite|yml|env|json|zip)$/i.test(n),o=n.split("/"),d=o.pop()??n,f=o.length>0?`${o.join("/")}/`:"";return`${e}<span class="text-black/45 dark:text-white/45">${f}</span><span class="${i?"text-sky-500":l?"text-cyan-500":c?"text-orange-400":p?"text-violet-500":"text-black/80 dark:text-white/80"}">${d}</span>`}};var T=class{constructor(t=!1){h(this,"highlighters");h(this,"fallback",new v);h(this,"copyDisabledLanguages",new Set(["structure"]));let s=new m,e=new L;this.highlighters={bash:e,env:new x,html:new y,http:new b,js:s,javascript:s,json:new w,php:s,powershell:e,sh:e,shell:e,sql:new E,structure:new H,text:this.fallback,ts:s,tsx:s,txt:this.fallback,typescript:s},t&&this.highlightAllCode()}highlightAllCode(){document.querySelectorAll("pre[data-language]").forEach(t=>{let s=t.querySelector("code"),e=t.dataset.language?.toLowerCase()??"",n=s?.textContent??"";!s||n===""||(s.innerHTML=(this.highlighters[e]??this.fallback).highlight(n),t.dataset.highlighted="true",this.addCopyButton(t,s,e))})}addCopyButton(t,s,e){if(t.dataset.copyEnabled==="true"||this.copyDisabledLanguages.has(e))return;t.dataset.copyEnabled="true",t.classList.add("relative");let n=document.createElement("button");n.type="button",n.className="absolute right-2 top-2 rounded-md border border-dark-green/20 bg-true-white/95 px-2 py-1 text-xs font-semibold text-dark-green shadow-sm transition hover:border-dark-green hover:bg-dark-green hover:text-true-white focus:outline-none focus:ring-2 focus:ring-dark-green/20 dark:border-peach/30 dark:bg-true-black/95 dark:text-peach dark:hover:border-peach dark:hover:bg-peach dark:hover:text-black dark:focus:ring-peach/20",n.textContent="Copy",n.addEventListener("click",async()=>{let i=await this.copyText(s.textContent??"");n.textContent=i?"Copied":"Failed",window.setTimeout(()=>{n.textContent="Copy"},1400)}),t.append(n)}async copyText(t){if(navigator.clipboard&&window.isSecureContext)try{return await navigator.clipboard.writeText(t),!0}catch{return this.copyWithFallback(t)}return this.copyWithFallback(t)}copyWithFallback(t){let s=document.createElement("textarea");s.value=t,s.setAttribute("readonly","readonly"),s.style.position="fixed",s.style.left="-9999px",document.body.append(s),s.select();try{return document.execCommand("copy")}finally{s.remove()}}};new T(!0);document.querySelectorAll("[data-scroll-memory]").forEach(a=>{let t=`scroll:${a.dataset.scrollMemory??""}`,s=window.sessionStorage.getItem(t);s!==null&&(a.scrollTop=Number.parseInt(s,10)||0),a.addEventListener("scroll",()=>{window.sessionStorage.setItem(t,String(a.scrollTop))},{passive:!0})});var I={list:{method:"GET",url:"/api/playground/shelter/animals?species=cat&status=available",body:""},show:{method:"GET",url:"/api/playground/shelter/animals/1",body:""},create:{method:"POST",url:"/api/playground/shelter/animals",body:JSON.stringify({name:"Luna",species:"cat",shelter_id:1,age_months:10,status:"available",description:"Playful young cat ready for adoption."},null,2)},update:{method:"PATCH",url:"/api/playground/shelter/animals/1",body:JSON.stringify({status:"reserved",description:"Updated from the safe playground."},null,2)},delete:{method:"DELETE",url:"/api/playground/shelter/animals/1",body:""},species:{method:"GET",url:"/api/playground/shelter/species",body:""},shelters:{method:"GET",url:"/api/playground/shelter/shelters",body:""}},u=document.querySelector("[data-api-playground]");if(u){let a=u.querySelector("[data-api-preset]"),t=u.querySelector("[data-api-method]"),s=u.querySelector("[data-api-url]"),e=u.querySelector("[data-api-body]"),n=u.querySelector("[data-api-send]"),i=u.querySelector("[data-api-status]"),l=u.querySelector("[data-api-response]"),c=()=>{let o=I[a?.value??"list"]??I.list;t&&(t.value=o.method),s&&(s.value=o.url),e&&(e.value=o.body)},p=(o,d)=>{i&&(i.textContent=o),l&&(l.textContent=typeof d=="string"?d:JSON.stringify(d,null,2))};a?.addEventListener("change",c),c(),n?.addEventListener("click",async()=>{let o=t?.value.toUpperCase()||"GET",d=s?.value||"/api/playground/shelter/animals",f=e?.value.trim()??"";n.disabled=!0,n.classList.add("opacity-70"),p("Status: sending",{message:"Sending request..."});try{let g={method:o,headers:{Accept:"application/json"}};!["GET","HEAD","DELETE"].includes(o)&&f!==""&&(g.headers={...g.headers,"Content-Type":"application/json"},g.body=f);let k=await fetch(d,g),$=await k.text(),S=$;try{S=JSON.parse($)}catch{S=$}p(`Status: ${k.status} ${k.statusText}`,S)}catch(g){p("Status: request failed",{error:g instanceof Error?g.message:"Request failed."})}finally{n.disabled=!1,n.classList.remove("opacity-70")}})}})();
+"use strict";
+(() => {
+  var __defProp = Object.defineProperty;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+
+  // src/docs/highlighters/escapeHtml.ts
+  function escapeHtml(value) {
+    const span = document.createElement("span");
+    span.textContent = value;
+    return span.innerHTML;
+  }
+
+  // src/docs/highlighters/EnvHighlighter.ts
+  var EnvHighlighter = class {
+    highlight(code) {
+      return escapeHtml(code).replace(
+        /^([A-Z0-9_]+)(=)(.*)$/gm,
+        '<span class="text-cyan-500">$1</span>$2<span class="text-orange-400">$3</span>'
+      );
+    }
+  };
+
+  // src/docs/highlighters/ScriptHighlighter.ts
+  var ScriptHighlighter = class {
+    constructor() {
+      __publicField(this, "keywords", /* @__PURE__ */ new Set([
+        "as",
+        "catch",
+        "class",
+        "const",
+        "declare",
+        "default",
+        "echo",
+        "else",
+        "elseif",
+        "endforeach",
+        "endif",
+        "extends",
+        "final",
+        "finally",
+        "foreach",
+        "function",
+        "if",
+        "implements",
+        "interface",
+        "match",
+        "namespace",
+        "new",
+        "parent",
+        "private",
+        "protected",
+        "public",
+        "readonly",
+        "return",
+        "self",
+        "static",
+        "throw",
+        "trait",
+        "try",
+        "use",
+        "while"
+      ]));
+      __publicField(this, "literals", /* @__PURE__ */ new Set(["false", "null", "true"]));
+      __publicField(this, "primitiveTypes", /* @__PURE__ */ new Set([
+        "array",
+        "bool",
+        "callable",
+        "float",
+        "int",
+        "iterable",
+        "mixed",
+        "never",
+        "object",
+        "string",
+        "void"
+      ]));
+    }
+    highlight(code) {
+      let output = "";
+      let index = 0;
+      while (index < code.length) {
+        if (code.startsWith("<?php", index)) {
+          output += this.wrap(code.slice(index, index + 5), "text-fuchsia-500");
+          index += 5;
+          continue;
+        }
+        if (code.startsWith("<?=", index)) {
+          output += this.wrap(code.slice(index, index + 3), "text-fuchsia-500");
+          index += 3;
+          continue;
+        }
+        if (code.startsWith("?>", index)) {
+          output += this.wrap(code.slice(index, index + 2), "text-fuchsia-500");
+          index += 2;
+          continue;
+        }
+        if (code.startsWith("//", index) || code.startsWith("#", index)) {
+          const end = this.findLineEnd(code, index);
+          output += this.wrap(code.slice(index, end), "text-emerald-600");
+          index = end;
+          continue;
+        }
+        if (code.startsWith("/*", index)) {
+          const end = code.indexOf("*/", index + 2);
+          const nextIndex = end === -1 ? code.length : end + 2;
+          output += this.wrap(code.slice(index, nextIndex), "text-emerald-600");
+          index = nextIndex;
+          continue;
+        }
+        const char = code[index] ?? "";
+        if (char === '"' || char === "'" || char === "`") {
+          const end = this.findStringEnd(code, index, char);
+          output += this.wrap(code.slice(index, end), "text-orange-400");
+          index = end;
+          continue;
+        }
+        if (char === "$") {
+          const match = code.slice(index).match(/^\$[A-Za-z_][A-Za-z0-9_]*/);
+          if (match) {
+            output += this.wrap(match[0], "text-cyan-500");
+            index += match[0].length;
+            continue;
+          }
+        }
+        if (/\d/.test(char)) {
+          const match = code.slice(index).match(/^\d+(?:\.\d+)?/);
+          if (match) {
+            output += this.wrap(match[0], "text-violet-500");
+            index += match[0].length;
+            continue;
+          }
+        }
+        if (/[A-Za-z_\\]/.test(char)) {
+          const match = code.slice(index).match(/^(?:\\?[A-Za-z_][A-Za-z0-9_]*)+/);
+          if (match) {
+            output += this.highlightIdentifier(code, index, match[0]);
+            index += match[0].length;
+            continue;
+          }
+        }
+        output += escapeHtml(char);
+        index += 1;
+      }
+      return output;
+    }
+    highlightIdentifier(code, index, identifier) {
+      const lower = identifier.toLowerCase();
+      const previousIdentifier = this.previousIdentifier(code, index);
+      const next = this.nextNonWhitespace(code, index + identifier.length);
+      if (this.keywords.has(lower)) {
+        return this.wrap(identifier, "text-sky-500");
+      }
+      if (this.literals.has(lower)) {
+        return this.wrap(identifier, "text-violet-500");
+      }
+      if (this.primitiveTypes.has(lower)) {
+        return this.wrap(identifier, "text-amber-500");
+      }
+      if (/^[A-Z][A-Za-z0-9_]*$/.test(identifier) || /^[A-Z0-9_]+$/.test(identifier) || identifier.includes("\\")) {
+        return this.wrap(identifier, "text-amber-500");
+      }
+      if (previousIdentifier === "function" && next === "(") {
+        return this.wrap(identifier, "text-blue-500");
+      }
+      if (next === "(") {
+        return this.wrap(identifier, "text-blue-500");
+      }
+      return escapeHtml(identifier);
+    }
+    findLineEnd(code, start) {
+      const end = code.indexOf("\n", start);
+      return end === -1 ? code.length : end;
+    }
+    findStringEnd(code, start, quote) {
+      let index = start + 1;
+      while (index < code.length) {
+        if (code[index] === "\\") {
+          index += 2;
+          continue;
+        }
+        if (code[index] === quote) {
+          return index + 1;
+        }
+        index += 1;
+      }
+      return code.length;
+    }
+    previousIdentifier(code, index) {
+      const before = code.slice(0, index).trimEnd();
+      const match = before.match(/([A-Za-z_][A-Za-z0-9_]*)$/);
+      return match?.[1]?.toLowerCase() ?? null;
+    }
+    nextNonWhitespace(code, index) {
+      const match = code.slice(index).match(/\S/);
+      return match?.[0] ?? null;
+    }
+    wrap(value, classes) {
+      return `<span class="${classes}">${escapeHtml(value)}</span>`;
+    }
+  };
+
+  // src/docs/highlighters/HtmlHighlighter.ts
+  var HtmlHighlighter = class {
+    constructor() {
+      __publicField(this, "phpHighlighter", new ScriptHighlighter());
+    }
+    highlight(code) {
+      let output = "";
+      let index = 0;
+      while (index < code.length) {
+        if (code.startsWith("<!--", index)) {
+          const end = code.indexOf("-->", index + 4);
+          const nextIndex = end === -1 ? code.length : end + 3;
+          output += this.wrap(code.slice(index, nextIndex), "text-emerald-600");
+          index = nextIndex;
+          continue;
+        }
+        if (code.startsWith("<?", index)) {
+          const end = code.indexOf("?>", index + 2);
+          const nextIndex = end === -1 ? code.length : end + 2;
+          output += this.phpHighlighter.highlight(code.slice(index, nextIndex));
+          index = nextIndex;
+          continue;
+        }
+        if (code[index] === "<") {
+          const end = this.findTagEnd(code, index);
+          output += this.highlightTag(code.slice(index, end));
+          index = end;
+          continue;
+        }
+        output += escapeHtml(code[index] ?? "");
+        index += 1;
+      }
+      return output;
+    }
+    highlightTag(tag) {
+      if (tag.startsWith("</")) {
+        const match2 = tag.match(/^<\/\s*([A-Za-z][A-Za-z0-9:-]*)([\s\S]*?)>$/);
+        if (!match2) {
+          return escapeHtml(tag);
+        }
+        return `<span class="text-sky-500">&lt;/${match2[1]}</span>${escapeHtml(match2[2] ?? "")}<span class="text-sky-500">&gt;</span>`;
+      }
+      if (tag.startsWith("<!")) {
+        return this.wrap(tag, "text-sky-500");
+      }
+      const match = tag.match(/^<([A-Za-z][A-Za-z0-9:-]*)/);
+      if (!match) {
+        return escapeHtml(tag);
+      }
+      let output = `<span class="text-sky-500">&lt;${match[1]}</span>`;
+      let index = match[0].length;
+      while (index < tag.length) {
+        if (tag.startsWith("/>", index)) {
+          output += '<span class="text-sky-500">/&gt;</span>';
+          index += 2;
+          continue;
+        }
+        if (tag[index] === ">") {
+          output += '<span class="text-sky-500">&gt;</span>';
+          index += 1;
+          continue;
+        }
+        if (/\s/.test(tag[index] ?? "")) {
+          output += escapeHtml(tag[index] ?? "");
+          index += 1;
+          continue;
+        }
+        const attr = tag.slice(index).match(/^[^\s=/>]+/);
+        if (!attr) {
+          output += escapeHtml(tag[index] ?? "");
+          index += 1;
+          continue;
+        }
+        output += this.wrap(attr[0], "text-cyan-500");
+        index += attr[0].length;
+        while (index < tag.length && /\s/.test(tag[index] ?? "")) {
+          output += escapeHtml(tag[index] ?? "");
+          index += 1;
+        }
+        if (tag[index] !== "=") {
+          continue;
+        }
+        output += "=";
+        index += 1;
+        while (index < tag.length && /\s/.test(tag[index] ?? "")) {
+          output += escapeHtml(tag[index] ?? "");
+          index += 1;
+        }
+        const quote = tag[index] ?? "";
+        if (quote === '"' || quote === "'") {
+          const valueEnd = this.findStringEnd(tag, index, quote);
+          output += this.highlightAttributeValue(tag.slice(index, valueEnd));
+          index = valueEnd;
+          continue;
+        }
+        const value = tag.slice(index).match(/^[^\s>]+/);
+        if (value) {
+          output += this.wrap(value[0], "text-orange-400");
+          index += value[0].length;
+        }
+      }
+      return output;
+    }
+    highlightAttributeValue(value) {
+      if (!value.includes("<?")) {
+        return this.wrap(value, "text-orange-400");
+      }
+      const quote = value[0] ?? "";
+      const inner = value.slice(1, -1);
+      const closingQuote = value[value.length - 1] ?? "";
+      return [
+        this.wrap(quote, "text-orange-400"),
+        this.highlightTextWithPhp(inner, "text-orange-400"),
+        this.wrap(closingQuote, "text-orange-400")
+      ].join("");
+    }
+    highlightTextWithPhp(value, textClass) {
+      let output = "";
+      let index = 0;
+      while (index < value.length) {
+        if (value.startsWith("<?", index)) {
+          const end = value.indexOf("?>", index + 2);
+          const nextIndex2 = end === -1 ? value.length : end + 2;
+          output += this.phpHighlighter.highlight(value.slice(index, nextIndex2));
+          index = nextIndex2;
+          continue;
+        }
+        const nextPhp = value.indexOf("<?", index);
+        const nextIndex = nextPhp === -1 ? value.length : nextPhp;
+        output += this.wrap(value.slice(index, nextIndex), textClass);
+        index = nextIndex;
+      }
+      return output;
+    }
+    findTagEnd(code, start) {
+      let quote = null;
+      let index = start + 1;
+      while (index < code.length) {
+        const char = code[index] ?? "";
+        if (quote !== null) {
+          if (char === quote) {
+            quote = null;
+          }
+          index += 1;
+          continue;
+        }
+        if (char === '"' || char === "'") {
+          quote = char;
+          index += 1;
+          continue;
+        }
+        if (char === ">") {
+          return index + 1;
+        }
+        index += 1;
+      }
+      return code.length;
+    }
+    findStringEnd(code, start, quote) {
+      let index = start + 1;
+      while (index < code.length) {
+        if (code[index] === quote) {
+          return index + 1;
+        }
+        index += 1;
+      }
+      return code.length;
+    }
+    wrap(value, classes) {
+      return `<span class="${classes}">${escapeHtml(value)}</span>`;
+    }
+  };
+
+  // src/docs/highlighters/HttpHighlighter.ts
+  var HttpHighlighter = class {
+    highlight(code) {
+      return escapeHtml(code).replace(/\b(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD)\b/g, '<span class="text-sky-500">$1</span>').replace(/\s(\/[^\s]*)/g, ' <span class="text-cyan-500">$1</span>').replace(/\b(HTTP\/\d(?:\.\d)?|20\d|30\d|40\d|50\d)\b/g, '<span class="text-violet-500">$1</span>');
+    }
+  };
+
+  // src/docs/highlighters/JsonHighlighter.ts
+  var JsonHighlighter = class {
+    highlight(code) {
+      const parts = code.split(/("(?:\\.|[^"])*"\s*:)|("(?:\\.|[^"])*")|\b(true|false|null)\b|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g);
+      return parts.map((part) => this.highlightPart(part ?? "")).join("");
+    }
+    highlightPart(part) {
+      if (part === "") {
+        return "";
+      }
+      if (/^"(?:\\.|[^"])*"\s*:$/.test(part)) {
+        return `<span class="text-cyan-500">${escapeHtml(part.slice(0, part.lastIndexOf(":")))}</span>:`;
+      }
+      if (part.startsWith('"')) {
+        return `<span class="text-orange-400">${escapeHtml(part)}</span>`;
+      }
+      if (part === "true" || part === "false" || part === "null") {
+        return `<span class="text-violet-500">${part}</span>`;
+      }
+      if (/^-?\d/.test(part)) {
+        return `<span class="text-violet-500">${part}</span>`;
+      }
+      return escapeHtml(part);
+    }
+  };
+
+  // src/docs/highlighters/PlainTextHighlighter.ts
+  var PlainTextHighlighter = class {
+    highlight(code) {
+      return escapeHtml(code);
+    }
+  };
+
+  // src/docs/highlighters/ShellHighlighter.ts
+  var ShellHighlighter = class {
+    highlight(code) {
+      return escapeHtml(code).replace(/(^|\n)(\s*#.*)/g, '$1<span class="text-emerald-600">$2</span>').replace(/\b(composer|php|npm|node|curl|git)\b/g, '<span class="text-sky-500">$1</span>').replace(/\b(install|run|make:[a-z-]+|migrate)\b/g, '<span class="text-cyan-500">$1</span>');
+    }
+  };
+
+  // src/docs/highlighters/SqlHighlighter.ts
+  var SqlHighlighter = class {
+    constructor() {
+      __publicField(this, "keywords", /* @__PURE__ */ new Set([
+        "add",
+        "and",
+        "as",
+        "asc",
+        "autoincrement",
+        "by",
+        "check",
+        "constraint",
+        "create",
+        "current_timestamp",
+        "default",
+        "delete",
+        "desc",
+        "drop",
+        "exists",
+        "foreign",
+        "from",
+        "group",
+        "if",
+        "in",
+        "index",
+        "inner",
+        "insert",
+        "integer",
+        "into",
+        "is",
+        "join",
+        "key",
+        "left",
+        "like",
+        "limit",
+        "not",
+        "null",
+        "on",
+        "or",
+        "order",
+        "primary",
+        "references",
+        "select",
+        "set",
+        "table",
+        "text",
+        "unique",
+        "update",
+        "values",
+        "where"
+      ]));
+    }
+    highlight(code) {
+      const escaped = escapeHtml(code);
+      const parts = escaped.split(/(--.*|\/\*[\s\S]*?\*\/|"(?:\\.|[^"])*"|'(?:\\.|[^'])*'|:[A-Za-z_][A-Za-z0-9_]*|\b\d+(?:\.\d+)?\b|\b[A-Za-z_][A-Za-z0-9_]*\b)/g);
+      return parts.map((part) => this.highlightPart(part)).join("");
+    }
+    highlightPart(part) {
+      if (part === "") {
+        return "";
+      }
+      if (part.startsWith("--") || part.startsWith("/*")) {
+        return `<span class="text-emerald-600">${part}</span>`;
+      }
+      if (part.startsWith('"') || part.startsWith("'")) {
+        return `<span class="text-orange-400">${part}</span>`;
+      }
+      if (part.startsWith(":")) {
+        return `<span class="text-cyan-500">${part}</span>`;
+      }
+      if (/^\d/.test(part)) {
+        return `<span class="text-violet-500">${part}</span>`;
+      }
+      if (this.keywords.has(part.toLowerCase())) {
+        return `<span class="text-sky-500">${part}</span>`;
+      }
+      return part;
+    }
+  };
+
+  // src/docs/highlighters/StructureHighlighter.ts
+  var StructureHighlighter = class {
+    highlight(code) {
+      return escapeHtml(code).split("\n").map((line) => this.highlightLine(line)).join("\n");
+    }
+    highlightLine(line) {
+      const match = line.match(/^(\s*)(.+)$/);
+      if (!match) {
+        return line;
+      }
+      const [, indent, entry] = match;
+      const isDirectory = entry.endsWith("/");
+      const isPhp = entry.endsWith(".php");
+      const isMarkdown = entry.endsWith(".md");
+      const isAsset = /\.(ts|js|css|sql|sqlite|yml|env|json|zip)$/i.test(entry);
+      const parts = entry.split("/");
+      const label = parts.pop() ?? entry;
+      const prefix = parts.length > 0 ? `${parts.join("/")}/` : "";
+      const labelClass = isDirectory ? "text-sky-500" : isPhp ? "text-cyan-500" : isMarkdown ? "text-orange-400" : isAsset ? "text-violet-500" : "text-black/80 dark:text-white/80";
+      return `${indent}<span class="text-black/45 dark:text-white/45">${prefix}</span><span class="${labelClass}">${label}</span>`;
+    }
+  };
+
+  // src/docs/CodeHighlighter.ts
+  var CodeHighlighter = class {
+    constructor(autoInit = false) {
+      __publicField(this, "highlighters");
+      __publicField(this, "fallback", new PlainTextHighlighter());
+      __publicField(this, "copyDisabledLanguages", /* @__PURE__ */ new Set(["structure"]));
+      const script = new ScriptHighlighter();
+      const shell = new ShellHighlighter();
+      this.highlighters = {
+        bash: shell,
+        env: new EnvHighlighter(),
+        html: new HtmlHighlighter(),
+        http: new HttpHighlighter(),
+        js: script,
+        javascript: script,
+        json: new JsonHighlighter(),
+        php: script,
+        powershell: shell,
+        sh: shell,
+        shell,
+        sql: new SqlHighlighter(),
+        structure: new StructureHighlighter(),
+        text: this.fallback,
+        ts: script,
+        tsx: script,
+        txt: this.fallback,
+        typescript: script
+      };
+      if (autoInit) {
+        this.highlightAllCode();
+      }
+    }
+    highlightAllCode() {
+      document.querySelectorAll("pre[data-language]").forEach((block) => {
+        const code = block.querySelector("code");
+        const language = block.dataset.language?.toLowerCase() ?? "";
+        const raw = code?.textContent ?? "";
+        if (!code || raw === "") {
+          return;
+        }
+        code.innerHTML = (this.highlighters[language] ?? this.fallback).highlight(raw);
+        block.dataset.highlighted = "true";
+        this.addCopyButton(block, code, language);
+      });
+    }
+    addCopyButton(block, code, language) {
+      if (block.dataset.copyEnabled === "true" || this.copyDisabledLanguages.has(language)) {
+        return;
+      }
+      block.dataset.copyEnabled = "true";
+      block.classList.add("relative");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "absolute right-2 top-2 rounded-md border border-dark-green/20 bg-true-white/95 px-2 py-1 text-xs font-semibold text-dark-green shadow-sm transition hover:border-dark-green hover:bg-dark-green hover:text-true-white focus:outline-none focus:ring-2 focus:ring-dark-green/20 dark:border-peach/30 dark:bg-true-black/95 dark:text-peach dark:hover:border-peach dark:hover:bg-peach dark:hover:text-black dark:focus:ring-peach/20";
+      button.textContent = "Copy";
+      button.addEventListener("click", async () => {
+        const copied = await this.copyText(code.textContent ?? "");
+        button.textContent = copied ? "Copied" : "Failed";
+        window.setTimeout(() => {
+          button.textContent = "Copy";
+        }, 1400);
+      });
+      block.append(button);
+    }
+    async copyText(value) {
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(value);
+          return true;
+        } catch {
+          return this.copyWithFallback(value);
+        }
+      }
+      return this.copyWithFallback(value);
+    }
+    copyWithFallback(value) {
+      const textarea = document.createElement("textarea");
+      textarea.value = value;
+      textarea.setAttribute("readonly", "readonly");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.append(textarea);
+      textarea.select();
+      try {
+        return document.execCommand("copy");
+      } finally {
+        textarea.remove();
+      }
+    }
+  };
+
+  // src/examples/shelter-api/index.ts
+  new CodeHighlighter(true);
+  document.querySelectorAll("[data-scroll-memory]").forEach((element) => {
+    const key = `scroll:${element.dataset.scrollMemory ?? ""}`;
+    const storedTop = window.sessionStorage.getItem(key);
+    if (storedTop !== null) {
+      element.scrollTop = Number.parseInt(storedTop, 10) || 0;
+    }
+    element.addEventListener("scroll", () => {
+      window.sessionStorage.setItem(key, String(element.scrollTop));
+    }, { passive: true });
+  });
+  var presets = {
+    list: {
+      method: "GET",
+      url: "/api/playground/shelter/animals?species=cat&status=available",
+      body: ""
+    },
+    show: {
+      method: "GET",
+      url: "/api/playground/shelter/animals/1",
+      body: ""
+    },
+    create: {
+      method: "POST",
+      url: "/api/playground/shelter/animals",
+      body: JSON.stringify({
+        name: "Luna",
+        species: "cat",
+        shelter_id: 1,
+        age_months: 10,
+        status: "available",
+        description: "Playful young cat ready for adoption."
+      }, null, 2)
+    },
+    update: {
+      method: "PATCH",
+      url: "/api/playground/shelter/animals/1",
+      body: JSON.stringify({
+        status: "reserved",
+        description: "Updated from the safe playground."
+      }, null, 2)
+    },
+    delete: {
+      method: "DELETE",
+      url: "/api/playground/shelter/animals/1",
+      body: ""
+    },
+    species: {
+      method: "GET",
+      url: "/api/playground/shelter/species",
+      body: ""
+    },
+    shelters: {
+      method: "GET",
+      url: "/api/playground/shelter/shelters",
+      body: ""
+    }
+  };
+  var playground = document.querySelector("[data-api-playground]");
+  if (playground) {
+    const preset = playground.querySelector("[data-api-preset]");
+    const method = playground.querySelector("[data-api-method]");
+    const url = playground.querySelector("[data-api-url]");
+    const body = playground.querySelector("[data-api-body]");
+    const send = playground.querySelector("[data-api-send]");
+    const status = playground.querySelector("[data-api-status]");
+    const response = playground.querySelector("[data-api-response]");
+    const applyPreset = () => {
+      const selected = presets[preset?.value ?? "list"] ?? presets.list;
+      if (method) method.value = selected.method;
+      if (url) url.value = selected.url;
+      if (body) body.value = selected.body;
+    };
+    const setResponse = (label, payload) => {
+      if (status) status.textContent = label;
+      if (response) response.textContent = typeof payload === "string" ? payload : JSON.stringify(payload, null, 2);
+    };
+    preset?.addEventListener("change", applyPreset);
+    applyPreset();
+    send?.addEventListener("click", async () => {
+      const requestMethod = method?.value.toUpperCase() || "GET";
+      const requestUrl = url?.value || "/api/playground/shelter/animals";
+      const rawBody = body?.value.trim() ?? "";
+      send.disabled = true;
+      send.classList.add("opacity-70");
+      setResponse("Status: sending", { message: "Sending request..." });
+      try {
+        const init = {
+          method: requestMethod,
+          headers: { Accept: "application/json" }
+        };
+        if (!["GET", "HEAD", "DELETE"].includes(requestMethod) && rawBody !== "") {
+          init.headers = { ...init.headers, "Content-Type": "application/json" };
+          init.body = rawBody;
+        }
+        const result = await fetch(requestUrl, init);
+        const text = await result.text();
+        let payload = text;
+        try {
+          payload = JSON.parse(text);
+        } catch {
+          payload = text;
+        }
+        setResponse(`Status: ${result.status} ${result.statusText}`, payload);
+      } catch (error) {
+        setResponse("Status: request failed", {
+          error: error instanceof Error ? error.message : "Request failed."
+        });
+      } finally {
+        send.disabled = false;
+        send.classList.remove("opacity-70");
+      }
+    });
+  }
+})();

@@ -1,4 +1,636 @@
-"use strict";(()=>{var $=Object.defineProperty;var I=(a,t,i)=>t in a?$(a,t,{enumerable:!0,configurable:!0,writable:!0,value:i}):a[t]=i;var h=(a,t,i)=>I(a,typeof t!="symbol"?t+"":t,i);function r(a){let t=document.createElement("span");return t.textContent=a,t.innerHTML}var u=class{highlight(t){return r(t).replace(/^([A-Z0-9_]+)(=)(.*)$/gm,'<span class="text-cyan-500">$1</span>$2<span class="text-orange-400">$3</span>')}};var c=class{constructor(){h(this,"keywords",new Set(["as","catch","class","const","declare","default","echo","else","elseif","endforeach","endif","extends","final","finally","foreach","function","if","implements","interface","match","namespace","new","parent","private","protected","public","readonly","return","self","static","throw","trait","try","use","while"]));h(this,"literals",new Set(["false","null","true"]));h(this,"primitiveTypes",new Set(["array","bool","callable","float","int","iterable","mixed","never","object","string","void"]))}highlight(t){let i="",e=0;for(;e<t.length;){if(t.startsWith("<?php",e)){i+=this.wrap(t.slice(e,e+5),"text-fuchsia-500"),e+=5;continue}if(t.startsWith("<?=",e)){i+=this.wrap(t.slice(e,e+3),"text-fuchsia-500"),e+=3;continue}if(t.startsWith("?>",e)){i+=this.wrap(t.slice(e,e+2),"text-fuchsia-500"),e+=2;continue}if(t.startsWith("//",e)||t.startsWith("#",e)){let s=this.findLineEnd(t,e);i+=this.wrap(t.slice(e,s),"text-emerald-600"),e=s;continue}if(t.startsWith("/*",e)){let s=t.indexOf("*/",e+2),l=s===-1?t.length:s+2;i+=this.wrap(t.slice(e,l),"text-emerald-600"),e=l;continue}let n=t[e]??"";if(n==='"'||n==="'"||n==="`"){let s=this.findStringEnd(t,e,n);i+=this.wrap(t.slice(e,s),"text-orange-400"),e=s;continue}if(n==="$"){let s=t.slice(e).match(/^\$[A-Za-z_][A-Za-z0-9_]*/);if(s){i+=this.wrap(s[0],"text-cyan-500"),e+=s[0].length;continue}}if(/\d/.test(n)){let s=t.slice(e).match(/^\d+(?:\.\d+)?/);if(s){i+=this.wrap(s[0],"text-violet-500"),e+=s[0].length;continue}}if(/[A-Za-z_\\]/.test(n)){let s=t.slice(e).match(/^(?:\\?[A-Za-z_][A-Za-z0-9_]*)+/);if(s){i+=this.highlightIdentifier(t,e,s[0]),e+=s[0].length;continue}}i+=r(n),e+=1}return i}highlightIdentifier(t,i,e){let n=e.toLowerCase(),s=this.previousIdentifier(t,i),l=this.nextNonWhitespace(t,i+e.length);return this.keywords.has(n)?this.wrap(e,"text-sky-500"):this.literals.has(n)?this.wrap(e,"text-violet-500"):this.primitiveTypes.has(n)?this.wrap(e,"text-amber-500"):/^[A-Z][A-Za-z0-9_]*$/.test(e)||/^[A-Z0-9_]+$/.test(e)||e.includes("\\")?this.wrap(e,"text-amber-500"):s==="function"&&l==="("?this.wrap(e,"text-blue-500"):l==="("?this.wrap(e,"text-blue-500"):r(e)}findLineEnd(t,i){let e=t.indexOf(`
-`,i);return e===-1?t.length:e}findStringEnd(t,i,e){let n=i+1;for(;n<t.length;){if(t[n]==="\\"){n+=2;continue}if(t[n]===e)return n+1;n+=1}return t.length}previousIdentifier(t,i){return t.slice(0,i).trimEnd().match(/([A-Za-z_][A-Za-z0-9_]*)$/)?.[1]?.toLowerCase()??null}nextNonWhitespace(t,i){return t.slice(i).match(/\S/)?.[0]??null}wrap(t,i){return`<span class="${i}">${r(t)}</span>`}};var m=class{constructor(){h(this,"phpHighlighter",new c)}highlight(t){let i="",e=0;for(;e<t.length;){if(t.startsWith("<!--",e)){let n=t.indexOf("-->",e+4),s=n===-1?t.length:n+3;i+=this.wrap(t.slice(e,s),"text-emerald-600"),e=s;continue}if(t.startsWith("<?",e)){let n=t.indexOf("?>",e+2),s=n===-1?t.length:n+2;i+=this.phpHighlighter.highlight(t.slice(e,s)),e=s;continue}if(t[e]==="<"){let n=this.findTagEnd(t,e);i+=this.highlightTag(t.slice(e,n)),e=n;continue}i+=r(t[e]??""),e+=1}return i}highlightTag(t){if(t.startsWith("</")){let s=t.match(/^<\/\s*([A-Za-z][A-Za-z0-9:-]*)([\s\S]*?)>$/);return s?`<span class="text-sky-500">&lt;/${s[1]}</span>${r(s[2]??"")}<span class="text-sky-500">&gt;</span>`:r(t)}if(t.startsWith("<!"))return this.wrap(t,"text-sky-500");let i=t.match(/^<([A-Za-z][A-Za-z0-9:-]*)/);if(!i)return r(t);let e=`<span class="text-sky-500">&lt;${i[1]}</span>`,n=i[0].length;for(;n<t.length;){if(t.startsWith("/>",n)){e+='<span class="text-sky-500">/&gt;</span>',n+=2;continue}if(t[n]===">"){e+='<span class="text-sky-500">&gt;</span>',n+=1;continue}if(/\s/.test(t[n]??"")){e+=r(t[n]??""),n+=1;continue}let s=t.slice(n).match(/^[^\s=/>]+/);if(!s){e+=r(t[n]??""),n+=1;continue}for(e+=this.wrap(s[0],"text-cyan-500"),n+=s[0].length;n<t.length&&/\s/.test(t[n]??"");)e+=r(t[n]??""),n+=1;if(t[n]!=="=")continue;for(e+="=",n+=1;n<t.length&&/\s/.test(t[n]??"");)e+=r(t[n]??""),n+=1;let l=t[n]??"";if(l==='"'||l==="'"){let g=this.findStringEnd(t,n,l);e+=this.highlightAttributeValue(t.slice(n,g)),n=g;continue}let o=t.slice(n).match(/^[^\s>]+/);o&&(e+=this.wrap(o[0],"text-orange-400"),n+=o[0].length)}return e}highlightAttributeValue(t){if(!t.includes("<?"))return this.wrap(t,"text-orange-400");let i=t[0]??"",e=t.slice(1,-1),n=t[t.length-1]??"";return[this.wrap(i,"text-orange-400"),this.highlightTextWithPhp(e,"text-orange-400"),this.wrap(n,"text-orange-400")].join("")}highlightTextWithPhp(t,i){let e="",n=0;for(;n<t.length;){if(t.startsWith("<?",n)){let o=t.indexOf("?>",n+2),g=o===-1?t.length:o+2;e+=this.phpHighlighter.highlight(t.slice(n,g)),n=g;continue}let s=t.indexOf("<?",n),l=s===-1?t.length:s;e+=this.wrap(t.slice(n,l),i),n=l}return e}findTagEnd(t,i){let e=null,n=i+1;for(;n<t.length;){let s=t[n]??"";if(e!==null){s===e&&(e=null),n+=1;continue}if(s==='"'||s==="'"){e=s,n+=1;continue}if(s===">")return n+1;n+=1}return t.length}findStringEnd(t,i,e){let n=i+1;for(;n<t.length;){if(t[n]===e)return n+1;n+=1}return t.length}wrap(t,i){return`<span class="${i}">${r(t)}</span>`}};var f=class{highlight(t){return r(t).replace(/\b(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD)\b/g,'<span class="text-sky-500">$1</span>').replace(/\s(\/[^\s]*)/g,' <span class="text-cyan-500">$1</span>').replace(/\b(HTTP\/\d(?:\.\d)?|20\d|30\d|40\d|50\d)\b/g,'<span class="text-violet-500">$1</span>')}};var d=class{highlight(t){return t.split(/("(?:\\.|[^"])*"\s*:)|("(?:\\.|[^"])*")|\b(true|false|null)\b|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g).map(e=>this.highlightPart(e??"")).join("")}highlightPart(t){return t===""?"":/^"(?:\\.|[^"])*"\s*:$/.test(t)?`<span class="text-cyan-500">${r(t.slice(0,t.lastIndexOf(":")))}</span>:`:t.startsWith('"')?`<span class="text-orange-400">${r(t)}</span>`:t==="true"||t==="false"||t==="null"?`<span class="text-violet-500">${t}</span>`:/^-?\d/.test(t)?`<span class="text-violet-500">${t}</span>`:r(t)}};var x=class{highlight(t){return r(t)}};var b=class{highlight(t){return r(t).replace(/(^|\n)(\s*#.*)/g,'$1<span class="text-emerald-600">$2</span>').replace(/\b(composer|php|npm|node|curl|git)\b/g,'<span class="text-sky-500">$1</span>').replace(/\b(install|run|make:[a-z-]+|migrate)\b/g,'<span class="text-cyan-500">$1</span>')}};var w=class{constructor(){h(this,"keywords",new Set(["add","and","as","asc","autoincrement","by","check","constraint","create","current_timestamp","default","delete","desc","drop","exists","foreign","from","group","if","in","index","inner","insert","integer","into","is","join","key","left","like","limit","not","null","on","or","order","primary","references","select","set","table","text","unique","update","values","where"]))}highlight(t){return r(t).split(/(--.*|\/\*[\s\S]*?\*\/|"(?:\\.|[^"])*"|'(?:\\.|[^'])*'|:[A-Za-z_][A-Za-z0-9_]*|\b\d+(?:\.\d+)?\b|\b[A-Za-z_][A-Za-z0-9_]*\b)/g).map(n=>this.highlightPart(n)).join("")}highlightPart(t){return t===""?"":t.startsWith("--")||t.startsWith("/*")?`<span class="text-emerald-600">${t}</span>`:t.startsWith('"')||t.startsWith("'")?`<span class="text-orange-400">${t}</span>`:t.startsWith(":")?`<span class="text-cyan-500">${t}</span>`:/^\d/.test(t)?`<span class="text-violet-500">${t}</span>`:this.keywords.has(t.toLowerCase())?`<span class="text-sky-500">${t}</span>`:t}};var y=class{highlight(t){return r(t).split(`
-`).map(i=>this.highlightLine(i)).join(`
-`)}highlightLine(t){let i=t.match(/^(\s*)(.+)$/);if(!i)return t;let[,e,n]=i,s=n.endsWith("/"),l=n.endsWith(".php"),o=n.endsWith(".md"),g=/\.(ts|js|css|sql|sqlite|yml|env|json|zip)$/i.test(n),v=n.split("/"),L=v.pop()??n,k=v.length>0?`${v.join("/")}/`:"";return`${e}<span class="text-black/45 dark:text-white/45">${k}</span><span class="${s?"text-sky-500":l?"text-cyan-500":o?"text-orange-400":g?"text-violet-500":"text-black/80 dark:text-white/80"}">${L}</span>`}};var p=class{constructor(t=!1){h(this,"highlighters");h(this,"fallback",new x);h(this,"copyDisabledLanguages",new Set(["structure"]));let i=new c,e=new b;this.highlighters={bash:e,env:new u,html:new m,http:new f,js:i,javascript:i,json:new d,php:i,powershell:e,sh:e,shell:e,sql:new w,structure:new y,text:this.fallback,ts:i,tsx:i,txt:this.fallback,typescript:i},t&&this.highlightAllCode()}highlightAllCode(){document.querySelectorAll("pre[data-language]").forEach(t=>{let i=t.querySelector("code"),e=t.dataset.language?.toLowerCase()??"",n=i?.textContent??"";!i||n===""||(i.innerHTML=(this.highlighters[e]??this.fallback).highlight(n),t.dataset.highlighted="true",this.addCopyButton(t,i,e))})}addCopyButton(t,i,e){if(t.dataset.copyEnabled==="true"||this.copyDisabledLanguages.has(e))return;t.dataset.copyEnabled="true",t.classList.add("relative");let n=document.createElement("button");n.type="button",n.className="absolute right-2 top-2 rounded-md border border-dark-green/20 bg-true-white/95 px-2 py-1 text-xs font-semibold text-dark-green shadow-sm transition hover:border-dark-green hover:bg-dark-green hover:text-true-white focus:outline-none focus:ring-2 focus:ring-dark-green/20 dark:border-peach/30 dark:bg-true-black/95 dark:text-peach dark:hover:border-peach dark:hover:bg-peach dark:hover:text-black dark:focus:ring-peach/20",n.textContent="Copy",n.addEventListener("click",async()=>{let s=await this.copyText(i.textContent??"");n.textContent=s?"Copied":"Failed",window.setTimeout(()=>{n.textContent="Copy"},1400)}),t.append(n)}async copyText(t){if(navigator.clipboard&&window.isSecureContext)try{return await navigator.clipboard.writeText(t),!0}catch{return this.copyWithFallback(t)}return this.copyWithFallback(t)}copyWithFallback(t){let i=document.createElement("textarea");i.value=t,i.setAttribute("readonly","readonly"),i.style.position="fixed",i.style.left="-9999px",document.body.append(i),i.select();try{return document.execCommand("copy")}finally{i.remove()}}};new p(!0);document.querySelectorAll("[data-demo-form]").forEach(a=>{a.addEventListener("submit",t=>{let i=t.submitter instanceof HTMLButtonElement?t.submitter:null;i&&(i.disabled=!0,i.setAttribute("aria-busy","true"))})});var H=document.querySelector("[data-demo-flash]");H&&H.scrollIntoView({block:"nearest",behavior:"smooth"});new p(!0);})();
+"use strict";
+(() => {
+  var __defProp = Object.defineProperty;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+
+  // src/docs/highlighters/escapeHtml.ts
+  function escapeHtml(value) {
+    const span = document.createElement("span");
+    span.textContent = value;
+    return span.innerHTML;
+  }
+
+  // src/docs/highlighters/EnvHighlighter.ts
+  var EnvHighlighter = class {
+    highlight(code) {
+      return escapeHtml(code).replace(
+        /^([A-Z0-9_]+)(=)(.*)$/gm,
+        '<span class="text-cyan-500">$1</span>$2<span class="text-orange-400">$3</span>'
+      );
+    }
+  };
+
+  // src/docs/highlighters/ScriptHighlighter.ts
+  var ScriptHighlighter = class {
+    constructor() {
+      __publicField(this, "keywords", /* @__PURE__ */ new Set([
+        "as",
+        "catch",
+        "class",
+        "const",
+        "declare",
+        "default",
+        "echo",
+        "else",
+        "elseif",
+        "endforeach",
+        "endif",
+        "extends",
+        "final",
+        "finally",
+        "foreach",
+        "function",
+        "if",
+        "implements",
+        "interface",
+        "match",
+        "namespace",
+        "new",
+        "parent",
+        "private",
+        "protected",
+        "public",
+        "readonly",
+        "return",
+        "self",
+        "static",
+        "throw",
+        "trait",
+        "try",
+        "use",
+        "while"
+      ]));
+      __publicField(this, "literals", /* @__PURE__ */ new Set(["false", "null", "true"]));
+      __publicField(this, "primitiveTypes", /* @__PURE__ */ new Set([
+        "array",
+        "bool",
+        "callable",
+        "float",
+        "int",
+        "iterable",
+        "mixed",
+        "never",
+        "object",
+        "string",
+        "void"
+      ]));
+    }
+    highlight(code) {
+      let output = "";
+      let index = 0;
+      while (index < code.length) {
+        if (code.startsWith("<?php", index)) {
+          output += this.wrap(code.slice(index, index + 5), "text-fuchsia-500");
+          index += 5;
+          continue;
+        }
+        if (code.startsWith("<?=", index)) {
+          output += this.wrap(code.slice(index, index + 3), "text-fuchsia-500");
+          index += 3;
+          continue;
+        }
+        if (code.startsWith("?>", index)) {
+          output += this.wrap(code.slice(index, index + 2), "text-fuchsia-500");
+          index += 2;
+          continue;
+        }
+        if (code.startsWith("//", index) || code.startsWith("#", index)) {
+          const end = this.findLineEnd(code, index);
+          output += this.wrap(code.slice(index, end), "text-emerald-600");
+          index = end;
+          continue;
+        }
+        if (code.startsWith("/*", index)) {
+          const end = code.indexOf("*/", index + 2);
+          const nextIndex = end === -1 ? code.length : end + 2;
+          output += this.wrap(code.slice(index, nextIndex), "text-emerald-600");
+          index = nextIndex;
+          continue;
+        }
+        const char = code[index] ?? "";
+        if (char === '"' || char === "'" || char === "`") {
+          const end = this.findStringEnd(code, index, char);
+          output += this.wrap(code.slice(index, end), "text-orange-400");
+          index = end;
+          continue;
+        }
+        if (char === "$") {
+          const match = code.slice(index).match(/^\$[A-Za-z_][A-Za-z0-9_]*/);
+          if (match) {
+            output += this.wrap(match[0], "text-cyan-500");
+            index += match[0].length;
+            continue;
+          }
+        }
+        if (/\d/.test(char)) {
+          const match = code.slice(index).match(/^\d+(?:\.\d+)?/);
+          if (match) {
+            output += this.wrap(match[0], "text-violet-500");
+            index += match[0].length;
+            continue;
+          }
+        }
+        if (/[A-Za-z_\\]/.test(char)) {
+          const match = code.slice(index).match(/^(?:\\?[A-Za-z_][A-Za-z0-9_]*)+/);
+          if (match) {
+            output += this.highlightIdentifier(code, index, match[0]);
+            index += match[0].length;
+            continue;
+          }
+        }
+        output += escapeHtml(char);
+        index += 1;
+      }
+      return output;
+    }
+    highlightIdentifier(code, index, identifier) {
+      const lower = identifier.toLowerCase();
+      const previousIdentifier = this.previousIdentifier(code, index);
+      const next = this.nextNonWhitespace(code, index + identifier.length);
+      if (this.keywords.has(lower)) {
+        return this.wrap(identifier, "text-sky-500");
+      }
+      if (this.literals.has(lower)) {
+        return this.wrap(identifier, "text-violet-500");
+      }
+      if (this.primitiveTypes.has(lower)) {
+        return this.wrap(identifier, "text-amber-500");
+      }
+      if (/^[A-Z][A-Za-z0-9_]*$/.test(identifier) || /^[A-Z0-9_]+$/.test(identifier) || identifier.includes("\\")) {
+        return this.wrap(identifier, "text-amber-500");
+      }
+      if (previousIdentifier === "function" && next === "(") {
+        return this.wrap(identifier, "text-blue-500");
+      }
+      if (next === "(") {
+        return this.wrap(identifier, "text-blue-500");
+      }
+      return escapeHtml(identifier);
+    }
+    findLineEnd(code, start) {
+      const end = code.indexOf("\n", start);
+      return end === -1 ? code.length : end;
+    }
+    findStringEnd(code, start, quote) {
+      let index = start + 1;
+      while (index < code.length) {
+        if (code[index] === "\\") {
+          index += 2;
+          continue;
+        }
+        if (code[index] === quote) {
+          return index + 1;
+        }
+        index += 1;
+      }
+      return code.length;
+    }
+    previousIdentifier(code, index) {
+      const before = code.slice(0, index).trimEnd();
+      const match = before.match(/([A-Za-z_][A-Za-z0-9_]*)$/);
+      return match?.[1]?.toLowerCase() ?? null;
+    }
+    nextNonWhitespace(code, index) {
+      const match = code.slice(index).match(/\S/);
+      return match?.[0] ?? null;
+    }
+    wrap(value, classes) {
+      return `<span class="${classes}">${escapeHtml(value)}</span>`;
+    }
+  };
+
+  // src/docs/highlighters/HtmlHighlighter.ts
+  var HtmlHighlighter = class {
+    constructor() {
+      __publicField(this, "phpHighlighter", new ScriptHighlighter());
+    }
+    highlight(code) {
+      let output = "";
+      let index = 0;
+      while (index < code.length) {
+        if (code.startsWith("<!--", index)) {
+          const end = code.indexOf("-->", index + 4);
+          const nextIndex = end === -1 ? code.length : end + 3;
+          output += this.wrap(code.slice(index, nextIndex), "text-emerald-600");
+          index = nextIndex;
+          continue;
+        }
+        if (code.startsWith("<?", index)) {
+          const end = code.indexOf("?>", index + 2);
+          const nextIndex = end === -1 ? code.length : end + 2;
+          output += this.phpHighlighter.highlight(code.slice(index, nextIndex));
+          index = nextIndex;
+          continue;
+        }
+        if (code[index] === "<") {
+          const end = this.findTagEnd(code, index);
+          output += this.highlightTag(code.slice(index, end));
+          index = end;
+          continue;
+        }
+        output += escapeHtml(code[index] ?? "");
+        index += 1;
+      }
+      return output;
+    }
+    highlightTag(tag) {
+      if (tag.startsWith("</")) {
+        const match2 = tag.match(/^<\/\s*([A-Za-z][A-Za-z0-9:-]*)([\s\S]*?)>$/);
+        if (!match2) {
+          return escapeHtml(tag);
+        }
+        return `<span class="text-sky-500">&lt;/${match2[1]}</span>${escapeHtml(match2[2] ?? "")}<span class="text-sky-500">&gt;</span>`;
+      }
+      if (tag.startsWith("<!")) {
+        return this.wrap(tag, "text-sky-500");
+      }
+      const match = tag.match(/^<([A-Za-z][A-Za-z0-9:-]*)/);
+      if (!match) {
+        return escapeHtml(tag);
+      }
+      let output = `<span class="text-sky-500">&lt;${match[1]}</span>`;
+      let index = match[0].length;
+      while (index < tag.length) {
+        if (tag.startsWith("/>", index)) {
+          output += '<span class="text-sky-500">/&gt;</span>';
+          index += 2;
+          continue;
+        }
+        if (tag[index] === ">") {
+          output += '<span class="text-sky-500">&gt;</span>';
+          index += 1;
+          continue;
+        }
+        if (/\s/.test(tag[index] ?? "")) {
+          output += escapeHtml(tag[index] ?? "");
+          index += 1;
+          continue;
+        }
+        const attr = tag.slice(index).match(/^[^\s=/>]+/);
+        if (!attr) {
+          output += escapeHtml(tag[index] ?? "");
+          index += 1;
+          continue;
+        }
+        output += this.wrap(attr[0], "text-cyan-500");
+        index += attr[0].length;
+        while (index < tag.length && /\s/.test(tag[index] ?? "")) {
+          output += escapeHtml(tag[index] ?? "");
+          index += 1;
+        }
+        if (tag[index] !== "=") {
+          continue;
+        }
+        output += "=";
+        index += 1;
+        while (index < tag.length && /\s/.test(tag[index] ?? "")) {
+          output += escapeHtml(tag[index] ?? "");
+          index += 1;
+        }
+        const quote = tag[index] ?? "";
+        if (quote === '"' || quote === "'") {
+          const valueEnd = this.findStringEnd(tag, index, quote);
+          output += this.highlightAttributeValue(tag.slice(index, valueEnd));
+          index = valueEnd;
+          continue;
+        }
+        const value = tag.slice(index).match(/^[^\s>]+/);
+        if (value) {
+          output += this.wrap(value[0], "text-orange-400");
+          index += value[0].length;
+        }
+      }
+      return output;
+    }
+    highlightAttributeValue(value) {
+      if (!value.includes("<?")) {
+        return this.wrap(value, "text-orange-400");
+      }
+      const quote = value[0] ?? "";
+      const inner = value.slice(1, -1);
+      const closingQuote = value[value.length - 1] ?? "";
+      return [
+        this.wrap(quote, "text-orange-400"),
+        this.highlightTextWithPhp(inner, "text-orange-400"),
+        this.wrap(closingQuote, "text-orange-400")
+      ].join("");
+    }
+    highlightTextWithPhp(value, textClass) {
+      let output = "";
+      let index = 0;
+      while (index < value.length) {
+        if (value.startsWith("<?", index)) {
+          const end = value.indexOf("?>", index + 2);
+          const nextIndex2 = end === -1 ? value.length : end + 2;
+          output += this.phpHighlighter.highlight(value.slice(index, nextIndex2));
+          index = nextIndex2;
+          continue;
+        }
+        const nextPhp = value.indexOf("<?", index);
+        const nextIndex = nextPhp === -1 ? value.length : nextPhp;
+        output += this.wrap(value.slice(index, nextIndex), textClass);
+        index = nextIndex;
+      }
+      return output;
+    }
+    findTagEnd(code, start) {
+      let quote = null;
+      let index = start + 1;
+      while (index < code.length) {
+        const char = code[index] ?? "";
+        if (quote !== null) {
+          if (char === quote) {
+            quote = null;
+          }
+          index += 1;
+          continue;
+        }
+        if (char === '"' || char === "'") {
+          quote = char;
+          index += 1;
+          continue;
+        }
+        if (char === ">") {
+          return index + 1;
+        }
+        index += 1;
+      }
+      return code.length;
+    }
+    findStringEnd(code, start, quote) {
+      let index = start + 1;
+      while (index < code.length) {
+        if (code[index] === quote) {
+          return index + 1;
+        }
+        index += 1;
+      }
+      return code.length;
+    }
+    wrap(value, classes) {
+      return `<span class="${classes}">${escapeHtml(value)}</span>`;
+    }
+  };
+
+  // src/docs/highlighters/HttpHighlighter.ts
+  var HttpHighlighter = class {
+    highlight(code) {
+      return escapeHtml(code).replace(/\b(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD)\b/g, '<span class="text-sky-500">$1</span>').replace(/\s(\/[^\s]*)/g, ' <span class="text-cyan-500">$1</span>').replace(/\b(HTTP\/\d(?:\.\d)?|20\d|30\d|40\d|50\d)\b/g, '<span class="text-violet-500">$1</span>');
+    }
+  };
+
+  // src/docs/highlighters/JsonHighlighter.ts
+  var JsonHighlighter = class {
+    highlight(code) {
+      const parts = code.split(/("(?:\\.|[^"])*"\s*:)|("(?:\\.|[^"])*")|\b(true|false|null)\b|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g);
+      return parts.map((part) => this.highlightPart(part ?? "")).join("");
+    }
+    highlightPart(part) {
+      if (part === "") {
+        return "";
+      }
+      if (/^"(?:\\.|[^"])*"\s*:$/.test(part)) {
+        return `<span class="text-cyan-500">${escapeHtml(part.slice(0, part.lastIndexOf(":")))}</span>:`;
+      }
+      if (part.startsWith('"')) {
+        return `<span class="text-orange-400">${escapeHtml(part)}</span>`;
+      }
+      if (part === "true" || part === "false" || part === "null") {
+        return `<span class="text-violet-500">${part}</span>`;
+      }
+      if (/^-?\d/.test(part)) {
+        return `<span class="text-violet-500">${part}</span>`;
+      }
+      return escapeHtml(part);
+    }
+  };
+
+  // src/docs/highlighters/PlainTextHighlighter.ts
+  var PlainTextHighlighter = class {
+    highlight(code) {
+      return escapeHtml(code);
+    }
+  };
+
+  // src/docs/highlighters/ShellHighlighter.ts
+  var ShellHighlighter = class {
+    highlight(code) {
+      return escapeHtml(code).replace(/(^|\n)(\s*#.*)/g, '$1<span class="text-emerald-600">$2</span>').replace(/\b(composer|php|npm|node|curl|git)\b/g, '<span class="text-sky-500">$1</span>').replace(/\b(install|run|make:[a-z-]+|migrate)\b/g, '<span class="text-cyan-500">$1</span>');
+    }
+  };
+
+  // src/docs/highlighters/SqlHighlighter.ts
+  var SqlHighlighter = class {
+    constructor() {
+      __publicField(this, "keywords", /* @__PURE__ */ new Set([
+        "add",
+        "and",
+        "as",
+        "asc",
+        "autoincrement",
+        "by",
+        "check",
+        "constraint",
+        "create",
+        "current_timestamp",
+        "default",
+        "delete",
+        "desc",
+        "drop",
+        "exists",
+        "foreign",
+        "from",
+        "group",
+        "if",
+        "in",
+        "index",
+        "inner",
+        "insert",
+        "integer",
+        "into",
+        "is",
+        "join",
+        "key",
+        "left",
+        "like",
+        "limit",
+        "not",
+        "null",
+        "on",
+        "or",
+        "order",
+        "primary",
+        "references",
+        "select",
+        "set",
+        "table",
+        "text",
+        "unique",
+        "update",
+        "values",
+        "where"
+      ]));
+    }
+    highlight(code) {
+      const escaped = escapeHtml(code);
+      const parts = escaped.split(/(--.*|\/\*[\s\S]*?\*\/|"(?:\\.|[^"])*"|'(?:\\.|[^'])*'|:[A-Za-z_][A-Za-z0-9_]*|\b\d+(?:\.\d+)?\b|\b[A-Za-z_][A-Za-z0-9_]*\b)/g);
+      return parts.map((part) => this.highlightPart(part)).join("");
+    }
+    highlightPart(part) {
+      if (part === "") {
+        return "";
+      }
+      if (part.startsWith("--") || part.startsWith("/*")) {
+        return `<span class="text-emerald-600">${part}</span>`;
+      }
+      if (part.startsWith('"') || part.startsWith("'")) {
+        return `<span class="text-orange-400">${part}</span>`;
+      }
+      if (part.startsWith(":")) {
+        return `<span class="text-cyan-500">${part}</span>`;
+      }
+      if (/^\d/.test(part)) {
+        return `<span class="text-violet-500">${part}</span>`;
+      }
+      if (this.keywords.has(part.toLowerCase())) {
+        return `<span class="text-sky-500">${part}</span>`;
+      }
+      return part;
+    }
+  };
+
+  // src/docs/highlighters/StructureHighlighter.ts
+  var StructureHighlighter = class {
+    highlight(code) {
+      return escapeHtml(code).split("\n").map((line) => this.highlightLine(line)).join("\n");
+    }
+    highlightLine(line) {
+      const match = line.match(/^(\s*)(.+)$/);
+      if (!match) {
+        return line;
+      }
+      const [, indent, entry] = match;
+      const isDirectory = entry.endsWith("/");
+      const isPhp = entry.endsWith(".php");
+      const isMarkdown = entry.endsWith(".md");
+      const isAsset = /\.(ts|js|css|sql|sqlite|yml|env|json|zip)$/i.test(entry);
+      const parts = entry.split("/");
+      const label = parts.pop() ?? entry;
+      const prefix = parts.length > 0 ? `${parts.join("/")}/` : "";
+      const labelClass = isDirectory ? "text-sky-500" : isPhp ? "text-cyan-500" : isMarkdown ? "text-orange-400" : isAsset ? "text-violet-500" : "text-black/80 dark:text-white/80";
+      return `${indent}<span class="text-black/45 dark:text-white/45">${prefix}</span><span class="${labelClass}">${label}</span>`;
+    }
+  };
+
+  // src/docs/CodeHighlighter.ts
+  var CodeHighlighter = class {
+    constructor(autoInit = false) {
+      __publicField(this, "highlighters");
+      __publicField(this, "fallback", new PlainTextHighlighter());
+      __publicField(this, "copyDisabledLanguages", /* @__PURE__ */ new Set(["structure"]));
+      const script = new ScriptHighlighter();
+      const shell = new ShellHighlighter();
+      this.highlighters = {
+        bash: shell,
+        env: new EnvHighlighter(),
+        html: new HtmlHighlighter(),
+        http: new HttpHighlighter(),
+        js: script,
+        javascript: script,
+        json: new JsonHighlighter(),
+        php: script,
+        powershell: shell,
+        sh: shell,
+        shell,
+        sql: new SqlHighlighter(),
+        structure: new StructureHighlighter(),
+        text: this.fallback,
+        ts: script,
+        tsx: script,
+        txt: this.fallback,
+        typescript: script
+      };
+      if (autoInit) {
+        this.highlightAllCode();
+      }
+    }
+    highlightAllCode() {
+      document.querySelectorAll("pre[data-language]").forEach((block) => {
+        const code = block.querySelector("code");
+        const language = block.dataset.language?.toLowerCase() ?? "";
+        const raw = code?.textContent ?? "";
+        if (!code || raw === "") {
+          return;
+        }
+        code.innerHTML = (this.highlighters[language] ?? this.fallback).highlight(raw);
+        block.dataset.highlighted = "true";
+        this.addCopyButton(block, code, language);
+      });
+    }
+    addCopyButton(block, code, language) {
+      if (block.dataset.copyEnabled === "true" || this.copyDisabledLanguages.has(language)) {
+        return;
+      }
+      block.dataset.copyEnabled = "true";
+      block.classList.add("relative");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "absolute right-2 top-2 rounded-md border border-dark-green/20 bg-true-white/95 px-2 py-1 text-xs font-semibold text-dark-green shadow-sm transition hover:border-dark-green hover:bg-dark-green hover:text-true-white focus:outline-none focus:ring-2 focus:ring-dark-green/20 dark:border-peach/30 dark:bg-true-black/95 dark:text-peach dark:hover:border-peach dark:hover:bg-peach dark:hover:text-black dark:focus:ring-peach/20";
+      button.textContent = "Copy";
+      button.addEventListener("click", async () => {
+        const copied = await this.copyText(code.textContent ?? "");
+        button.textContent = copied ? "Copied" : "Failed";
+        window.setTimeout(() => {
+          button.textContent = "Copy";
+        }, 1400);
+      });
+      block.append(button);
+    }
+    async copyText(value) {
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(value);
+          return true;
+        } catch {
+          return this.copyWithFallback(value);
+        }
+      }
+      return this.copyWithFallback(value);
+    }
+    copyWithFallback(value) {
+      const textarea = document.createElement("textarea");
+      textarea.value = value;
+      textarea.setAttribute("readonly", "readonly");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.append(textarea);
+      textarea.select();
+      try {
+        return document.execCommand("copy");
+      } finally {
+        textarea.remove();
+      }
+    }
+  };
+
+  // src/forum-demo/index.ts
+  new CodeHighlighter(true);
+  document.querySelectorAll("[data-demo-form]").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      const button = event.submitter instanceof HTMLButtonElement ? event.submitter : null;
+      if (!button) {
+        return;
+      }
+      button.disabled = true;
+      button.setAttribute("aria-busy", "true");
+    });
+  });
+  var flash = document.querySelector("[data-demo-flash]");
+  if (flash) {
+    flash.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  // src/forum-demo/admin/index.ts
+  new CodeHighlighter(true);
+})();
