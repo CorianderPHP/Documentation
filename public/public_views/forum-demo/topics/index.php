@@ -11,7 +11,7 @@ $forumGuideReturn = $forumGuideReturn ?? '/guided-projects/forum';
             <a href="/forum-demo" class="text-sm font-semibold text-dark-green dark:text-peach">Forum demo</a>
             <h1 class="mt-3 font-concert-one text-4xl text-dark-green dark:text-peach md:text-5xl">Topics</h1>
         </div>
-        <a href="<?= htmlspecialchars($forumGuideReturn, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="rounded-md border border-dark-green px-4 py-2 font-semibold text-dark-green dark:border-peach dark:text-peach">Back to guide step</a>
+        <a href="<?= htmlspecialchars($forumGuideReturn, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="inline-flex rounded-md border border-dark-green px-4 py-2 font-semibold text-dark-green dark:border-peach dark:text-peach">Back to guide step</a>
     </div>
 
     <?php if ($flash): ?>
@@ -27,7 +27,7 @@ $forumGuideReturn = $forumGuideReturn ?? '/guided-projects/forum';
             </div>
             <div class="divide-y divide-dark-green/10 border-b border-dark-green/10 dark:divide-peach/10 dark:border-peach/15">
                 <?php foreach ($topics as $topic): ?>
-                    <a href="/forum-demo/topics/<?= (int) $topic['id'] ?>" class="grid gap-3 py-5 transition hover:px-3 md:grid-cols-[1fr_8rem_7rem] md:items-center">
+                    <a href="/forum-demo/topics/<?= (int) $topic['id'] ?>" class="grid gap-3 px-2 py-5 transition hover:bg-black/5 md:grid-cols-[1fr_8rem_7rem] md:items-center">
                         <div>
                             <div class="flex flex-wrap items-center gap-2">
                                 <h2 class="font-semibold text-dark-green dark:text-peach"><?= htmlspecialchars($topic['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
@@ -43,7 +43,7 @@ $forumGuideReturn = $forumGuideReturn ?? '/guided-projects/forum';
             </div>
         </section>
 
-        <aside class="border-l border-dark-green/10 pl-5 dark:border-peach/15">
+        <aside class="border-t border-dark-green/10 pt-6 dark:border-peach/15 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
             <h2 class="font-concert-one text-2xl text-dark-green dark:text-peach">Create topic</h2>
             <?php if (!($permissions['topic.create'] ?? false)): ?>
                 <p class="mt-3 text-sm leading-6 text-black/70 dark:text-white/70">Log in as the member or admin demo account to submit this form.</p>

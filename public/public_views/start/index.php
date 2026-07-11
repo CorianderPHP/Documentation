@@ -16,7 +16,7 @@ $page = $page ?? null;
 
         <?php if ($page !== null && $page->headings !== []): ?>
             <aside class="hidden xl:block">
-                <div class="sticky top-24 border-l border-dark-green/10 pl-4 dark:border-peach/15">
+                <div class="y-slider sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto border-l border-dark-green/10 pl-4 pr-2 dark:border-peach/15">
                     <p class="text-xs font-semibold uppercase tracking-1 text-black/45 dark:text-white/45">On this page</p>
                     <nav class="mt-3 space-y-2 text-sm">
                         <?php foreach ($page->headings as $heading): ?>

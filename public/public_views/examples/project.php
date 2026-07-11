@@ -32,7 +32,7 @@ foreach ($flatNavigation as $item) {
 
 <section class="min-h-[calc(100vh-14rem)] px-4 py-8 font-poppins sm:px-6 lg:px-8">
     <div class="grid gap-10 lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)_14rem]">
-        <aside class="y-slider lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto" data-scroll-memory="<?= htmlspecialchars($project->scrollMemoryKey, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+        <aside class="y-slider max-h-80 overflow-y-auto border-b border-dark-green/10 pb-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:border-b-0 lg:pb-0 dark:border-peach/15" data-scroll-memory="<?= htmlspecialchars($project->scrollMemoryKey, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
             <div class="border-b border-dark-green/10 pb-4 dark:border-peach/15">
                 <a href="/guided-projects" class="text-sm font-semibold text-dark-green dark:text-peach">Guided Projects</a>
                 <h1 class="mt-2 font-concert-one text-2xl text-dark-green dark:text-peach"><?= htmlspecialchars($project->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h1>
@@ -72,7 +72,7 @@ foreach ($flatNavigation as $item) {
                 <div class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-end">
                     <div>
                         <p class="text-sm font-semibold uppercase tracking-1 text-dark-green dark:text-peach"><?= htmlspecialchars($project->eyebrow, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
-                        <h1 class="mt-2 font-concert-one text-4xl text-dark-green dark:text-peach md:text-5xl"><?= htmlspecialchars($mode === 'search' ? 'Search the project' : ($page?->title ?? $project->title), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h1>
+                        <h1 class="mt-2 font-concert-one text-3xl text-dark-green dark:text-peach sm:text-4xl md:text-5xl"><?= htmlspecialchars($mode === 'search' ? 'Search the project' : ($page?->title ?? $project->title), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h1>
                         <div class="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-black/55 dark:text-white/55">
                             <?php if ($activeStep !== null): ?>
                                 <span class="rounded-full border border-dark-green/15 px-2 py-1 dark:border-peach/20">Step <?= (int) $activeStep['number'] ?> / <?= (int) $totalSteps ?></span>
@@ -166,7 +166,7 @@ foreach ($flatNavigation as $item) {
 
         <aside class="hidden xl:block">
             <?php if ($page !== null && $page->headings !== []): ?>
-                <div class="sticky top-24 border-l border-dark-green/10 pl-4 dark:border-peach/15">
+                <div class="y-slider sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto border-l border-dark-green/10 pl-4 pr-2 dark:border-peach/15" data-scroll-memory="<?= htmlspecialchars($project->key, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>-page-nav">
                     <p class="text-xs font-semibold uppercase tracking-1 text-black/45 dark:text-white/45">On this page</p>
                     <nav class="mt-3 space-y-2 text-sm">
                         <?php foreach ($page->headings as $heading): ?>

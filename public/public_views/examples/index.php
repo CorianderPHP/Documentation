@@ -6,7 +6,7 @@ $projects = $projects ?? [];
 <section class="px-4 py-10 font-poppins sm:px-6 lg:px-8">
     <div class="border-b border-dark-green/10 pb-10 dark:border-peach/15">
         <p class="text-sm font-semibold uppercase tracking-1 text-dark-green dark:text-peach">Guided projects</p>
-        <h1 class="mt-3 max-w-3xl font-concert-one text-5xl leading-tight text-dark-green dark:text-peach md:text-6xl">Learn by building complete features.</h1>
+        <h1 class="mt-3 max-w-3xl font-concert-one text-4xl leading-tight text-dark-green dark:text-peach sm:text-5xl md:text-6xl">Learn by building complete features.</h1>
         <p class="mt-5 max-w-3xl text-lg leading-8 text-black/70 dark:text-white/70">
             Guided projects are complete builds, separate from the framework reference. Use them when you want to see routes, controllers, modules, middleware, views, assets, and persistence decisions working together.
         </p>

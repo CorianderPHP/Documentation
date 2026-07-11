@@ -12,6 +12,109 @@ $query = $query ?? '';
 $scope = $scope ?? 'all';
 $page = $page ?? null;
 $searchScope = 'reference';
+$searchSuggestions = ['controllers', 'routes', 'middleware', 'migrations', 'modules'];
+$quickAnswers = [
+    [
+        'keywords' => ['controller', 'controllers'],
+        'title' => 'Create a controller',
+        'summary' => 'Use the controller generator, then keep request handling in the controller and move business logic into a service or repository.',
+        'language' => 'bash',
+        'code' => "php coriander make:controller Blog\nphp coriander make:controller Blog --api",
+        'links' => [
+            ['label' => 'Controller reference', 'href' => '/docs/controllers'],
+            ['label' => 'Routing reference', 'href' => '/docs/routing'],
+        ],
+    ],
+    [
+        'keywords' => ['route', 'routes', 'routing', 'router'],
+        'title' => 'Create a route file',
+        'summary' => 'Use the route generator for larger feature areas, then require the generated file from public/routes.php.',
+        'language' => 'bash',
+        'code' => "php coriander make:route admin\nphp coriander make:route admin/users",
+        'links' => [
+            ['label' => 'Routing reference', 'href' => '/docs/routing'],
+            ['label' => 'Start a project', 'href' => '/docs/start-project'],
+        ],
+    ],
+    [
+        'keywords' => ['middleware', 'auth', 'permission', 'permissions'],
+        'title' => 'Add route middleware',
+        'summary' => 'Put project middleware in src/Middleware and attach it to a route group or a specific route. Keep CorianderCore middleware framework-owned.',
+        'language' => 'php',
+        'code' => "use Middleware\\AuthMiddleware;\n\n\$router->group('admin', [new AuthMiddleware()], function (\$router): void {\n    \$router->get('dashboard', fn () => 'Dashboard');\n});",
+        'links' => [
+            ['label' => 'Middleware reference', 'href' => '/docs/middleware'],
+            ['label' => 'Security reference', 'href' => '/docs/security'],
+        ],
+    ],
+    [
+        'keywords' => ['migration', 'migrations', 'sql', 'database', 'sqlite', 'mysql'],
+        'title' => 'Create database changes',
+        'summary' => 'Create migrations for schema changes and use sqlScript for custom SQL queries that need to stay readable.',
+        'language' => 'bash',
+        'code' => "php coriander make:migration create_posts_table\nphp coriander migrate",
+        'links' => [
+            ['label' => 'Database reference', 'href' => '/docs/database'],
+            ['label' => 'Forum data model guide', 'href' => '/guided-projects/forum/data-model'],
+        ],
+    ],
+    [
+        'keywords' => ['module', 'modules'],
+        'title' => 'Use a custom module',
+        'summary' => 'Put app-specific reusable code in src/Modules. Official framework modules stay in the CorianderPHP project; app modules stay owned by this app.',
+        'language' => 'structure',
+        'code' => "src/\n  Modules/\n    Blog/\n      BlogRepository.php\n      BlogService.php",
+        'links' => [
+            ['label' => 'Modules reference', 'href' => '/docs/modules'],
+            ['label' => 'Controller reference', 'href' => '/docs/controllers'],
+        ],
+    ],
+    [
+        'keywords' => ['view', 'views', 'template', 'html'],
+        'title' => 'Render a view',
+        'summary' => 'Keep page markup in views and pass prepared data from controllers. Use CSRF helpers for state-changing forms.',
+        'language' => 'php',
+        'code' => "\$this->view->render('blog/show', [\n    'post' => \$post,\n]);",
+        'links' => [
+            ['label' => 'Views reference', 'href' => '/docs/views'],
+            ['label' => 'Security reference', 'href' => '/docs/security'],
+        ],
+    ],
+];
+$normalizedQuery = strtolower(trim($query));
+$quickAnswer = null;
+if ($normalizedQuery !== '') {
+    foreach ($quickAnswers as $answer) {
+        foreach ($answer['keywords'] as $keyword) {
+            if (str_contains($normalizedQuery, $keyword)) {
+                $quickAnswer = $answer;
+                break 2;
+            }
+        }
+    }
+}
+$renderDocsSearch = static function (string $query, string $searchScope, array $suggestions): void {
+    ?>
+    <form action="/docs/search" method="GET" class="mb-8 border-b border-dark-green/10 pb-6 dark:border-peach/15">
+        <div class="max-w-3xl">
+            <label for="docs-search" class="font-concert-one text-2xl text-dark-green dark:text-peach">Search documentation</label>
+            <p class="mt-1 text-sm leading-6 text-black/60 dark:text-white/60">Find framework reference pages for controllers, routes, middleware, modules, database, views, and security.</p>
+        </div>
+
+        <div class="mt-4 flex flex-col gap-3 sm:flex-row">
+            <input id="docs-search" name="q" value="<?= htmlspecialchars($query, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="min-h-12 w-full rounded-md border border-dark-green/15 bg-true-white px-4 py-3 text-base text-black shadow-sm outline-none focus:border-dark-green focus:ring-2 focus:ring-dark-green/20 dark:border-peach/20 dark:bg-true-black dark:text-white dark:focus:border-peach dark:focus:ring-peach/20" placeholder="Search routes, controllers, middleware..." />
+            <input type="hidden" name="scope" value="<?= htmlspecialchars($searchScope, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+            <button class="min-h-12 rounded-md bg-dark-green px-5 py-3 font-semibold text-true-white shadow-sm transition hover:bg-dark-green/90 focus:outline-none focus:ring-2 focus:ring-dark-green/30 dark:bg-peach dark:text-black dark:hover:bg-peach/90 dark:focus:ring-peach/30 sm:w-auto">Search</button>
+        </div>
+
+        <div class="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
+            <?php foreach ($suggestions as $suggestion): ?>
+                <a href="/docs/search?q=<?= urlencode($suggestion) ?>" class="rounded-full border border-dark-green/15 px-2.5 py-1 text-black/55 hover:border-dark-green/30 hover:text-dark-green dark:border-peach/20 dark:text-white/55 dark:hover:border-peach/40 dark:hover:text-peach"><?= htmlspecialchars($suggestion, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
+            <?php endforeach; ?>
+        </div>
+    </form>
+    <?php
+};
 $resultGroups = [];
 foreach ($results as $result) {
     $resultGroups[$result['page']->section] ??= [];
@@ -21,20 +124,11 @@ foreach ($results as $result) {
 
 <section class="min-h-[calc(100vh-14rem)] px-4 py-8 font-poppins sm:px-6 lg:px-8">
     <div class="grid gap-10 lg:grid-cols-[17rem_minmax(0,1fr)] xl:grid-cols-[17rem_minmax(0,1fr)_14rem]">
-        <aside id="docs-sidebar" class="y-slider lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto" data-scroll-memory="docs-sidebar">
+        <aside id="docs-sidebar" class="y-slider max-h-80 overflow-y-auto border-b border-dark-green/10 pb-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:border-b-0 lg:pb-0 dark:border-peach/15" data-scroll-memory="docs-sidebar">
             <div class="border-b border-dark-green/10 pb-5 dark:border-peach/15">
                 <a href="/docs" class="font-concert-one text-3xl text-dark-green dark:text-peach">Documentation</a>
                 <p class="mt-2 text-sm leading-6 text-black/60 dark:text-white/60">Focused reference pages for the framework pieces developers reach for most.</p>
             </div>
-
-            <form action="/docs/search" method="GET" class="mt-5">
-                <label for="docs-search" class="sr-only">Search documentation</label>
-                <input id="docs-search" name="q" value="<?= htmlspecialchars($query, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="w-full rounded-md border border-dark-green/15 bg-true-white px-3 py-2 text-sm text-black shadow-sm outline-none focus:border-dark-green dark:border-peach/20 dark:bg-true-black dark:text-white dark:focus:border-peach" placeholder="Search docs..." />
-                <input type="hidden" name="scope" value="<?= htmlspecialchars($searchScope, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
-                <p class="mt-2 text-xs text-black/45 dark:text-white/45">
-                    Searches framework reference pages only.
-                </p>
-            </form>
 
             <nav class="mt-7 space-y-6 text-sm">
                 <?php foreach ($groups as $groupTitle => $groupPages): ?>
@@ -53,10 +147,12 @@ foreach ($results as $result) {
         </aside>
 
         <div class="min-w-0">
+            <?php $renderDocsSearch($query, $searchScope, $searchSuggestions); ?>
+
             <?php if ($mode === 'index'): ?>
                 <div class="border-b border-dark-green/10 pb-10 dark:border-peach/15">
                     <p class="text-sm font-semibold uppercase tracking-1 text-dark-green dark:text-peach">CorianderPHP</p>
-                    <h1 class="mt-3 max-w-3xl font-concert-one text-5xl leading-tight text-dark-green dark:text-peach md:text-6xl">Find answers fast, then see them in a real app.</h1>
+                    <h1 class="mt-3 max-w-3xl font-concert-one text-4xl leading-tight text-dark-green dark:text-peach sm:text-5xl md:text-6xl">Find answers fast, then see them in a real app.</h1>
                     <p class="mt-5 max-w-3xl text-lg leading-8 text-black/70 dark:text-white/70">
                         Use the framework reference for focused lookup: routes, controllers, middleware, views, database, modules, security, cache, and frontend tooling.
                     </p>
@@ -90,18 +186,36 @@ foreach ($results as $result) {
                 <div class="border-b border-dark-green/10 pb-8 dark:border-peach/15">
                     <p class="text-sm font-semibold uppercase tracking-1 text-dark-green dark:text-peach">Reference search</p>
                     <h1 class="mt-3 font-concert-one text-4xl text-dark-green dark:text-peach md:text-5xl">Results for "<?= htmlspecialchars($query, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"</h1>
-                    <p class="mt-3 text-sm text-black/55 dark:text-white/55">Searches framework reference pages only. Use <a class="font-semibold text-dark-green dark:text-peach" href="/guided-projects/forum/search?q=<?= urlencode($query) ?>">forum guided project search</a> for the project guide.</p>
-                    <div class="mt-5 flex flex-wrap gap-2 text-sm">
-                        <a href="/start" class="rounded-md border border-dark-green/15 px-3 py-2 font-semibold text-dark-green dark:border-peach/20 dark:text-peach">Start guide</a>
-                        <a href="/guided-projects/forum/search?q=<?= urlencode($query) ?>" class="rounded-md border border-dark-green/15 px-3 py-2 font-semibold text-dark-green dark:border-peach/20 dark:text-peach">Forum project search</a>
-                    </div>
+                    <p class="mt-3 max-w-3xl text-sm leading-6 text-black/55 dark:text-white/55">Search results focus on framework reference pages. Open a result when you need the full explanation, or use the quick answer below when it matches what you are trying to build.</p>
                 </div>
 
                 <div id="docs-search-results" class="mt-8 space-y-8">
+                    <?php if ($quickAnswer !== null): ?>
+                        <section class="border-y border-dark-green/10 py-6 dark:border-peach/15">
+                            <p class="text-xs font-semibold uppercase tracking-1 text-black/45 dark:text-white/45">Quick answer</p>
+                            <h2 class="mt-2 font-concert-one text-3xl text-dark-green dark:text-peach"><?= htmlspecialchars($quickAnswer['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
+                            <p class="mt-2 max-w-3xl text-sm leading-6 text-black/65 dark:text-white/65"><?= htmlspecialchars($quickAnswer['summary'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
+                            <pre class="mt-4 overflow-x-auto rounded-lg border border-dark-green/15 bg-true-white p-4 text-sm text-black shadow-sm dark:border-peach/20 dark:bg-true-black dark:text-white" data-language="<?= htmlspecialchars($quickAnswer['language'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"><code code-lang="<?= htmlspecialchars($quickAnswer['language'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"><?= htmlspecialchars($quickAnswer['code'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></code></pre>
+                            <div class="mt-4 flex flex-wrap gap-2 text-sm font-semibold">
+                                <?php foreach ($quickAnswer['links'] as $link): ?>
+                                    <a href="<?= htmlspecialchars($link['href'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="rounded-md border border-dark-green/15 px-3 py-2 text-dark-green hover:border-dark-green/30 dark:border-peach/20 dark:text-peach dark:hover:border-peach/40"><?= htmlspecialchars($link['label'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
+                                <?php endforeach; ?>
+                            </div>
+                        </section>
+                    <?php endif; ?>
+
                     <?php if ($query === ''): ?>
                         <p class="py-5 text-black/70 dark:text-white/70">Type a search term to find controllers, migrations, middleware, modules, views, and security notes.</p>
                     <?php elseif ($results === []): ?>
-                        <p class="py-5 text-black/70 dark:text-white/70">No documentation pages matched this search scope.</p>
+                        <div class="border-y border-dark-green/10 py-6 dark:border-peach/15">
+                            <h2 class="font-concert-one text-3xl text-dark-green dark:text-peach">No direct match</h2>
+                            <p class="mt-2 text-sm leading-6 text-black/65 dark:text-white/65">Try one of the focused searches below, or use a framework word like controller, route, middleware, migration, module, view, database, or security.</p>
+                            <div class="mt-4 flex flex-wrap gap-2 text-sm font-semibold">
+                                <?php foreach ($searchSuggestions as $suggestion): ?>
+                                    <a href="/docs/search?q=<?= urlencode($suggestion) ?>" class="rounded-md border border-dark-green/15 px-3 py-2 text-dark-green hover:border-dark-green/30 dark:border-peach/20 dark:text-peach dark:hover:border-peach/40"><?= htmlspecialchars($suggestion, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
                     <?php else: ?>
                         <?php foreach ($resultGroups as $section => $sectionResults): ?>
                             <section>

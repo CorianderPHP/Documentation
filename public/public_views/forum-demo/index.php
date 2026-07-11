@@ -55,7 +55,7 @@ $forumGuideReturn = $forumGuideReturn ?? '/guided-projects/forum';
 
             <div class="divide-y divide-dark-green/10 dark:divide-peach/10">
                 <?php foreach ($topics as $topic): ?>
-                    <a href="/forum-demo/topics/<?= (int) $topic['id'] ?>" class="grid gap-3 py-5 transition hover:px-3 md:grid-cols-[1fr_8rem_6rem] md:items-center">
+                    <a href="/forum-demo/topics/<?= (int) $topic['id'] ?>" class="grid gap-3 px-2 py-5 transition hover:bg-black/5 md:grid-cols-[1fr_8rem_6rem] md:items-center">
                         <div>
                             <div class="flex flex-wrap items-center gap-2">
                                 <h3 class="font-semibold text-dark-green dark:text-peach"><?= htmlspecialchars($topic['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h3>
