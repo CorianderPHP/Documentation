@@ -1,0 +1,61 @@
+name: Documentation Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: documentation-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Documentation app tests
+    runs-on: ubuntu-latest
+
+    env:
+      APP_ENV: ci
+      APP_DEBUG: "0"
+      PROJECT_URL: https://corianderphp.com
+      PUBLIC_URL_PREFIX: ""
+      TRUSTED_PROXIES: 127.0.0.1,::1
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: zip, pdo_sqlite
+          coverage: none
+          tools: composer:v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: nodejs/package-lock.json
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Install Node.js dependencies
+        run: php coriander nodejs ci
+
+      - name: Rebuild frontend assets
+        run: php coriander nodejs run build-prod
+
+      - name: Regenerate guided project downloads
+        run: composer generate-downloads
+
+      - name: Run documentation test suite
+        run: composer test

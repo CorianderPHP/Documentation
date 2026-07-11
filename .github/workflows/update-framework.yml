@@ -117,8 +117,7 @@ jobs:
         run: composer install --no-interaction --prefer-dist --no-progress
 
       - name: Install Node.js dependencies
-        working-directory: nodejs
-        run: npm ci
+        run: php coriander nodejs ci
 
       - name: Update CorianderPHP framework
         shell: bash
@@ -131,11 +130,10 @@ jobs:
           php coriander "${args[@]}"
 
       - name: Rebuild frontend assets
-        working-directory: nodejs
-        run: npm run build-prod
+        run: php coriander nodejs run build-prod
 
       - name: Regenerate project downloads
-        run: php scripts/generate-downloads.php
+        run: composer generate-downloads
 
       - name: Run documentation test suite
         run: composer test
