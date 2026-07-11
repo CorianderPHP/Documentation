@@ -173,7 +173,7 @@ foreach ($results as $result) {
                             </div>
                             <div class="divide-y divide-dark-green/10 dark:divide-peach/10">
                                 <?php foreach ($groupPages as $docPage): ?>
-                                    <a href="/docs/<?= htmlspecialchars($docPage->slug, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="grid gap-2 py-4 md:grid-cols-[14rem_1fr]">
+                                    <a href="/docs/<?= htmlspecialchars($docPage->slug, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="grid gap-2 px-3 py-6 transition hover:bg-black/5 md:grid-cols-[14rem_1fr]">
                                         <span class="font-semibold text-dark-green dark:text-peach"><?= htmlspecialchars($docPage->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                                         <span class="text-sm leading-6 text-black/65 dark:text-white/65"><?= htmlspecialchars($docPage->description, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                                     </a>
@@ -222,7 +222,7 @@ foreach ($results as $result) {
                                 <h2 class="border-b border-dark-green/10 pb-3 font-concert-one text-3xl text-dark-green dark:border-peach/15 dark:text-peach"><?= htmlspecialchars($section, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
                                 <div class="divide-y divide-dark-green/10 dark:divide-peach/10">
                                     <?php foreach ($sectionResults as $result): ?>
-                                        <a href="/docs/<?= htmlspecialchars($result['page']->slug, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="block py-5">
+                                        <a href="/docs/<?= htmlspecialchars($result['page']->slug, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="block px-3 py-6 transition hover:bg-black/5">
                                             <h3 class="font-concert-one text-2xl text-dark-green dark:text-peach"><?= htmlspecialchars($result['page']->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h3>
                                             <p class="mt-2 text-sm leading-6 text-black/65 dark:text-white/65"><?= htmlspecialchars($result['excerpt'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
                                         </a>
