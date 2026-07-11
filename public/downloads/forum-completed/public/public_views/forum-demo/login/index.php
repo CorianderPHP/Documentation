@@ -44,6 +44,6 @@ $forumGuideReturn = $forumGuideReturn ?? '/guided-projects/forum';
                 <input name="password" type="password" class="mt-1 w-full rounded-md border border-dark-green/20 bg-white px-3 py-2 text-black dark:border-mint/30 dark:bg-black dark:text-white">
             </label>
         </div>
-        <button class="mt-5 rounded-md bg-dark-green px-4 py-2 font-semibold text-true-white dark:bg-mint dark:text-black">Log in</button>
+        <button class="mt-5 w-full rounded-md bg-dark-green px-4 py-2 font-semibold text-true-white dark:bg-mint dark:text-black sm:w-auto">Log in</button>
     </form>
 </section>

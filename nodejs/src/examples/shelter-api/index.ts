@@ -1,7 +1,3 @@
-import { CodeHighlighter } from '../../docs/CodeHighlighter';
-
-new CodeHighlighter(true);
-
 document.querySelectorAll<HTMLElement>('[data-scroll-memory]').forEach((element) => {
   const key = `scroll:${element.dataset.scrollMemory ?? ''}`;
   const storedTop = window.sessionStorage.getItem(key);

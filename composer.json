@@ -39,6 +39,7 @@
         }
     },
     "scripts": {
+        "generate-downloads": "php scripts/generate-downloads.php",
         "test": "./vendor/bin/phpunit --testdox"
     },
     "config": {

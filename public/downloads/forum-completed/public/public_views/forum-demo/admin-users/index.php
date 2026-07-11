@@ -22,7 +22,7 @@ $forumGuideReturn = $forumGuideReturn ?? '/guided-projects/forum';
                     <h2 class="font-semibold text-dark-green dark:text-mint"><?= htmlspecialchars($user['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
                     <p class="mt-1 text-sm text-black/70 dark:text-white/70"><?= htmlspecialchars($user['email'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?> - <?= htmlspecialchars($user['role'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
                 </div>
-                <form method="POST" action="/forum-demo/admin/users" data-demo-form class="flex gap-2">
+                <form method="POST" action="/forum-demo/admin/users" data-demo-form class="flex flex-col gap-2 sm:flex-row">
                     <?= \CorianderCore\Core\Security\Csrf::input() ?>
                     <input type="hidden" name="name" value="<?= htmlspecialchars($user['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                     <select name="role" class="min-w-0 flex-1 rounded-md border border-dark-green/20 bg-white px-3 py-2 text-sm text-black dark:border-mint/30 dark:bg-black dark:text-white">

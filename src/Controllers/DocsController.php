@@ -44,7 +44,7 @@ final class DocsController
     public function show(string $slug): ?Response
     {
         $page = $this->repository->find($slug);
-        if ($page === null || $this->projectRegistry->projectForSlug($page->slug) !== null || in_array($page->slug, ['index', 'start-project', 'forum-project'], true)) {
+        if ($page === null || $this->projectRegistry->projectForSlug($page->slug) !== null || in_array($page->slug, ['index', 'forum-project'], true)) {
             return new Response(404, [], 'Documentation page not found.');
         }
 

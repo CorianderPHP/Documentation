@@ -29,11 +29,6 @@ $router->get('sitemap.xml', function (ServerRequest $request) use ($notFound) {
     require_once $sitemapPath;
 });
 
-$startRoutes = PROJECT_ROOT . '/src/Routes/start.php';
-if (is_file($startRoutes)) {
-    (require $startRoutes)($router);
-}
-
 $examplesRoutes = PROJECT_ROOT . '/src/Routes/examples.php';
 if (is_file($examplesRoutes)) {
     (require $examplesRoutes)($router);

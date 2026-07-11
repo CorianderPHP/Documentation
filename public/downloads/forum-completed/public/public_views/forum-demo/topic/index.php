@@ -25,13 +25,13 @@ $canModerateReply = $permissions['reply.moderate'] ?? false;
                 </div>
             </div>
             <?php if ($canModerateTopic): ?>
-                <form method="POST" action="/forum-demo/admin/topics" data-demo-form class="flex flex-wrap gap-2">
+                <form method="POST" action="/forum-demo/admin/topics" data-demo-form class="flex w-full flex-wrap gap-2 md:w-auto">
                     <?= \CorianderCore\Core\Security\Csrf::input() ?>
                     <input type="hidden" name="return_to" value="topic">
                     <input type="hidden" name="topic_id" value="<?= (int) $topic['id'] ?>">
                     <input type="hidden" name="title" value="<?= htmlspecialchars($topic['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
-                    <button name="action" value="<?= $topic['locked'] ? 'unlock' : 'lock' ?>" class="rounded-md border border-dark-green/25 px-3 py-2 text-sm font-semibold text-dark-green dark:border-mint/30 dark:text-mint"><?= $topic['locked'] ? 'Unlock topic' : 'Lock topic' ?></button>
-                    <button name="action" value="hide" class="rounded-md bg-dark-green px-3 py-2 text-sm font-semibold text-true-white dark:bg-mint dark:text-black">Hide topic</button>
+                    <button name="action" value="<?= $topic['locked'] ? 'unlock' : 'lock' ?>" class="flex-1 rounded-md border border-dark-green/25 px-3 py-2 text-sm font-semibold text-dark-green dark:border-mint/30 dark:text-mint md:flex-none"><?= $topic['locked'] ? 'Unlock topic' : 'Lock topic' ?></button>
+                    <button name="action" value="hide" class="flex-1 rounded-md bg-dark-green px-3 py-2 text-sm font-semibold text-true-white dark:bg-mint dark:text-black md:flex-none">Hide topic</button>
                 </form>
             <?php endif; ?>
         </div>
@@ -80,7 +80,7 @@ $canModerateReply = $permissions['reply.moderate'] ?? false;
                                     <input type="hidden" name="topic_id" value="<?= (int) $topic['id'] ?>">
                                     <input type="hidden" name="reply_id" value="<?= (int) $reply['id'] ?>">
                                     <input type="hidden" name="body" value="<?= htmlspecialchars($reply['body'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
-                                    <button name="action" value="hide" class="rounded-md border border-dark-green/25 px-3 py-2 text-sm font-semibold text-dark-green dark:border-mint/30 dark:text-mint">Hide reply</button>
+                                    <button name="action" value="hide" class="w-full rounded-md border border-dark-green/25 px-3 py-2 text-sm font-semibold text-dark-green dark:border-mint/30 dark:text-mint md:w-auto">Hide reply</button>
                                 </form>
                             <?php endif; ?>
                         </article>
@@ -89,7 +89,7 @@ $canModerateReply = $permissions['reply.moderate'] ?? false;
             </div>
         </section>
 
-        <aside class="border-l border-dark-green/10 pl-5 dark:border-mint/15">
+        <aside class="border-t border-dark-green/10 pt-6 dark:border-mint/15 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
             <h2 class="font-concert-one text-2xl text-dark-green dark:text-mint">Reply</h2>
             <?php if (!($permissions['reply.create'] ?? false)): ?>
                 <p class="mt-3 text-sm leading-6 text-black/70 dark:text-white/70">Log in to test the reply flow. The public demo validates the action without saving it.</p>

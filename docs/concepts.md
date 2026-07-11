@@ -78,4 +78,4 @@ If a feature feels impossible without editing `CorianderCore`, that is probably 
 
 ## Next
 
-Start with [Start a CorianderPHP Project](/start), then use the focused reference pages when you need exact API details.
+Start with [Documentation](/docs), then use the focused reference pages when you need exact API details.

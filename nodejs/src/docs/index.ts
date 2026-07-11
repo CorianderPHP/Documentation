@@ -1,7 +1,3 @@
-import { CodeHighlighter } from './CodeHighlighter';
-
-new CodeHighlighter(true);
-
 document.querySelectorAll<HTMLElement>('[data-scroll-memory]').forEach((element) => {
   const memoryKey = element.dataset.scrollMemory?.trim();
   if (!memoryKey) {
@@ -54,7 +50,7 @@ if (searchInput && resultContainer) {
                 <p class="mt-2 text-sm leading-6 text-black/65 dark:text-white/65">${escapeHtml(result.excerpt)}</p>
               </a>
             `).join('');
-        new CodeHighlighter(true);
+        window.CorianderCodeHighlighter?.highlightAll();
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === 'AbortError') {

@@ -33,7 +33,7 @@ $quickAnswers = [
         'code' => "php coriander make:route admin\nphp coriander make:route admin/users",
         'links' => [
             ['label' => 'Routing reference', 'href' => '/docs/routing'],
-            ['label' => 'Start a project', 'href' => '/docs/start-project'],
+            ['label' => 'Documentation home', 'href' => '/docs'],
         ],
     ],
     [
@@ -157,7 +157,6 @@ foreach ($results as $result) {
                         Use the framework reference for focused lookup: routes, controllers, middleware, views, database, modules, security, cache, and frontend tooling.
                     </p>
                     <div class="mt-7 flex flex-wrap gap-3">
-                        <a href="/start" class="rounded-md bg-dark-green px-4 py-2 font-semibold text-true-white shadow-sm dark:bg-mint dark:text-black">Start a project</a>
                         <a href="/guided-projects" class="rounded-md border border-dark-green/20 bg-true-white px-4 py-2 font-semibold text-dark-green shadow-sm dark:border-mint/25 dark:bg-true-black dark:text-mint">Guided projects</a>
                     </div>
                 </div>

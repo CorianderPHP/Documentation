@@ -13,7 +13,7 @@ final class MarkdownRendererTest extends TestCase
         $result = (new MarkdownRenderer())->render(<<<'MD'
 # Hello Docs
 
-Use `php coriander` and [Start](/start).
+Use `php coriander` and [Documentation](/docs).
 
 ```php
 echo 'ok';
@@ -23,7 +23,7 @@ MD);
         self::assertStringContainsString('id="hello-docs"', $result['html']);
         self::assertStringContainsString('data-language="php"', $result['html']);
         self::assertStringContainsString('code-lang="php"', $result['html']);
-        self::assertStringContainsString('href="/start"', $result['html']);
+        self::assertStringContainsString('href="/docs"', $result['html']);
         self::assertSame('Hello Docs', $result['headings'][0]['text']);
     }
 

@@ -1,7 +1,3 @@
-import { CodeHighlighter } from '../docs/CodeHighlighter';
-
-new CodeHighlighter(true);
-
 document.querySelectorAll<HTMLFormElement>('[data-demo-form]').forEach((form) => {
   form.addEventListener('submit', (event) => {
     const button = event.submitter instanceof HTMLButtonElement ? event.submitter : null;

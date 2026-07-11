@@ -61,7 +61,7 @@ npm run build-all
 Regenerate downloadable project packages:
 
 ```bash
-php scripts/generate-downloads.php
+composer generate-downloads
 ```
 
 Run PHP tests and documentation quality checks:
@@ -90,7 +90,7 @@ Before merging documentation or framework-update changes, run:
 
 ```bash
 composer dump-autoload
-php scripts/generate-downloads.php
+composer generate-downloads
 composer test
 cd nodejs
 npm run build-typescript
@@ -119,7 +119,7 @@ Use the framework updater:
 php coriander update --dry-run
 php coriander update --yes --clear-cache
 composer dump-autoload
-php scripts/generate-downloads.php
+composer generate-downloads
 composer test
 cd nodejs
 npm run build-typescript
@@ -157,7 +157,7 @@ Download packages are generated artifacts. Do not manually maintain `public/down
 Use:
 
 ```bash
-php scripts/generate-downloads.php
+composer generate-downloads
 ```
 
 The generator currently builds:

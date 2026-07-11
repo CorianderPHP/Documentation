@@ -66,7 +66,7 @@ final class DocumentationRepository
 
             if ($scope === 'reference') {
                 return $projectRegistry->projectForSlug($page->slug) === null
-                    && !in_array($page->slug, ['index', 'start-project', 'forum-project'], true);
+                    && !in_array($page->slug, ['index', 'forum-project'], true);
             }
 
             return true;
@@ -167,7 +167,7 @@ final class DocumentationRepository
             return 'Project: ' . $project->navTitle;
         }
 
-        if (in_array($slug, ['index', 'concepts', 'start-project', 'cli', 'routing', 'controllers', 'middleware', 'views', 'database'], true)) {
+        if (in_array($slug, ['index', 'concepts', 'cli', 'routing', 'controllers', 'middleware', 'views', 'database'], true)) {
             return 'Start Here';
         }
 

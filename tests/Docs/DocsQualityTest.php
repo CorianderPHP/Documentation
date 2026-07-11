@@ -52,6 +52,25 @@ final class DocsQualityTest extends TestCase
         }
     }
 
+    public function testDownloadGeneratorIsAvailable(): void
+    {
+        self::assertFileExists(PROJECT_ROOT . '/scripts/generate-downloads.php');
+        self::assertStringContainsString('downloadManifests', (string) file_get_contents(PROJECT_ROOT . '/scripts/generate-downloads.php'));
+        self::assertStringContainsString('generate-downloads', (string) file_get_contents(PROJECT_ROOT . '/composer.json'));
+    }
+
+    public function testCodeHighlighterIsOnlyBundledBySharedAsset(): void
+    {
+        foreach ($this->files(PROJECT_ROOT . '/nodejs/src') as $file) {
+            $normalized = str_replace('\\', '/', $file);
+            if (str_ends_with($normalized, 'nodejs/src/docs/CodeHighlighter.ts') || str_ends_with($normalized, 'nodejs/src/docs-code/index.ts')) {
+                continue;
+            }
+
+            self::assertStringNotContainsString('import { CodeHighlighter', (string) file_get_contents($file), 'Code highlighter import should stay in the shared docs-code bundle: ' . $file);
+        }
+    }
+
     public function testCodeFenceLanguagesAreSupportedByHighlighter(): void
     {
         foreach ($this->markdownFiles() as $file) {
