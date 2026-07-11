@@ -18,6 +18,7 @@ Examples:
 - `php coriander migrate:status`
 - `php coriander cache controllers`
 - `php coriander nodejs run build-ts`
+- `php coriander nodejs run build-prod`
 - `php coriander version`
 - `php coriander update --dry-run`
 
@@ -137,6 +138,18 @@ Flags:
 
 - `--step=N`: rollback N latest batches (default: `1`).
 - `--dry-run`: preview rollback targets without changing the database.
+
+### `nodejs`
+
+Run npm scripts from the project `nodejs/` directory without leaving the project root.
+
+```bash
+php coriander nodejs install
+php coriander nodejs run build-prod
+```
+
+The production build command runs TypeScript compilation, minified JavaScript
+bundling, and minified TailwindCSS generation.
 
 ## Error Handling
 

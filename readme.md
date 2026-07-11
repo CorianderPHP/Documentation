@@ -52,7 +52,7 @@ php coriander nodejs install
 Build frontend assets:
 
 ```bash
-npm run build-all
+php coriander nodejs run build-prod
 ```
 
 ## Common Commands
