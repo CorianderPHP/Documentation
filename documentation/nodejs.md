@@ -63,7 +63,7 @@ Run all commands from the project root.
   ```bash
   php coriander nodejs run watch-all
   ```
-- **Build TypeScript**
+- **Build JavaScript assets**
   ```bash
   php coriander nodejs run build-ts
   ```
@@ -83,6 +83,10 @@ Run all commands from the project root.
   ```bash
   php coriander nodejs run build-prod
   ```
+
+  This runs TypeScript compilation, minified JavaScript bundling, and minified
+  TailwindCSS generation. Use it before deployment or before committing built
+  assets.
 
 ## Project Layout
 
@@ -127,4 +131,3 @@ the npm launcher is probably resolving npm internals relative to the project
 directory instead of the Node.js installation. Check the first result from
 `where.exe npm`, repair the Node.js installation if needed, or set
 `CORIANDER_NPM_EXECUTABLE` to the intended `npm.cmd` path.
-
