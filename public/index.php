@@ -34,7 +34,7 @@ function corianderCreateNotFoundHandler(): callable
         return new Response(404, [], (string) ob_get_clean());
     };
 }
-require_once '../config/config.php';
+require_once __DIR__ . '/../config/config.php';
 
 if (file_exists(PROJECT_ROOT . '/CorianderCore/autoload.php')) {
     require_once PROJECT_ROOT . '/CorianderCore/autoload.php';
@@ -88,6 +88,5 @@ try {
 
     echo 'Internal Server Error';
 }
-
 
 
