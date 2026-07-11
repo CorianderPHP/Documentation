@@ -21,7 +21,7 @@ foreach ($results as $result) {
 
 <section class="min-h-[calc(100vh-14rem)] px-4 py-8 font-poppins sm:px-6 lg:px-8">
     <div class="grid gap-10 lg:grid-cols-[17rem_minmax(0,1fr)] xl:grid-cols-[17rem_minmax(0,1fr)_14rem]">
-        <aside id="docs-sidebar" class="lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
+        <aside id="docs-sidebar" class="y-slider lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto" data-scroll-memory="docs-sidebar">
             <div class="border-b border-dark-green/10 pb-5 dark:border-peach/15">
                 <a href="/docs" class="font-concert-one text-3xl text-dark-green dark:text-peach">Documentation</a>
                 <p class="mt-2 text-sm leading-6 text-black/60 dark:text-white/60">Focused reference pages for the framework pieces developers reach for most.</p>
@@ -141,7 +141,7 @@ foreach ($results as $result) {
 
         <aside class="hidden xl:block">
             <?php if ($page !== null && $page->headings !== []): ?>
-                <div class="sticky top-24 border-l border-dark-green/10 pl-4 dark:border-peach/15">
+                <div class="y-slider sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto border-l border-dark-green/10 pl-4 pr-2 dark:border-peach/15" data-scroll-memory="docs-page-nav">
                     <p class="text-xs font-semibold uppercase tracking-1 text-black/45 dark:text-white/45">On this page</p>
                     <nav class="mt-3 space-y-2 text-sm">
                         <?php foreach ($page->headings as $heading): ?>

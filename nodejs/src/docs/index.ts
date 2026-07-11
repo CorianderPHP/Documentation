@@ -2,6 +2,23 @@ import { CodeHighlighter } from './CodeHighlighter';
 
 new CodeHighlighter(true);
 
+document.querySelectorAll<HTMLElement>('[data-scroll-memory]').forEach((element) => {
+  const memoryKey = element.dataset.scrollMemory?.trim();
+  if (!memoryKey) {
+    return;
+  }
+
+  const storageKey = `scroll:${memoryKey}`;
+  const storedTop = window.sessionStorage.getItem(storageKey);
+  if (storedTop !== null) {
+    element.scrollTop = Number.parseInt(storedTop, 10) || 0;
+  }
+
+  element.addEventListener('scroll', () => {
+    window.sessionStorage.setItem(storageKey, String(element.scrollTop));
+  }, { passive: true });
+});
+
 const searchInput = document.querySelector<HTMLInputElement>('#docs-search');
 const resultContainer = document.querySelector<HTMLElement>('#docs-search-results');
 const scopeInput = document.querySelector<HTMLInputElement>('input[name="scope"]');
