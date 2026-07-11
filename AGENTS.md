@@ -21,7 +21,7 @@ https://github.com/CorianderPHP/CorianderPHP
 Documentation website code should live in:
 
 - `src/`
-- `docs/`
+- `documentation/`
 - `public/public_views/`
 - `public/assets/`
 - `resources/`
@@ -35,7 +35,7 @@ Do not maintain project download archives by hand.
 Use:
 
 ```bash
-php scripts/generate-downloads.php
+composer generate-downloads
 ```
 
 ## Framework Updates
@@ -44,7 +44,7 @@ Framework updates should be handled by `.github/workflows/update-framework.yml` 
 
 The framework README and this documentation website are intentionally separate. Do not blindly sync README content into the website.
 
-Framework update pull requests should review documentation impact and update website docs only when the release changes behavior that users need to understand.
+Framework update pull requests should review documentation impact and update website documentation only when the release changes behavior that users need to understand.
 
 ## Validation
 
@@ -52,8 +52,8 @@ After documentation, demo, or asset changes, run the relevant checks:
 
 ```bash
 composer test
-cd nodejs && npm run build-prod
-php scripts/generate-downloads.php
+php coriander nodejs run build-prod
+composer generate-downloads
 ```
 
 ## Git

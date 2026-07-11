@@ -9,10 +9,10 @@
 
 <?php
 $requestedView = isset($__corianderRequestedView) ? $__corianderRequestedView : 'home';
-$needsCodeHighlighter = in_array($requestedView, ['docs', 'examples/forum', 'examples/shelter-api'], true);
-if ($needsCodeHighlighter && file_exists(PROJECT_ROOT . '/public/assets/js/docs-code/index.js')) {
+$needsCodeHighlighter = in_array($requestedView, ['documentation', 'examples/forum', 'examples/shelter-api'], true);
+if ($needsCodeHighlighter && file_exists(PROJECT_ROOT . '/public/assets/js/documentation-code/index.js')) {
 ?>
-    <script type="module" src="<?= \CorianderCore\Core\Support\PublicUrl::versionedAsset('assets/js/docs-code/index.js') ?>" defer></script>
+    <script type="module" src="<?= \CorianderCore\Core\Support\PublicUrl::versionedAsset('assets/js/documentation-code/index.js') ?>" defer></script>
 <?php
 }
 

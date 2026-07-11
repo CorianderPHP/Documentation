@@ -39,7 +39,7 @@ if (is_file($forumDemoRoutes)) {
     (require $forumDemoRoutes)($router);
 }
 
-$docsRoutes = PROJECT_ROOT . '/src/Routes/docs.php';
-if (is_file($docsRoutes)) {
-    (require $docsRoutes)($router);
+$documentationRoutes = PROJECT_ROOT . '/src/Routes/documentation.php';
+if (is_file($documentationRoutes)) {
+    (require $documentationRoutes)($router);
 }

@@ -78,4 +78,4 @@ If a feature feels impossible without editing `CorianderCore`, that is probably 
 
 ## Next
 
-Start with [Documentation](/docs), then use the focused reference pages when you need exact API details.
+Start with [Documentation](/documentation), then use the focused reference pages when you need exact API details.

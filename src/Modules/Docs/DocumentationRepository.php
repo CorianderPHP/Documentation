@@ -6,7 +6,7 @@ namespace Modules\Docs;
 final class DocumentationRepository
 {
     public function __construct(
-        private readonly string $docsPath = PROJECT_ROOT . '/docs',
+        private readonly string $documentationPath = PROJECT_ROOT . '/documentation',
         private readonly MarkdownRenderer $renderer = new MarkdownRenderer(),
         private readonly GuidedProjectRegistry $projectRegistry = new GuidedProjectRegistry(),
     ) {
@@ -37,6 +37,7 @@ final class DocumentationRepository
     {
         $groups = [
             'Start Here' => [],
+            'Project Guidance' => [],
             'Reference' => [],
             'Project: Forum' => [],
             'Project: Shelter API' => [],
@@ -80,12 +81,12 @@ final class DocumentationRepository
             return null;
         }
 
-        $file = $this->docsPath . '/' . $slug . '.md';
+        $file = $this->documentationPath . '/' . $slug . '.md';
         if (is_file($file)) {
             return $this->pageFromFile($file);
         }
 
-        $indexFile = $this->docsPath . '/' . $slug . '/index.md';
+        $indexFile = $this->documentationPath . '/' . $slug . '/index.md';
         return is_file($indexFile) ? $this->pageFromFile($indexFile) : null;
     }
 
@@ -96,7 +97,7 @@ final class DocumentationRepository
     {
         $files = [];
         $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($this->docsPath, \RecursiveDirectoryIterator::SKIP_DOTS)
+            new \RecursiveDirectoryIterator($this->documentationPath, \RecursiveDirectoryIterator::SKIP_DOTS)
         );
 
         foreach ($iterator as $item) {
@@ -115,7 +116,7 @@ final class DocumentationRepository
             return null;
         }
 
-        $relative = str_replace('\\', '/', substr($file, strlen(rtrim($this->docsPath, '\\/')) + 1));
+        $relative = str_replace('\\', '/', substr($file, strlen(rtrim($this->documentationPath, '\\/')) + 1));
         $slug = preg_replace('/\.md$/', '', $relative) ?? basename($file, '.md');
         $title = $this->extractTitle($markdown) ?? ucwords(str_replace('-', ' ', $slug));
         $description = $this->extractDescription($markdown, $title);
@@ -169,6 +170,10 @@ final class DocumentationRepository
 
         if (in_array($slug, ['index', 'concepts', 'cli', 'routing', 'controllers', 'middleware', 'views', 'database'], true)) {
             return 'Start Here';
+        }
+
+        if (in_array($slug, ['app-architecture', 'request-lifecycle', 'database-patterns', 'production', 'debugging', 'testing', 'upgrades'], true)) {
+            return 'Project Guidance';
         }
 
         return 'Reference';

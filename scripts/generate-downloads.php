@@ -22,7 +22,7 @@ function downloadManifests(): array
                 ['from' => 'src/Modules/ForumDemo', 'to' => 'src/Modules/ForumDemo'],
                 ['from' => 'public/public_views/forum-demo', 'to' => 'public/public_views/forum-demo'],
                 ['from' => 'nodejs/src/forum-demo', 'to' => 'nodejs/src/forum-demo'],
-                ['from' => 'docs/projects/forum', 'to' => 'docs/projects/forum'],
+                ['from' => 'documentation/projects/forum', 'to' => 'documentation/projects/forum'],
             ],
             'write' => [
                 'README.md' => <<<'MD'
@@ -43,7 +43,7 @@ The hosted public demo protects visitor writes, but the guide explains where loc
 - `src/Modules/ForumDemo`
 - `public/public_views/forum-demo`
 - `nodejs/src/forum-demo`
-- `docs/projects/forum`
+- `documentation/projects/forum`
 
 ## Important
 

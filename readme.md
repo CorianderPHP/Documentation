@@ -6,7 +6,7 @@ It is a CorianderPHP application that consumes the framework. It is intentionall
 
 ## Repository Layout
 
-- `docs/` - Markdown documentation and guided project content.
+- `documentation/` - Markdown documentation and guided project content.
 - `src/` - Website controllers, routes, modules, middleware, API controllers, and demo logic.
 - `public/public_views/` - Website views rendered by the framework.
 - `public/assets/` - Built CSS, JavaScript, fonts, and images.
@@ -25,7 +25,7 @@ Project code must stay outside `CorianderCore`.
 Use app-owned folders for documentation website behavior:
 
 - `src`
-- `docs`
+- `documentation`
 - `public/public_views`
 - `nodejs/src`
 - `resources`
@@ -46,8 +46,7 @@ composer install
 Install Node dependencies:
 
 ```bash
-cd nodejs
-npm install
+php coriander nodejs install
 ```
 
 Build frontend assets:
@@ -70,18 +69,10 @@ Run PHP tests and documentation quality checks:
 composer test
 ```
 
-Type-check TypeScript:
+Type-check TypeScript and build production assets:
 
 ```bash
-cd nodejs
-npm run build-typescript
-```
-
-Build production assets:
-
-```bash
-cd nodejs
-npm run build-prod
+php coriander nodejs run build-prod
 ```
 
 ## Validation Checklist
@@ -92,9 +83,7 @@ Before merging documentation or framework-update changes, run:
 composer dump-autoload
 composer generate-downloads
 composer test
-cd nodejs
-npm run build-typescript
-npm run build-prod
+php coriander nodejs run build-prod
 ```
 
 The test suite includes app-owned checks for:
@@ -121,9 +110,7 @@ php coriander update --yes --clear-cache
 composer dump-autoload
 composer generate-downloads
 composer test
-cd nodejs
-npm run build-typescript
-npm run build-prod
+php coriander nodejs run build-prod
 ```
 
 Framework updates should ideally be handled by automated pull requests in this repository. The update PR should only be merged when the documentation app tests, generated downloads, and frontend build pass.
@@ -138,7 +125,7 @@ src/Modules/Docs/GuidedProjectRegistry.php
 
 To add a guided project:
 
-1. Add Markdown pages under `docs/projects/{project-key}`.
+1. Add Markdown pages under `documentation/projects/{project-key}`.
 2. Register the project in `GuidedProjectRegistry`.
 3. Add project-specific views or partials only when needed.
 4. Add downloadable source files under `resources/downloads` or configure generated package inputs in `scripts/generate-downloads.php`.

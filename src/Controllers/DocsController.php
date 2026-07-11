@@ -29,7 +29,7 @@ final class DocsController
     {
         $page = $this->repository->find('index');
 
-        $this->view->render('docs', [
+        $this->view->render('documentation', [
             'mode' => $page !== null ? 'show' : 'index',
             'pages' => $this->repository->byScope('reference'),
             'groups' => $this->repository->grouped('reference'),
@@ -48,7 +48,7 @@ final class DocsController
             return new Response(404, [], 'Documentation page not found.');
         }
 
-        $this->view->render('docs', [
+        $this->view->render('documentation', [
             'mode' => 'show',
             'pages' => $this->repository->byScope('reference'),
             'groups' => $this->repository->grouped('reference'),
@@ -68,7 +68,7 @@ final class DocsController
         $query = is_string($queryParams['q'] ?? null) ? trim($queryParams['q']) : '';
         $scope = 'reference';
 
-        $this->view->render('docs', [
+        $this->view->render('documentation', [
             'mode' => 'search',
             'pages' => $this->repository->byScope('reference'),
             'groups' => $this->repository->grouped('reference'),

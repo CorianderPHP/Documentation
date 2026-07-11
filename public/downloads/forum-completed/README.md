@@ -15,7 +15,7 @@ The hosted public demo protects visitor writes, but the guide explains where loc
 - `src/Modules/ForumDemo`
 - `public/public_views/forum-demo`
 - `nodejs/src/forum-demo`
-- `docs/projects/forum`
+- `documentation/projects/forum`
 
 ## Important
 

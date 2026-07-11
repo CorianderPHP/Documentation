@@ -107,7 +107,7 @@ Do not copy the completed package blindly into an existing app. Read the guide f
 
 ## Common Mistakes
 
-- Putting forum logic inside `CorianderCore`. Keep project logic in `src`, `public/public_views`, `docs`, `database`, and `nodejs`.
+- Putting forum logic inside `CorianderCore`. Keep project logic in `src`, `public/public_views`, `documentation`, `database`, and `nodejs`.
 - Teaching the public demo protection as the normal persistence layer. Local projects should write to a real database.
 - Hiding admin buttons in views but forgetting server-side permission checks.
 

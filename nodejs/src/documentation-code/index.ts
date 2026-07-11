@@ -1,4 +1,4 @@
-import { CodeHighlighter } from '../docs/CodeHighlighter';
+import { CodeHighlighter } from '../documentation/CodeHighlighter';
 
 const highlighter = new CodeHighlighter();
 

@@ -15,8 +15,8 @@ document.querySelectorAll<HTMLElement>('[data-scroll-memory]').forEach((element)
   }, { passive: true });
 });
 
-const searchInput = document.querySelector<HTMLInputElement>('#docs-search');
-const resultContainer = document.querySelector<HTMLElement>('#docs-search-results');
+const searchInput = document.querySelector<HTMLInputElement>('#documentation-search');
+const resultContainer = document.querySelector<HTMLElement>('#documentation-search-results');
 const scopeInput = document.querySelector<HTMLInputElement>('input[name="scope"]');
 
 if (searchInput && resultContainer) {
@@ -32,7 +32,7 @@ if (searchInput && resultContainer) {
     controller = new AbortController();
     const scope = scopeInput?.value ?? 'all';
 
-    fetch(`/api/docs/search?q=${encodeURIComponent(query)}&scope=${encodeURIComponent(scope)}`, { signal: controller.signal })
+    fetch(`/api/documentation/search?q=${encodeURIComponent(query)}&scope=${encodeURIComponent(scope)}`, { signal: controller.signal })
       .then((response) => response.ok ? response.json() : null)
       .then((payload: { results?: Array<{ title: string; slug: string; section: string; excerpt: string }> } | null) => {
         if (!payload?.results) {
@@ -42,7 +42,7 @@ if (searchInput && resultContainer) {
         resultContainer.innerHTML = payload.results.length === 0
           ? '<p class="py-5 text-black/70 dark:text-white/70">No documentation pages matched this search scope.</p>'
           : payload.results.map((result) => `
-              <a href="/docs/${escapeHtml(result.slug)}" class="block py-5">
+              <a href="/documentation/${escapeHtml(result.slug)}" class="block py-5">
                 <div class="flex flex-wrap items-center gap-2">
                   <h2 class="font-concert-one text-2xl text-dark-green dark:text-mint">${escapeHtml(result.title)}</h2>
                   <span class="rounded-full border border-dark-green/15 px-2 py-0.5 text-xs font-semibold text-black/55 dark:border-mint/20 dark:text-white/55">${escapeHtml(result.section)}</span>

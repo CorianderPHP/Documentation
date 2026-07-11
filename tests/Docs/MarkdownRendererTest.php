@@ -11,20 +11,20 @@ final class MarkdownRendererTest extends TestCase
     public function testRendersHeadingsCodeFencesAndInlineMarkup(): void
     {
         $result = (new MarkdownRenderer())->render(<<<'MD'
-# Hello Docs
+# Hello Documentation
 
-Use `php coriander` and [Documentation](/docs).
+Use `php coriander` and [Documentation](/documentation).
 
 ```php
 echo 'ok';
 ```
 MD);
 
-        self::assertStringContainsString('id="hello-docs"', $result['html']);
+        self::assertStringContainsString('id="hello-documentation"', $result['html']);
         self::assertStringContainsString('data-language="php"', $result['html']);
         self::assertStringContainsString('code-lang="php"', $result['html']);
-        self::assertStringContainsString('href="/docs"', $result['html']);
-        self::assertSame('Hello Docs', $result['headings'][0]['text']);
+        self::assertStringContainsString('href="/documentation"', $result['html']);
+        self::assertSame('Hello Documentation', $result['headings'][0]['text']);
     }
 
     public function testKeepsStructureCodeFenceLanguage(): void
@@ -56,12 +56,12 @@ MD);
     public function testRendersOrderedLists(): void
     {
         $result = (new MarkdownRenderer())->render(<<<'MD'
-1. [CLI](/docs/cli)
-2. [Routing](/docs/routing)
+1. [CLI](/documentation/cli)
+2. [Routing](/documentation/routing)
 MD);
 
         self::assertStringContainsString('<ol', $result['html']);
-        self::assertStringContainsString('href="/docs/cli"', $result['html']);
+        self::assertStringContainsString('href="/documentation/cli"', $result['html']);
         self::assertStringNotContainsString('1. ', $result['html']);
     }
 }

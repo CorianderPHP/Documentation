@@ -12,7 +12,7 @@ $query = $query ?? '';
 $scope = $scope ?? 'all';
 $page = $page ?? null;
 $searchScope = 'reference';
-$searchSuggestions = ['controllers', 'routes', 'middleware', 'migrations', 'modules'];
+$searchSuggestions = ['controllers', 'routes', 'middleware', 'migrations', 'modules', 'production', 'debugging'];
 $quickAnswers = [
     [
         'keywords' => ['controller', 'controllers'],
@@ -21,8 +21,8 @@ $quickAnswers = [
         'language' => 'bash',
         'code' => "php coriander make:controller Blog\nphp coriander make:controller Blog --api",
         'links' => [
-            ['label' => 'Controller reference', 'href' => '/docs/controllers'],
-            ['label' => 'Routing reference', 'href' => '/docs/routing'],
+            ['label' => 'Controller reference', 'href' => '/documentation/controllers'],
+            ['label' => 'Routing reference', 'href' => '/documentation/routing'],
         ],
     ],
     [
@@ -32,8 +32,8 @@ $quickAnswers = [
         'language' => 'bash',
         'code' => "php coriander make:route admin\nphp coriander make:route admin/users",
         'links' => [
-            ['label' => 'Routing reference', 'href' => '/docs/routing'],
-            ['label' => 'Documentation home', 'href' => '/docs'],
+            ['label' => 'Routing reference', 'href' => '/documentation/routing'],
+            ['label' => 'Documentation home', 'href' => '/documentation'],
         ],
     ],
     [
@@ -43,8 +43,8 @@ $quickAnswers = [
         'language' => 'php',
         'code' => "use Middleware\\AuthMiddleware;\n\n\$router->group('admin', [new AuthMiddleware()], function (\$router): void {\n    \$router->get('dashboard', fn () => 'Dashboard');\n});",
         'links' => [
-            ['label' => 'Middleware reference', 'href' => '/docs/middleware'],
-            ['label' => 'Security reference', 'href' => '/docs/security'],
+            ['label' => 'Middleware reference', 'href' => '/documentation/middleware'],
+            ['label' => 'Security reference', 'href' => '/documentation/security'],
         ],
     ],
     [
@@ -54,7 +54,7 @@ $quickAnswers = [
         'language' => 'bash',
         'code' => "php coriander make:migration create_posts_table\nphp coriander migrate",
         'links' => [
-            ['label' => 'Database reference', 'href' => '/docs/database'],
+            ['label' => 'Database reference', 'href' => '/documentation/database'],
             ['label' => 'Forum data model guide', 'href' => '/guided-projects/forum/data-model'],
         ],
     ],
@@ -65,8 +65,8 @@ $quickAnswers = [
         'language' => 'structure',
         'code' => "src/\n  Modules/\n    Blog/\n      BlogRepository.php\n      BlogService.php",
         'links' => [
-            ['label' => 'Modules reference', 'href' => '/docs/modules'],
-            ['label' => 'Controller reference', 'href' => '/docs/controllers'],
+            ['label' => 'Modules reference', 'href' => '/documentation/modules'],
+            ['label' => 'Controller reference', 'href' => '/documentation/controllers'],
         ],
     ],
     [
@@ -76,8 +76,41 @@ $quickAnswers = [
         'language' => 'php',
         'code' => "\$this->view->render('blog/show', [\n    'post' => \$post,\n]);",
         'links' => [
-            ['label' => 'Views reference', 'href' => '/docs/views'],
-            ['label' => 'Security reference', 'href' => '/docs/security'],
+            ['label' => 'Views reference', 'href' => '/documentation/views'],
+            ['label' => 'Security reference', 'href' => '/documentation/security'],
+        ],
+    ],
+    [
+        'keywords' => ['architecture', 'structure', 'organize', 'lifecycle'],
+        'title' => 'Choose where code belongs',
+        'summary' => 'Use the architecture and lifecycle pages when you need to decide between a controller, middleware, module, repository, or view.',
+        'language' => 'structure',
+        'code' => "src/\n  Controllers/\n  Middleware/\n  Modules/\n  Routes/\npublic/\n  public_views/\ndocumentation/",
+        'links' => [
+            ['label' => 'Architecture guide', 'href' => '/documentation/app-architecture'],
+            ['label' => 'Request lifecycle', 'href' => '/documentation/request-lifecycle'],
+        ],
+    ],
+    [
+        'keywords' => ['production', 'deploy', 'plesk', 'hosting'],
+        'title' => 'Prepare for production',
+        'summary' => 'Before deploying, check environment values, document root, HTTPS/proxies, migrations, writable paths, logs, and generated frontend assets.',
+        'language' => 'bash',
+        'code' => "composer dump-autoload\ncomposer generate-downloads\ncomposer test\nphp coriander nodejs run build-prod",
+        'links' => [
+            ['label' => 'Production checklist', 'href' => '/documentation/production'],
+            ['label' => 'Debugging guide', 'href' => '/documentation/debugging'],
+        ],
+    ],
+    [
+        'keywords' => ['test', 'testing', 'tests'],
+        'title' => 'Test app-owned behavior',
+        'summary' => 'Start with modules, permissions, repositories, route smoke tests, and documentation quality checks before adding heavier browser tests.',
+        'language' => 'bash',
+        'code' => "composer test\nphp coriander nodejs run build-prod",
+        'links' => [
+            ['label' => 'Testing an app', 'href' => '/documentation/testing'],
+            ['label' => 'Upgrade guide', 'href' => '/documentation/upgrades'],
         ],
     ],
 ];
@@ -93,23 +126,23 @@ if ($normalizedQuery !== '') {
         }
     }
 }
-$renderDocsSearch = static function (string $query, string $searchScope, array $suggestions): void {
+$renderDocumentationSearch = static function (string $query, string $searchScope, array $suggestions): void {
     ?>
-    <form action="/docs/search" method="GET" class="mb-8 border-b border-dark-green/10 pb-6 dark:border-mint/15">
+    <form action="/documentation/search" method="GET" class="mb-8 border-b border-dark-green/10 pb-6 dark:border-mint/15">
         <div class="max-w-3xl">
-            <label for="docs-search" class="font-concert-one text-2xl text-dark-green dark:text-mint">Search documentation</label>
+            <label for="documentation-search" class="font-concert-one text-2xl text-dark-green dark:text-mint">Search documentation</label>
             <p class="mt-1 text-sm leading-6 text-black/60 dark:text-white/60">Find framework reference pages for controllers, routes, middleware, modules, database, views, and security.</p>
         </div>
 
         <div class="mt-4 flex flex-col gap-3 sm:flex-row">
-            <input id="docs-search" name="q" value="<?= htmlspecialchars($query, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="min-h-12 w-full rounded-md border border-dark-green/15 bg-true-white px-4 py-3 text-base text-black shadow-sm outline-none focus:border-dark-green focus:ring-2 focus:ring-dark-green/20 dark:border-mint/20 dark:bg-true-black dark:text-white dark:focus:border-mint dark:focus:ring-mint/20" placeholder="Search routes, controllers, middleware..." />
+            <input id="documentation-search" name="q" value="<?= htmlspecialchars($query, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="min-h-12 w-full rounded-md border border-dark-green/15 bg-true-white px-4 py-3 text-base text-black shadow-sm outline-none focus:border-dark-green focus:ring-2 focus:ring-dark-green/20 dark:border-mint/20 dark:bg-true-black dark:text-white dark:focus:border-mint dark:focus:ring-mint/20" placeholder="Search routes, controllers, middleware..." />
             <input type="hidden" name="scope" value="<?= htmlspecialchars($searchScope, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
             <button class="min-h-12 rounded-md bg-dark-green px-5 py-3 font-semibold text-true-white shadow-sm transition hover:bg-dark-green/90 focus:outline-none focus:ring-2 focus:ring-dark-green/30 dark:bg-mint dark:text-black dark:hover:bg-mint/90 dark:focus:ring-mint/30 sm:w-auto">Search</button>
         </div>
 
         <div class="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
             <?php foreach ($suggestions as $suggestion): ?>
-                <a href="/docs/search?q=<?= urlencode($suggestion) ?>" class="rounded-full border border-dark-green/15 px-2.5 py-1 text-black/55 hover:border-dark-green/30 hover:text-dark-green dark:border-mint/20 dark:text-white/55 dark:hover:border-mint/40 dark:hover:text-mint"><?= htmlspecialchars($suggestion, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
+                <a href="/documentation/search?q=<?= urlencode($suggestion) ?>" class="rounded-full border border-dark-green/15 px-2.5 py-1 text-black/55 hover:border-dark-green/30 hover:text-dark-green dark:border-mint/20 dark:text-white/55 dark:hover:border-mint/40 dark:hover:text-mint"><?= htmlspecialchars($suggestion, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
             <?php endforeach; ?>
         </div>
     </form>
@@ -124,9 +157,9 @@ foreach ($results as $result) {
 
 <section class="min-h-[calc(100vh-14rem)] px-4 py-8 font-poppins sm:px-6 lg:px-8">
     <div class="grid gap-10 lg:grid-cols-[17rem_minmax(0,1fr)] xl:grid-cols-[17rem_minmax(0,1fr)_14rem]">
-        <aside id="docs-sidebar" class="y-slider max-h-80 overflow-y-auto border-b border-dark-green/10 pb-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:border-b-0 lg:pb-0 dark:border-mint/15" data-scroll-memory="docs-sidebar">
+        <aside id="documentation-sidebar" class="y-slider max-h-80 overflow-y-auto border-b border-dark-green/10 pb-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:border-b-0 lg:pb-0 dark:border-mint/15" data-scroll-memory="documentation-sidebar">
             <div class="border-b border-dark-green/10 pb-5 dark:border-mint/15">
-                <a href="/docs" class="font-concert-one text-3xl text-dark-green dark:text-mint">Documentation</a>
+                <a href="/documentation" class="font-concert-one text-3xl text-dark-green dark:text-mint">Documentation</a>
                 <p class="mt-2 text-sm leading-6 text-black/60 dark:text-white/60">Focused reference pages for the framework pieces developers reach for most.</p>
             </div>
 
@@ -136,7 +169,7 @@ foreach ($results as $result) {
                         <p class="px-2 text-xs font-semibold uppercase tracking-1 text-black/45 dark:text-white/45"><?= htmlspecialchars($groupTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
                         <div class="mt-2 space-y-0.5">
                             <?php foreach ($groupPages as $navPage): ?>
-                                <a href="/docs/<?= htmlspecialchars($navPage->slug, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="block border-l-2 px-3 py-1.5 <?= $activeSlug === $navPage->slug ? 'border-dark-green text-dark-green dark:border-mint dark:text-mint' : 'border-transparent text-black/70 hover:border-dark-green/30 hover:text-dark-green dark:text-white/70 dark:hover:border-mint/30 dark:hover:text-mint' ?>">
+                                <a href="/documentation/<?= htmlspecialchars($navPage->slug, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="block border-l-2 px-3 py-1.5 <?= $activeSlug === $navPage->slug ? 'border-dark-green text-dark-green dark:border-mint dark:text-mint' : 'border-transparent text-black/70 hover:border-dark-green/30 hover:text-dark-green dark:text-white/70 dark:hover:border-mint/30 dark:hover:text-mint' ?>">
                                     <?= htmlspecialchars($navPage->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                                 </a>
                             <?php endforeach; ?>
@@ -147,7 +180,7 @@ foreach ($results as $result) {
         </aside>
 
         <div class="min-w-0">
-            <?php $renderDocsSearch($query, $searchScope, $searchSuggestions); ?>
+            <?php $renderDocumentationSearch($query, $searchScope, $searchSuggestions); ?>
 
             <?php if ($mode === 'index'): ?>
                 <div class="border-b border-dark-green/10 pb-10 dark:border-mint/15">
@@ -167,12 +200,12 @@ foreach ($results as $result) {
                             <div class="flex items-end justify-between gap-4 border-b border-dark-green/10 pb-3 dark:border-mint/15">
                                 <h2 class="font-concert-one text-3xl text-dark-green dark:text-mint"><?= htmlspecialchars($groupTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
                                 <?php if ($groupTitle === 'Project: Forum'): ?>
-                                    <a href="/docs/projects/forum" class="text-sm font-semibold text-dark-green dark:text-mint">Start guide</a>
+                                    <a href="/documentation/projects/forum" class="text-sm font-semibold text-dark-green dark:text-mint">Start guide</a>
                                 <?php endif; ?>
                             </div>
                             <div class="divide-y divide-dark-green/10 dark:divide-mint/10">
                                 <?php foreach ($groupPages as $docPage): ?>
-                                    <a href="/docs/<?= htmlspecialchars($docPage->slug, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="grid gap-2 px-3 py-6 transition hover:bg-black/5 md:grid-cols-[14rem_1fr]">
+                                    <a href="/documentation/<?= htmlspecialchars($docPage->slug, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="grid gap-2 px-3 py-6 transition hover:bg-black/5 md:grid-cols-[14rem_1fr]">
                                         <span class="font-semibold text-dark-green dark:text-mint"><?= htmlspecialchars($docPage->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                                         <span class="text-sm leading-6 text-black/65 dark:text-white/65"><?= htmlspecialchars($docPage->description, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                                     </a>
@@ -188,7 +221,7 @@ foreach ($results as $result) {
                     <p class="mt-3 max-w-3xl text-sm leading-6 text-black/55 dark:text-white/55">Search results focus on framework reference pages. Open a result when you need the full explanation, or use the quick answer below when it matches what you are trying to build.</p>
                 </div>
 
-                <div id="docs-search-results" class="mt-8 space-y-8">
+                <div id="documentation-search-results" class="mt-8 space-y-8">
                     <?php if ($quickAnswer !== null): ?>
                         <section class="border-y border-dark-green/10 py-6 dark:border-mint/15">
                             <p class="text-xs font-semibold uppercase tracking-1 text-black/45 dark:text-white/45">Quick answer</p>
@@ -211,7 +244,7 @@ foreach ($results as $result) {
                             <p class="mt-2 text-sm leading-6 text-black/65 dark:text-white/65">Try one of the focused searches below, or use a framework word like controller, route, middleware, migration, module, view, database, or security.</p>
                             <div class="mt-4 flex flex-wrap gap-2 text-sm font-semibold">
                                 <?php foreach ($searchSuggestions as $suggestion): ?>
-                                    <a href="/docs/search?q=<?= urlencode($suggestion) ?>" class="rounded-md border border-dark-green/15 px-3 py-2 text-dark-green hover:border-dark-green/30 dark:border-mint/20 dark:text-mint dark:hover:border-mint/40"><?= htmlspecialchars($suggestion, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
+                                    <a href="/documentation/search?q=<?= urlencode($suggestion) ?>" class="rounded-md border border-dark-green/15 px-3 py-2 text-dark-green hover:border-dark-green/30 dark:border-mint/20 dark:text-mint dark:hover:border-mint/40"><?= htmlspecialchars($suggestion, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
                                 <?php endforeach; ?>
                             </div>
                         </div>
@@ -221,7 +254,7 @@ foreach ($results as $result) {
                                 <h2 class="border-b border-dark-green/10 pb-3 font-concert-one text-3xl text-dark-green dark:border-mint/15 dark:text-mint"><?= htmlspecialchars($section, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
                                 <div class="divide-y divide-dark-green/10 dark:divide-mint/10">
                                     <?php foreach ($sectionResults as $result): ?>
-                                        <a href="/docs/<?= htmlspecialchars($result['page']->slug, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="block px-3 py-6 transition hover:bg-black/5">
+                                        <a href="/documentation/<?= htmlspecialchars($result['page']->slug, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="block px-3 py-6 transition hover:bg-black/5">
                                             <h3 class="font-concert-one text-2xl text-dark-green dark:text-mint"><?= htmlspecialchars($result['page']->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h3>
                                             <p class="mt-2 text-sm leading-6 text-black/65 dark:text-white/65"><?= htmlspecialchars($result['excerpt'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
                                         </a>
@@ -234,7 +267,7 @@ foreach ($results as $result) {
             <?php elseif ($page !== null): ?>
                 <article class="max-w-4xl">
                     <nav class="mb-6 text-sm text-black/50 dark:text-white/50">
-                        <a href="/docs" class="hover:text-dark-green dark:hover:text-mint">Documentation</a>
+                        <a href="/documentation" class="hover:text-dark-green dark:hover:text-mint">Documentation</a>
                         <span class="mx-2">/</span>
                         <span><?= htmlspecialchars($page->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                     </nav>
@@ -254,7 +287,7 @@ foreach ($results as $result) {
 
         <aside class="hidden xl:block">
             <?php if ($page !== null && $page->headings !== []): ?>
-                <div class="y-slider sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto border-l border-dark-green/10 pl-4 pr-2 dark:border-mint/15" data-scroll-memory="docs-page-nav">
+                <div class="y-slider sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto border-l border-dark-green/10 pl-4 pr-2 dark:border-mint/15" data-scroll-memory="documentation-page-nav">
                     <p class="text-xs font-semibold uppercase tracking-1 text-black/45 dark:text-white/45">On this page</p>
                     <nav class="mt-3 space-y-2 text-sm">
                         <?php foreach ($page->headings as $heading): ?>

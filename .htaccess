@@ -6,7 +6,7 @@ DirectoryIndex public/index.php
 # Disable directory listing for security
 Options -Indexes
 
-# Let app routes win over same-name project directories such as /docs.
+# Let app routes win over same-name project directories such as /documentation.
 DirectorySlash Off
 
 # Support asset URLs with or without the public prefix.
@@ -14,6 +14,7 @@ RewriteCond %{DOCUMENT_ROOT}/public/assets/$1 -f
 RewriteRule ^assets/(.+)$ public/assets/$1 [QSA,L]
 
 # Route app-owned pretty URLs that collide with real project directories.
+RewriteRule ^documentation(?:/.*)?$ public/index.php [QSA,L]
 RewriteRule ^docs(?:/.*)?$ public/index.php [QSA,L]
 
 # Exclude static files (CSS, JS, images) from routing to index.php

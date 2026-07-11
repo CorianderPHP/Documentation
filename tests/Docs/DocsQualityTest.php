@@ -37,7 +37,7 @@ final class DocsQualityTest extends TestCase
         foreach ((new GuidedProjectRegistry())->all() as $project) {
             foreach ($project->groups as $items) {
                 foreach ($items as $item) {
-                    $path = PROJECT_ROOT . '/docs/' . $item['slug'] . '.md';
+                    $path = PROJECT_ROOT . '/documentation/' . $item['slug'] . '.md';
                     self::assertFileExists($path, $item['slug']);
                 }
             }
@@ -63,11 +63,11 @@ final class DocsQualityTest extends TestCase
     {
         foreach ($this->files(PROJECT_ROOT . '/nodejs/src') as $file) {
             $normalized = str_replace('\\', '/', $file);
-            if (str_ends_with($normalized, 'nodejs/src/docs/CodeHighlighter.ts') || str_ends_with($normalized, 'nodejs/src/docs-code/index.ts')) {
+            if (str_ends_with($normalized, 'nodejs/src/documentation/CodeHighlighter.ts') || str_ends_with($normalized, 'nodejs/src/documentation-code/index.ts')) {
                 continue;
             }
 
-            self::assertStringNotContainsString('import { CodeHighlighter', (string) file_get_contents($file), 'Code highlighter import should stay in the shared docs-code bundle: ' . $file);
+            self::assertStringNotContainsString('import { CodeHighlighter', (string) file_get_contents($file), 'Code highlighter import should stay in the shared documentation-code bundle: ' . $file);
         }
     }
 
@@ -100,9 +100,9 @@ final class DocsQualityTest extends TestCase
                     continue;
                 }
 
-                if (str_starts_with($path, '/docs/')) {
-                    $slug = substr($path, strlen('/docs/'));
-                    self::assertTrue($slug === '' || $this->markdownTargetExists($slug), $file . ' links to missing docs page ' . $path);
+                if (str_starts_with($path, '/documentation/')) {
+                    $slug = substr($path, strlen('/documentation/'));
+                    self::assertTrue($slug === '' || $this->markdownTargetExists($slug), $file . ' links to missing documentation page ' . $path);
                     continue;
                 }
 
@@ -128,7 +128,7 @@ final class DocsQualityTest extends TestCase
     public function testOldExamplesLinksOnlyRemainInRedirectRoutes(): void
     {
         $scanRoots = [
-            PROJECT_ROOT . '/docs',
+            PROJECT_ROOT . '/documentation',
             PROJECT_ROOT . '/public/public_views',
         ];
 
@@ -145,7 +145,7 @@ final class DocsQualityTest extends TestCase
      */
     private function markdownFiles(): array
     {
-        return array_values(array_filter($this->files(PROJECT_ROOT . '/docs'), static fn(string $file): bool => str_ends_with($file, '.md')));
+        return array_values(array_filter($this->files(PROJECT_ROOT . '/documentation'), static fn(string $file): bool => str_ends_with($file, '.md')));
     }
 
     /**
@@ -169,8 +169,8 @@ final class DocsQualityTest extends TestCase
 
     private function markdownTargetExists(string $slug): bool
     {
-        return is_file(PROJECT_ROOT . '/docs/' . trim($slug, '/') . '.md')
-            || is_file(PROJECT_ROOT . '/docs/' . trim($slug, '/') . '/index.md');
+        return is_file(PROJECT_ROOT . '/documentation/' . trim($slug, '/') . '.md')
+            || is_file(PROJECT_ROOT . '/documentation/' . trim($slug, '/') . '/index.md');
     }
 
     private function guidedProjectPathExists(string $path): bool

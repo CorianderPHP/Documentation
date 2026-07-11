@@ -34,10 +34,41 @@ final class RouteSmokeTest extends TestCase
     public static function publicPageProvider(): array
     {
         return [
-            'docs index' => ['/docs'],
+            'documentation index' => ['/documentation'],
             'forum guide' => ['/guided-projects/forum'],
             'shelter guide' => ['/guided-projects/shelter-api'],
         ];
+    }
+
+    public function testOldDocsRouteRedirectsToDocumentation(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/docs';
+        $_SESSION = [];
+
+        $router = new Router();
+        $notFound = static fn() => new Response(404, [], 'Not found');
+        require PROJECT_ROOT . '/public/routes.php';
+
+        $response = $router->dispatch(new ServerRequest('GET', '/docs'));
+
+        self::assertSame(302, $response->getStatusCode());
+        self::assertSame(['/documentation'], $response->getHeader('Location'));
+    }
+
+    public function testDocumentationSearchApiResponds(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/api/documentation/search?q=controller&scope=reference';
+        $_GET = ['q' => 'controller', 'scope' => 'reference'];
+        $_SESSION = [];
+
+        $router = new Router();
+        $notFound = static fn() => new Response(404, [], 'Not found');
+        require PROJECT_ROOT . '/public/routes.php';
+
+        $response = $router->dispatch(new ServerRequest('GET', '/api/documentation/search?q=controller&scope=reference'));
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringContainsString('"ok":true', (string) $response->getBody());
     }
 
     public function testDownloadArtifactsExist(): void

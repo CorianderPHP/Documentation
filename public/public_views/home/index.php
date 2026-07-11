@@ -17,12 +17,12 @@ use CorianderCore\Core\Image\ImageHandler;
         </p>
 
         <div class="mt-9 flex flex-wrap gap-3">
-            <a href="/docs" class="rounded-md bg-dark-green px-5 py-3 font-semibold text-true-white shadow-sm transition hover:bg-dark-green/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dark-green dark:bg-mint dark:text-black dark:hover:bg-mint/90 dark:focus-visible:outline-mint">Open documentation</a>
+            <a href="/documentation" class="rounded-md bg-dark-green px-5 py-3 font-semibold text-true-white shadow-sm transition hover:bg-dark-green/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dark-green dark:bg-mint dark:text-black dark:hover:bg-mint/90 dark:focus-visible:outline-mint">Open documentation</a>
             <a href="/guided-projects" class="rounded-md border border-dark-green/25 bg-true-white px-5 py-3 font-semibold text-dark-green shadow-sm transition hover:border-dark-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dark-green dark:border-mint/30 dark:bg-true-black dark:text-mint dark:hover:border-mint dark:focus-visible:outline-mint">Guided projects</a>
         </div>
 
         <div class="mt-12 divide-y divide-dark-green/10 border-y border-dark-green/10 dark:divide-mint/10 dark:border-mint/15">
-            <a href="/docs" class="grid gap-2 px-3 py-6 transition hover:bg-black/5 md:grid-cols-[13rem_1fr_auto] md:items-center">
+            <a href="/documentation" class="grid gap-2 px-3 py-6 transition hover:bg-black/5 md:grid-cols-[13rem_1fr_auto] md:items-center">
                 <span class="font-concert-one text-3xl text-dark-green dark:text-mint">Documentation</span>
                 <span class="text-sm leading-6 text-black/70 dark:text-white/70">Find how to create pages, controllers, APIs, middleware, views, custom modules, database access, security, cache, and frontend tooling.</span>
                 <span class="text-sm font-semibold text-dark-green dark:text-mint">Search</span>
