@@ -1,0 +1,250 @@
+<?php
+declare(strict_types=1);
+
+namespace CorianderCore\Core\Router;
+
+use CorianderCore\Core\Router\Handlers\ApiControllerHandler;
+use CorianderCore\Core\Router\Handlers\NotFoundHandler;
+use CorianderCore\Core\Router\Handlers\WebControllerHandler;
+use CorianderCore\Core\Router\Middleware\MiddlewareQueue;
+use CorianderCore\Core\Router\RouteDispatcher;
+use CorianderCore\Core\Router\RouteRegistry;
+use CorianderCore\Core\Router\ViewRenderer;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+
+/**
+ * Entry point for route dispatching.
+ *
+ * Workflow:
+ * 1. Routes, route groups and PSR-15 middleware are registered on the Router
+ *    instance (typically retrieved from a service container).
+ * 2. A PSR-7 request is passed to {@see Router::dispatch()}.
+ * 3. Global middleware run first, followed by any route-specific middleware.
+ *    The request finally reaches {@see RouteDispatcher} which resolves the
+ *    target and produces a response.
+ */
+class Router
+{
+    private RouteRegistry $registry;
+    private RouteDispatcher $dispatcher;
+    private RequestHandlerInterface $finalHandler;
+    /**
+     * @var MiddlewareInterface[] Middleware executed before route dispatch.
+     */
+    private array $middleware = [];
+
+    /**
+     * @var array<int, array{prefix:string,middleware:MiddlewareInterface[]}>
+     *      Stack of active route groups.
+     */
+    private array $groupStack = [];
+
+    public function __construct()
+    {
+        $this->registry = new RouteRegistry();
+        $this->dispatcher = new RouteDispatcher(
+            $this->registry,
+            new WebControllerHandler(),
+            new ApiControllerHandler(),
+            new ViewRenderer(),
+            new NotFoundHandler()
+        );
+
+        $this->finalHandler = new class($this->dispatcher) implements RequestHandlerInterface {
+            public function __construct(private RouteDispatcher $dispatcher) {}
+
+            public function handle(ServerRequestInterface $request): ResponseInterface
+            {
+                return $this->dispatcher->dispatch($request);
+            }
+        };
+    }
+
+    /**
+     * Register a custom route handler.
+     *
+     * @param string                $method     HTTP method for the route.
+     * @param string                $pattern    URI pattern, e.g. '/user/{id}'.
+     * @param callable              $callback   Callback executed when matched.
+     * @param MiddlewareInterface[] $middleware Route-specific middleware.
+     * @return void
+     */
+    public function add(string $method, string $pattern, callable $callback, array $middleware = []): void
+    {
+        $pattern = trim($pattern, '/');
+
+        $prefix = trim($this->getGroupPrefix(), '/');
+        if ($prefix !== '') {
+            $pattern = trim($prefix . '/' . $pattern, '/');
+        }
+
+        [$regex, $paramNames] = $this->compileRoutePattern($pattern);
+
+        $middleware = array_merge($this->getGroupMiddleware(), $middleware);
+
+        $this->registry->add(strtoupper($method), $regex, $paramNames, $callback, $middleware);
+    }
+
+    /**
+     * @return array{0:string,1:array<int,string>}
+     */
+    private function compileRoutePattern(string $pattern): array
+    {
+        $paramNames = [];
+        $regex = '';
+        $offset = 0;
+
+        preg_match_all('#\{([^}:\/]+)(?::([^}]+))?\}#', $pattern, $matches, PREG_OFFSET_CAPTURE);
+
+        foreach ($matches[0] as $index => $match) {
+            [$token, $position] = $match;
+            $regex .= preg_quote(substr($pattern, $offset, $position - $offset), '#');
+
+            $paramNames[] = $matches[1][$index][0];
+            $constraint = $matches[2][$index][1] >= 0 ? $matches[2][$index][0] : '[^/]+';
+            $regex .= '(' . $constraint . ')';
+
+            $offset = $position + strlen($token);
+        }
+
+        $regex .= preg_quote(substr($pattern, $offset), '#');
+
+        return ['#^' . $regex . '$#', $paramNames];
+    }
+
+    /**
+     * Register a GET route.
+     *
+     * @param MiddlewareInterface[] $middleware Route-specific middleware.
+     */
+    public function get(string $pattern, callable $callback, array $middleware = []): void
+    {
+        $this->add('GET', $pattern, $callback, $middleware);
+    }
+
+    /**
+     * Register a POST route.
+     *
+     * @param MiddlewareInterface[] $middleware Route-specific middleware.
+     */
+    public function post(string $pattern, callable $callback, array $middleware = []): void
+    {
+        $this->add('POST', $pattern, $callback, $middleware);
+    }
+
+    /**
+     * Register a PUT route.
+     *
+     * @param MiddlewareInterface[] $middleware Route-specific middleware.
+     */
+    public function put(string $pattern, callable $callback, array $middleware = []): void
+    {
+        $this->add('PUT', $pattern, $callback, $middleware);
+    }
+
+    /**
+     * Register a PATCH route.
+     *
+     * @param MiddlewareInterface[] $middleware Route-specific middleware.
+     */
+    public function patch(string $pattern, callable $callback, array $middleware = []): void
+    {
+        $this->add('PATCH', $pattern, $callback, $middleware);
+    }
+
+    /**
+     * Register a DELETE route.
+     *
+     * @param MiddlewareInterface[] $middleware Route-specific middleware.
+     */
+    public function delete(string $pattern, callable $callback, array $middleware = []): void
+    {
+        $this->add('DELETE', $pattern, $callback, $middleware);
+    }
+
+    /**
+     * Group routes under a common prefix and middleware set.
+     *
+     * @param string                $prefix     Path prefix for the group.
+     * @param MiddlewareInterface[] $middleware Middleware applied to routes.
+     * @param callable              $callback   Callback that registers routes.
+     * @return void
+     */
+    public function group(string $prefix, array $middleware, callable $callback): void
+    {
+        $this->groupStack[] = [
+            'prefix' => trim($prefix, '/'),
+            'middleware' => $middleware,
+        ];
+
+        $callback($this);
+
+        array_pop($this->groupStack);
+    }
+
+    /**
+     * Retrieve the concatenated prefix from active groups.
+     */
+    private function getGroupPrefix(): string
+    {
+        $segments = [];
+        foreach ($this->groupStack as $group) {
+            if ($group['prefix'] !== '') {
+                $segments[] = $group['prefix'];
+            }
+        }
+        return implode('/', $segments);
+    }
+
+    /**
+     * Retrieve combined middleware from active groups.
+     *
+     * @return MiddlewareInterface[]
+     */
+    private function getGroupMiddleware(): array
+    {
+        $middleware = [];
+        foreach ($this->groupStack as $group) {
+            $middleware = [...$middleware, ...$group['middleware']];
+        }
+        return $middleware;
+    }
+
+    /**
+     * Define a callback to execute when no route matches.
+     *
+     * @param callable $callback Fallback handler for unmatched routes.
+     * @return void
+     */
+    public function setNotFound(callable $callback): void
+    {
+        $this->registry->setNotFound($callback);
+    }
+
+    /**
+     * Add a PSR-15 middleware to the execution queue.
+     *
+     * @param MiddlewareInterface $middleware Middleware instance to execute.
+     * @return void
+     */
+    public function addMiddleware(MiddlewareInterface $middleware): void
+    {
+        $this->middleware[] = $middleware;
+    }
+
+    /**
+     * Dispatch an incoming PSR-7 request and return a response.
+     *
+     * @param ServerRequestInterface $request Incoming request to handle.
+     * @return ResponseInterface Response produced by the route dispatcher.
+     */
+    public function dispatch(ServerRequestInterface $request): ResponseInterface
+    {
+        $pipeline = new MiddlewareQueue($this->middleware, $this->finalHandler);
+        return $pipeline->handle($request);
+    }
+    
+}

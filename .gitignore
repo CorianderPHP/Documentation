@@ -1,0 +1,8 @@
+composer.phar
+.env
+.phpunit.result.cache
+/vendor/
+/nodejs/node_modules/
+/backups/
+/backups/coriander/
+/cache/.updater-rate-limit.json

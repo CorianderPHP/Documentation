@@ -1,0 +1,119 @@
+@import "../../../nodejs/node_modules/tailwindcss";
+@config "../../../nodejs/tailwind.config.js";
+
+@font-face {
+    font-family: "Poppins";
+    src:
+        url("../fonts/Poppins.woff2") format("woff2"),
+        url("../fonts/Poppins.ttf") format("ttf");
+}
+
+@font-face {
+    font-family: "ConcertOne";
+    src:
+        url("../fonts/ConcertOne.woff2") format("woff2"),
+        url("../fonts/ConcertOne.ttf") format("ttf");
+}
+
+@layer components {
+    .forum-demo-theme {
+        color: #2d2414;
+        background: #fffaf0;
+        border-inline: 1px solid rgba(161, 95, 0, 0.08);
+    }
+
+    .forum-demo-theme [class~="text-dark-green"] {
+        color: #7a4a00 !important;
+    }
+
+    .forum-demo-theme [class~="bg-dark-green"] {
+        background-color: #9a5b00 !important;
+    }
+
+    .forum-demo-theme [class~="bg-dark-green/5"] {
+        background-color: rgba(154, 91, 0, 0.05) !important;
+    }
+
+    .forum-demo-theme [class~="bg-dark-green/10"] {
+        background-color: rgba(154, 91, 0, 0.09) !important;
+    }
+
+    .forum-demo-theme [class*="border-dark-green"] {
+        border-color: rgba(154, 91, 0, 0.2) !important;
+    }
+
+    .forum-demo-theme [class*="divide-dark-green"] > :not(:last-child) {
+        border-color: rgba(154, 91, 0, 0.14) !important;
+    }
+
+    .forum-demo-theme [class*="focus:border-dark-green"]:focus {
+        border-color: #9a5b00 !important;
+    }
+
+    .dark .forum-demo-theme {
+        color: #fff4ce;
+        background: #201909;
+        border-inline-color: rgba(255, 211, 106, 0.1);
+    }
+
+    .dark .forum-demo-theme [class~="dark:text-peach"],
+    .dark .forum-demo-theme [class~="text-dark-green"] {
+        color: #f2c866 !important;
+    }
+
+    .dark .forum-demo-theme [class~="dark:bg-peach"],
+    .dark .forum-demo-theme [class~="bg-dark-green"] {
+        background-color: #f2c866 !important;
+        color: #241700 !important;
+    }
+
+    .dark .forum-demo-theme [class~="dark:bg-peach/10"],
+    .dark .forum-demo-theme [class~="bg-dark-green/10"] {
+        background-color: rgba(242, 200, 102, 0.12) !important;
+        color: #f2c866 !important;
+    }
+
+    .dark .forum-demo-theme [class*="border-peach"],
+    .dark .forum-demo-theme [class*="border-dark-green"] {
+        border-color: rgba(242, 200, 102, 0.24) !important;
+    }
+
+    .y-slider {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(15, 107, 79, 0.48) rgba(15, 107, 79, 0.08);
+    }
+
+    .y-slider::-webkit-scrollbar {
+        width: 0.55rem;
+    }
+
+    .y-slider::-webkit-scrollbar-track {
+        background: rgba(15, 107, 79, 0.08);
+        border-radius: 999px;
+    }
+
+    .y-slider::-webkit-scrollbar-thumb {
+        background: rgba(15, 107, 79, 0.48);
+        border-radius: 999px;
+    }
+
+    .y-slider::-webkit-scrollbar-thumb:hover {
+        background: rgba(15, 107, 79, 0.68);
+    }
+
+    .dark .y-slider {
+        scrollbar-color: rgba(143, 227, 180, 0.56) rgba(143, 227, 180, 0.1);
+    }
+
+    .dark .y-slider::-webkit-scrollbar-track {
+        background: rgba(143, 227, 180, 0.1);
+    }
+
+    .dark .y-slider::-webkit-scrollbar-thumb {
+        background: rgba(143, 227, 180, 0.56);
+    }
+
+    .dark .y-slider::-webkit-scrollbar-thumb:hover {
+        background: rgba(143, 227, 180, 0.76);
+    }
+}

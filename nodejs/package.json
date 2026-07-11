@@ -1,0 +1,25 @@
+{
+  "name": "coriander_nodejs",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "watch-typescript": "tsc --watch",
+    "build-typescript": "tsc",
+    "watch-all": "node watch.all.js",
+    "watch-ts": "node build.watch.js",
+    "build-ts": "node build.js",
+    "watch-tw": "tailwindcss -i ../public/assets/css/input.css -o ../public/assets/css/output.css --watch=always --minify",
+    "build-tw": "tailwindcss -i ../public/assets/css/input.css -o ../public/assets/css/output.css --minify",
+    "build-all": "node build.js && tailwindcss -i ../public/assets/css/input.css -o ../public/assets/css/output.css --minify",
+    "build-prod": "node build.min.js && tailwindcss -i ../public/assets/css/input.css -o ../public/assets/css/output.css --minify"
+  },
+  "author": "Dancuo Lohan",
+  "license": "MIT",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2.1",
+    "esbuild": "^0.28.1",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.3.2"
+  }
+}
+

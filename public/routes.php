@@ -1,0 +1,50 @@
+<?php
+
+use Nyholm\Psr7\ServerRequest;
+
+/** @var \CorianderCore\Core\Router\Router $router */
+/** @var callable $notFound */
+
+// Register custom routes here. This file is included by index.php and
+// has access to the `$router` and `$notFound` variables.
+//
+// Small projects can keep all custom routes in this file. Larger projects can
+// split routes into src/Routes/*.php and include them here:
+// $adminRoutes = PROJECT_ROOT . '/src/Routes/admin.php';
+// if (is_file($adminRoutes)) {
+//     (require $adminRoutes)($router);
+// }
+
+// Example dynamic route: /user/42 -> "User ID: 42"
+// $router->get('user/{id}', function (ServerRequest $request) {
+//     echo 'User ID: ' . $request->getAttribute('id');
+// });
+
+// Route for handling sitemap.xml requests
+$router->get('sitemap.xml', function (ServerRequest $request) use ($notFound) {
+    $sitemapPath = PROJECT_ROOT . '/public/sitemap.php';
+    if (!file_exists($sitemapPath)) {
+        return $notFound();
+    }
+    require_once $sitemapPath;
+});
+
+$startRoutes = PROJECT_ROOT . '/src/Routes/start.php';
+if (is_file($startRoutes)) {
+    (require $startRoutes)($router);
+}
+
+$examplesRoutes = PROJECT_ROOT . '/src/Routes/examples.php';
+if (is_file($examplesRoutes)) {
+    (require $examplesRoutes)($router);
+}
+
+$forumDemoRoutes = PROJECT_ROOT . '/src/Routes/forum-demo.php';
+if (is_file($forumDemoRoutes)) {
+    (require $forumDemoRoutes)($router);
+}
+
+$docsRoutes = PROJECT_ROOT . '/src/Routes/docs.php';
+if (is_file($docsRoutes)) {
+    (require $docsRoutes)($router);
+}

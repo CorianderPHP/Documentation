@@ -1,0 +1,114 @@
+<?php
+declare(strict_types=1);
+
+namespace CorianderCore\Tests;
+
+use CorianderCore\Core\Console\Services\Updater\GitHubReleaseService;
+use PHPUnit\Framework\TestCase;
+use RuntimeException;
+
+class GitHubReleaseServiceTest extends TestCase
+{
+    protected function tearDown(): void
+    {
+        putenv('CORIANDER_UPDATE_ALLOWED_REPOS');
+    }
+
+    public function testExtractStatusCodeReturnsFinalStatusFromRedirectChain(): void
+    {
+        $service = new GitHubReleaseService('CorianderPHP/CorianderPHP');
+
+        $headers = [
+            'HTTP/1.1 302 Found',
+            'Location: https://codeload.github.com/CorianderPHP/CorianderPHP/zip/refs/tags/v0.1.1',
+            'HTTP/1.1 200 OK',
+            'Content-Type: application/zip',
+        ];
+
+        $method = new \ReflectionMethod($service, 'extractStatusCode');
+        $statusCode = $method->invoke($service, $headers);
+
+        $this->assertSame(200, $statusCode);
+    }
+
+    public function testConstructorRejectsInvalidRepositoryFormat(): void
+    {
+        $this->expectException(RuntimeException::class);
+        new GitHubReleaseService('invalid repository format');
+    }
+
+    public function testConstructorRejectsRepositoryOutsideAllowlist(): void
+    {
+        putenv('CORIANDER_UPDATE_ALLOWED_REPOS=CorianderPHP/CorianderPHP');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('not allowed');
+        new GitHubReleaseService('example/other-repo');
+    }
+
+    public function testDownloadArchiveRejectsNonHttpsUrl(): void
+    {
+        $service = new GitHubReleaseService('CorianderPHP/CorianderPHP');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('must use HTTPS');
+        $service->downloadArchive('http://github.com/CorianderPHP/CorianderPHP/archive/refs/tags/v0.1.1.zip', sys_get_temp_dir() . '/unused.zip');
+    }
+
+    public function testDownloadArchiveRejectsUnknownHost(): void
+    {
+        $service = new GitHubReleaseService('CorianderPHP/CorianderPHP');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('host is not allowed');
+        $service->downloadArchive('https://example.com/release.zip', sys_get_temp_dir() . '/unused.zip');
+    }
+
+    public function testSelectReleasePrefersStableReleaseByDefault(): void
+    {
+        $service = new GitHubReleaseService('CorianderPHP/CorianderPHP');
+        $method = new \ReflectionMethod($service, 'selectRelease');
+        $release = $method->invoke($service, [
+            ['tag_name' => 'v0.2.0-beta', 'prerelease' => true],
+            ['tag_name' => 'v0.1.9', 'prerelease' => false],
+        ], false);
+
+        $this->assertSame('v0.1.9', $release['tag_name']);
+        $this->assertArrayNotHasKey('prerelease_fallback', $release);
+    }
+
+    public function testSelectReleaseCanIncludePrereleaseWhenRequested(): void
+    {
+        $service = new GitHubReleaseService('CorianderPHP/CorianderPHP');
+        $method = new \ReflectionMethod($service, 'selectRelease');
+        $release = $method->invoke($service, [
+            ['tag_name' => 'v0.2.0-beta', 'prerelease' => true],
+            ['tag_name' => 'v0.1.9', 'prerelease' => false],
+        ], true);
+
+        $this->assertSame('v0.2.0-beta', $release['tag_name']);
+    }
+
+    public function testSelectReleaseFallsBackToPrereleaseWhenNoStableReleaseExists(): void
+    {
+        $service = new GitHubReleaseService('CorianderPHP/CorianderPHP');
+        $method = new \ReflectionMethod($service, 'selectRelease');
+        $release = $method->invoke($service, [
+            ['tag_name' => 'v0.2.0-beta', 'prerelease' => true],
+        ], false);
+
+        $this->assertSame('v0.2.0-beta', $release['tag_name']);
+        $this->assertTrue($release['prerelease_fallback']);
+    }
+
+    public function testBuildZipUrlUsesBrowserArchiveUrl(): void
+    {
+        $service = new GitHubReleaseService('CorianderPHP/CorianderPHP');
+        $method = new \ReflectionMethod($service, 'buildZipUrl');
+
+        $this->assertSame(
+            'https://github.com/CorianderPHP/CorianderPHP/archive/refs/tags/v0.2.0.zip',
+            $method->invoke($service, 'v0.2.0')
+        );
+    }
+}
