@@ -18,6 +18,13 @@ final class DocumentationRepositoryTest extends TestCase
         }
     }
 
+    public function testReferenceScopeExcludesLandingPage(): void
+    {
+        $slugs = array_map(static fn($page): string => $page->slug, (new DocumentationRepository())->byScope('reference'));
+
+        self::assertNotContains('index', $slugs);
+    }
+
     public function testGuidedProjectScopesResolveFromRegistry(): void
     {
         $repository = new DocumentationRepository();

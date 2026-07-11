@@ -27,22 +27,24 @@ final class DocsController
 
     public function index(): void
     {
+        $page = $this->repository->find('index');
+
         $this->view->render('docs', [
-            'mode' => 'index',
+            'mode' => $page !== null ? 'show' : 'index',
             'pages' => $this->repository->byScope('reference'),
             'groups' => $this->repository->grouped('reference'),
-            'activeSlug' => '',
+            'activeSlug' => 'index',
             'query' => '',
             'scope' => 'reference',
             'results' => [],
-            'page' => null,
+            'page' => $page,
         ]);
     }
 
     public function show(string $slug): ?Response
     {
         $page = $this->repository->find($slug);
-        if ($page === null || $this->projectRegistry->projectForSlug($page->slug) !== null || in_array($page->slug, ['start-project', 'forum-project'], true)) {
+        if ($page === null || $this->projectRegistry->projectForSlug($page->slug) !== null || in_array($page->slug, ['index', 'start-project', 'forum-project'], true)) {
             return new Response(404, [], 'Documentation page not found.');
         }
 

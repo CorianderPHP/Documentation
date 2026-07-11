@@ -66,7 +66,7 @@ final class DocumentationRepository
 
             if ($scope === 'reference') {
                 return $projectRegistry->projectForSlug($page->slug) === null
-                    && !in_array($page->slug, ['start-project', 'forum-project'], true);
+                    && !in_array($page->slug, ['index', 'start-project', 'forum-project'], true);
             }
 
             return true;
