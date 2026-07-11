@@ -1,0 +1,93 @@
+name: Update Framework
+
+on:
+  workflow_dispatch:
+    inputs:
+      include-prerelease:
+        description: Include CorianderPHP pre-releases.
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    - cron: "15 5 * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-framework
+  cancel-in-progress: false
+
+jobs:
+  update-framework:
+    name: Update CorianderPHP core
+    runs-on: ubuntu-latest
+
+    env:
+      APP_ENV: ci
+      APP_DEBUG: "0"
+      PROJECT_URL: https://corianderphp.com
+      PUBLIC_URL_PREFIX: ""
+      TRUSTED_PROXIES: 127.0.0.1,::1
+      CORIANDER_UPDATER_ENABLED: "1"
+      CORIANDER_UPDATER_MAX_ATTEMPTS_PER_HOUR: "0"
+
+    steps:
+      - name: Checkout documentation repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: zip, pdo_sqlite
+          coverage: none
+          tools: composer:v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: nodejs/package-lock.json
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Install Node.js dependencies
+        working-directory: nodejs
+        run: npm ci
+
+      - name: Update CorianderPHP framework
+        shell: bash
+        run: |
+          args=(update --yes)
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.include-prerelease }}" == "true" ]]; then
+            args+=(--pre-release)
+          fi
+
+          php coriander "${args[@]}"
+
+      - name: Rebuild frontend assets
+        working-directory: nodejs
+        run: npm run build-prod
+
+      - name: Regenerate project downloads
+        run: php scripts/generate-downloads.php
+
+      - name: Run documentation test suite
+        run: composer test
+
+      - name: Create framework update pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: automation/update-framework
+          delete-branch: true
+          title: "⬆️ Update CorianderPHP framework."
+          commit-message: "⬆️ Update CorianderPHP framework."
+          body: |
+            Automated CorianderPHP framework update for the documentation website.
+
+            This PR was created by `.github/workflows/update-framework.yml`.
+          labels: dependencies, framework
