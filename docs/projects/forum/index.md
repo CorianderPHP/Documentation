@@ -61,20 +61,14 @@ public/public_views/forum-demo/
 
 Use the sidebar order. The point is not memorizing every line. The point is learning where each responsibility belongs.
 
-| Step | What you build | Why it matters |
-| --- | --- | --- |
-| Project structure | App-owned folders for routes, controllers, modules, views, and migrations. | Framework updates can replace `CorianderCore` without deleting your forum code. |
-| SQLite data model | Users, categories, topics, replies, moderation events, repositories, and seed data. | The project starts with real persistence instead of fake arrays. |
-| Routes | Public read routes, member writes, login/logout, admin writes, and API URLs. | URLs become a readable contract before controller code grows. |
-| Controllers | Thin request coordinators with Post/Redirect/Get and flash messages. | Controllers stay focused on flow instead of owning business rules. |
-| Views | Forum lists, topic pages, forms, login, and admin screens. | Templates render prepared data and escape every public string. |
-| Authentication | Fixed demo accounts stored in session. | The permission examples need a current user without building a full auth product. |
-| Permissions | A single ability matrix for guests, members, moderators, and admins. | Web forms, middleware, write services, and API endpoints ask the same questions. |
-| Admin middleware | A protected route group for `/forum-demo/admin`. | Admin pages are protected server-side, not only hidden in the UI. |
-| Write service | Validation, authorization, `sqlScript()` writes, and moderation audit events. | Persistence is reusable from web and API controllers. |
-| Protected demo writes | Public-site write protection that validates but does not save visitor content. | The official demo can be interactive without storing unsafe text. |
-| API endpoints | JSON writes that reuse the same permission and write-service rules. | The project shows both browser and API entry points. |
-| MySQL and production | How to move the same app structure from SQLite to MySQL. | Learners see where local demo decisions change for production. |
+1. Create the app-owned project structure so framework updates can replace `CorianderCore` without deleting your forum code.
+2. Add the SQLite data model for users, categories, topics, replies, moderation events, repositories, and seed data.
+3. Define routes before controllers so URLs become a readable contract for public pages, member writes, admin actions, and API endpoints.
+4. Build thin controllers that coordinate requests, call modules, use Post/Redirect/Get, and render prepared view data.
+5. Create views for forum lists, topic pages, forms, login, and admin screens while escaping every public string.
+6. Add authentication, permissions, admin middleware, and the write service so web forms and API endpoints use the same authorization rules.
+7. Protect the public demo writes so the official site can validate visitor actions without storing unsafe text.
+8. Finish with API endpoints and production notes for moving the same structure from SQLite to MySQL.
 
 ## How To Read Each Chapter
 

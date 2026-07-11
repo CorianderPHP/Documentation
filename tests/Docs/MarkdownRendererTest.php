@@ -52,4 +52,16 @@ MD);
         self::assertStringContainsString('Routes', $result['html']);
         self::assertStringNotContainsString('| --- |', $result['html']);
     }
+
+    public function testRendersOrderedLists(): void
+    {
+        $result = (new MarkdownRenderer())->render(<<<'MD'
+1. [CLI](/docs/cli)
+2. [Routing](/docs/routing)
+MD);
+
+        self::assertStringContainsString('<ol', $result['html']);
+        self::assertStringContainsString('href="/docs/cli"', $result['html']);
+        self::assertStringNotContainsString('1. ', $result['html']);
+    }
 }

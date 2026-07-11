@@ -15,6 +15,7 @@ final class MarkdownRenderer
         $headings = [];
         $paragraph = [];
         $list = [];
+        $orderedList = [];
         $table = [];
         $inCode = false;
         $code = [];
@@ -36,6 +37,15 @@ final class MarkdownRenderer
             $items = array_map(static fn(string $item): string => '<li>' . self::inline($item) . '</li>', $list);
             $html[] = '<ul class="mt-4 list-disc space-y-2 pl-6 text-black/80 dark:text-white/80">' . implode('', $items) . '</ul>';
             $list = [];
+        };
+
+        $flushOrderedList = static function () use (&$orderedList, &$html): void {
+            if ($orderedList === []) {
+                return;
+            }
+            $items = array_map(static fn(string $item): string => '<li>' . self::inline($item) . '</li>', $orderedList);
+            $html[] = '<ol class="mt-4 list-decimal space-y-2 pl-6 text-black/80 dark:text-white/80">' . implode('', $items) . '</ol>';
+            $orderedList = [];
         };
 
         $flushTable = static function () use (&$table, &$html): void {
@@ -75,6 +85,7 @@ final class MarkdownRenderer
 
                 $flushParagraph();
                 $flushList();
+                $flushOrderedList();
                 $inCode = true;
                 $codeLanguage = trim(substr(trim($line), 3));
                 continue;
@@ -89,6 +100,7 @@ final class MarkdownRenderer
             if ($trimmed === '') {
                 $flushParagraph();
                 $flushList();
+                $flushOrderedList();
                 $flushTable();
                 continue;
             }
@@ -100,6 +112,7 @@ final class MarkdownRenderer
             if (self::isTableRow($trimmed)) {
                 $flushParagraph();
                 $flushList();
+                $flushOrderedList();
                 $table[] = self::parseTableRow($trimmed);
                 continue;
             }
@@ -109,6 +122,7 @@ final class MarkdownRenderer
             if (preg_match('/^(#{1,4})\s+(.+)$/', $trimmed, $matches) === 1) {
                 $flushParagraph();
                 $flushList();
+                $flushOrderedList();
                 $level = strlen($matches[1]);
                 $text = trim($matches[2]);
                 $id = self::slugify($text);
@@ -125,16 +139,26 @@ final class MarkdownRenderer
 
             if (preg_match('/^[-*]\s+(.+)$/', $trimmed, $matches) === 1) {
                 $flushParagraph();
+                $flushOrderedList();
                 $list[] = $matches[1];
                 continue;
             }
 
+            if (preg_match('/^\d+\.\s+(.+)$/', $trimmed, $matches) === 1) {
+                $flushParagraph();
+                $flushList();
+                $orderedList[] = $matches[1];
+                continue;
+            }
+
             $flushList();
+            $flushOrderedList();
             $paragraph[] = $trimmed;
         }
 
         $flushParagraph();
         $flushList();
+        $flushOrderedList();
         $flushTable();
 
         return ['html' => implode("\n", $html), 'headings' => $headings];
