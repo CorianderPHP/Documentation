@@ -8,6 +8,8 @@ on:
         required: false
         default: false
         type: boolean
+  repository_dispatch:
+    types: [framework-released]
   schedule:
     - cron: "15 5 * * *"
 
@@ -36,6 +38,65 @@ jobs:
     steps:
       - name: Checkout documentation repository
         uses: actions/checkout@v4
+
+      - name: Prepare pull request metadata
+        id: pr
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_VERSION: ${{ github.event.client_payload.version }}
+          RELEASE_URL: ${{ github.event.client_payload.release_url }}
+          RELEASE_BODY: ${{ github.event.client_payload.release_body }}
+        run: |
+          version="${RELEASE_VERSION:-latest}"
+          release_url="${RELEASE_URL:-https://github.com/CorianderPHP/CorianderPHP/releases}"
+          branch="automation/update-framework"
+          title="⬆️ Update CorianderPHP framework."
+
+          if [[ "$EVENT_NAME" == "repository_dispatch" && "$version" != "latest" ]]; then
+            safe_version="$(printf '%s' "$version" | sed -E 's#[^A-Za-z0-9._-]+#-#g')"
+            branch="framework/update-${safe_version}"
+            title="⬆️ Update CorianderPHP to ${version}."
+          fi
+
+          {
+            echo "branch=$branch"
+            echo "title=$title"
+            echo "body_path=$RUNNER_TEMP/update-framework-pr-body.md"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Framework Update"
+            echo
+            echo "CorianderPHP version: \`$version\`"
+            echo
+            echo "Release: $release_url"
+            echo
+            echo "## Release Notes"
+            echo
+            if [[ -n "${RELEASE_BODY:-}" ]]; then
+              printf '%s\n' "$RELEASE_BODY"
+            else
+              echo "No release notes were provided by the triggering event."
+            fi
+            echo
+            echo "## Automated Changes"
+            echo
+            echo "- Updated framework-managed files with \`php coriander update --yes\`."
+            echo "- Rebuilt frontend assets."
+            echo "- Regenerated guided project downloads."
+            echo "- Ran the documentation test suite."
+            echo
+            echo "## Documentation Review Checklist"
+            echo
+            echo "- [ ] Check installation and start-project docs."
+            echo "- [ ] Check routing and middleware docs."
+            echo "- [ ] Check controllers and views docs."
+            echo "- [ ] Check database and SQL docs."
+            echo "- [ ] Check guided projects and demo downloads."
+            echo
+            echo "This PR was created by \`.github/workflows/update-framework.yml\`."
+          } > "$RUNNER_TEMP/update-framework-pr-body.md"
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -82,12 +143,9 @@ jobs:
       - name: Create framework update pull request
         uses: peter-evans/create-pull-request@v7
         with:
-          branch: automation/update-framework
+          branch: ${{ steps.pr.outputs.branch }}
           delete-branch: true
-          title: "⬆️ Update CorianderPHP framework."
+          title: ${{ steps.pr.outputs.title }}
           commit-message: "⬆️ Update CorianderPHP framework."
-          body: |
-            Automated CorianderPHP framework update for the documentation website.
-
-            This PR was created by `.github/workflows/update-framework.yml`.
+          body-path: ${{ steps.pr.outputs.body_path }}
           labels: dependencies, framework
