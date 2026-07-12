@@ -31,7 +31,7 @@ foreach ($flatNavigation as $item) {
 ?>
 
 <section class="min-h-[calc(100vh-14rem)] px-4 py-8 font-poppins sm:px-6 lg:px-8">
-    <div class="sticky top-16 z-40 -mx-4 mb-6 border-y border-dark-green/10 bg-white/95 px-4 py-3 backdrop-blur dark:border-mint/15 dark:bg-black/90 lg:hidden">
+    <div class="sticky top-0 md:top-16 z-40 -mx-4 mb-6 border-y border-dark-green/10 bg-white/95 px-4 py-3 backdrop-blur dark:border-mint/15 dark:bg-black/90 lg:hidden">
         <button type="button" class="flex w-full items-center justify-between gap-4 rounded-md border border-dark-green/15 bg-true-white px-4 py-3 text-left shadow-sm dark:border-mint/20 dark:bg-true-black" data-mobile-nav-open="<?= htmlspecialchars($project->key, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>-mobile-nav" aria-controls="<?= htmlspecialchars($project->key, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>-mobile-nav" aria-expanded="false">
             <span>
                 <span class="block text-xs font-semibold uppercase tracking-1 text-black/45 dark:text-white/45">Browse project steps</span>
