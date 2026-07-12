@@ -1,3 +1,7 @@
+import { initMobileNavigationDrawers } from '../../shared/MobileNavigationDrawer';
+
+initMobileNavigationDrawers();
+
 document.querySelectorAll<HTMLElement>('[data-scroll-memory]').forEach((element) => {
   const key = `scroll:${element.dataset.scrollMemory ?? ''}`;
   const storedTop = window.sessionStorage.getItem(key);
