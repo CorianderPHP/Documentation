@@ -21,17 +21,28 @@ use CorianderCore\Core\Image\ImageHandler;
             <a href="/guided-projects" class="rounded-md border border-dark-green/25 bg-true-white px-5 py-3 font-semibold text-dark-green shadow-sm transition hover:border-dark-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dark-green dark:border-mint/30 dark:bg-true-black dark:text-mint dark:hover:border-mint dark:focus-visible:outline-mint">Guided projects</a>
         </div>
 
-        <div class="mt-12 divide-y divide-dark-green/10 border-y border-dark-green/10 dark:divide-mint/10 dark:border-mint/15">
-            <a href="/documentation" class="grid gap-2 px-3 py-6 transition hover:bg-black/5 md:grid-cols-[13rem_1fr_auto] md:items-center">
-                <span class="font-concert-one text-3xl text-dark-green dark:text-mint">Documentation</span>
-                <span class="text-sm leading-6 text-black/70 dark:text-white/70">Find how to create pages, controllers, APIs, middleware, views, custom modules, database access, security, cache, and frontend tooling.</span>
-                <span class="text-sm font-semibold text-dark-green dark:text-mint">Search</span>
-            </a>
-            <a href="/guided-projects/forum" class="grid gap-2 px-3 py-6 transition hover:bg-black/5 md:grid-cols-[13rem_1fr_auto] md:items-center">
-                <span class="font-concert-one text-3xl text-dark-green dark:text-mint">Guided Project</span>
-                <span class="text-sm leading-6 text-black/70 dark:text-white/70">Build a forum with SQLite persistence, authentication, permissions, admin middleware, API endpoints, and protected public demo behavior.</span>
-                <span class="text-sm font-semibold text-dark-green dark:text-mint">Build</span>
-            </a>
+        <div class="mt-12 border-t border-dark-green/10 py-5 dark:border-mint/15">
+            <p class="text-sm font-semibold uppercase tracking-1 text-dark-green dark:text-mint">Project links</p>
+            <div class="mt-4 grid divide-y divide-dark-green/10 dark:divide-mint/10 md:grid-cols-2 md:divide-x md:divide-y-0">
+                <a href="https://github.com/CorianderPHP/CorianderPHP" target="_blank" rel="noopener noreferrer" class="group px-3 py-5 transition hover:bg-black/5 md:px-5">
+                    <span class="block font-semibold text-black group-hover:text-dark-green dark:text-white dark:group-hover:text-mint">Framework source</span>
+                    <span class="mt-1 block text-sm leading-6 text-black/65 dark:text-white/65">Read the CorianderPHP framework code, releases, and roadmap work.</span>
+                </a>
+                <a href="https://github.com/CorianderPHP/Documentation" target="_blank" rel="noopener noreferrer" class="group px-3 py-5 transition hover:bg-black/5 md:px-5">
+                    <span class="block font-semibold text-black group-hover:text-dark-green dark:text-white dark:group-hover:text-mint">Documentation source</span>
+                    <span class="mt-1 block text-sm leading-6 text-black/65 dark:text-white/65">See how this website, guided projects, and downloadable examples are maintained.</span>
+                </a>
+            </div>
+            <div class="grid divide-y divide-dark-green/10 border-t border-dark-green/10 dark:divide-mint/10 dark:border-mint/10 md:grid-cols-2 md:divide-x md:divide-y-0">
+                <a href="https://github.com/CorianderPHP/CorianderPHP/issues/new" target="_blank" rel="noopener noreferrer" class="group px-3 py-5 transition hover:bg-black/5 md:px-5">
+                    <span class="block font-semibold text-black group-hover:text-dark-green dark:text-white dark:group-hover:text-mint">Report a framework bug</span>
+                    <span class="mt-1 block text-sm leading-6 text-black/65 dark:text-white/65">Use this when the framework command, router, database layer, middleware, or core behavior is wrong.</span>
+                </a>
+                <a href="https://github.com/CorianderPHP/Documentation/issues/new" target="_blank" rel="noopener noreferrer" class="group px-3 py-5 transition hover:bg-black/5 md:px-5">
+                    <span class="block font-semibold text-black group-hover:text-dark-green dark:text-white dark:group-hover:text-mint">Report a documentation issue</span>
+                    <span class="mt-1 block text-sm leading-6 text-black/65 dark:text-white/65">Use this for unclear pages, broken links, outdated examples, or guided project mistakes.</span>
+                </a>
+            </div>
         </div>
     </div>
 </section>
