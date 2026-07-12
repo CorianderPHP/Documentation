@@ -21,7 +21,7 @@ use CorianderCore\Core\Image\ImageHandler;
             <a href="/guided-projects" class="rounded-md border border-dark-green/25 bg-true-white px-5 py-3 font-semibold text-dark-green shadow-sm transition hover:border-dark-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dark-green dark:border-mint/30 dark:bg-true-black dark:text-mint dark:hover:border-mint dark:focus-visible:outline-mint">Guided projects</a>
         </div>
 
-        <div class="mt-12 border-y border-dark-green/10 py-5 dark:border-mint/15">
+        <div class="mt-12 border-t border-dark-green/10 py-5 dark:border-mint/15">
             <p class="text-sm font-semibold uppercase tracking-1 text-dark-green dark:text-mint">Project links</p>
             <div class="mt-4 grid divide-y divide-dark-green/10 dark:divide-mint/10 md:grid-cols-2 md:divide-x md:divide-y-0">
                 <a href="https://github.com/CorianderPHP/CorianderPHP" target="_blank" rel="noopener noreferrer" class="group px-3 py-5 transition hover:bg-black/5 md:px-5">
