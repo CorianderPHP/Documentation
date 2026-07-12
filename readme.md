@@ -69,6 +69,8 @@ Run PHP tests and documentation quality checks:
 composer test
 ```
 
+This runs the documentation app test suite only. The full CorianderPHP framework test suite is owned by the framework repository.
+
 Type-check TypeScript and build production assets:
 
 ```bash

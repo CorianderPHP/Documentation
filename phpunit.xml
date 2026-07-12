@@ -8,9 +8,8 @@
     displayDetailsOnSkippedTests="true"
 >
     <testsuites>
-        <testsuite name="CorianderPHP Test Suite">
-            <directory suffix="Test.php">CorianderCore/Tests</directory>
-            <directory suffix="Test.php">tests</directory>
+        <testsuite name="CorianderPHP Documentation Test Suite">
+            <directory suffix="Test.php">tests/Docs</directory>
         </testsuite>
     </testsuites>
 </phpunit>
