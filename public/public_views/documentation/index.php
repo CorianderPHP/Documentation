@@ -156,8 +156,46 @@ foreach ($results as $result) {
 ?>
 
 <section class="min-h-[calc(100vh-14rem)] px-4 py-8 font-poppins sm:px-6 lg:px-8">
+    <div class="sticky top-0 md:top-16 z-40 -mx-4 mb-6 border-y border-dark-green/10 bg-white/95 px-4 py-3 backdrop-blur dark:border-mint/15 dark:bg-black/90 lg:hidden">
+        <button type="button" class="flex w-full items-center justify-between gap-4 rounded-md border border-dark-green/15 bg-true-white px-4 py-3 text-left shadow-sm dark:border-mint/20 dark:bg-true-black" data-mobile-nav-open="documentation-mobile-nav" aria-controls="documentation-mobile-nav" aria-expanded="false">
+            <span>
+                <span class="block text-xs font-semibold uppercase tracking-1 text-black/45 dark:text-white/45">Browse documentation</span>
+                <span class="mt-1 block font-semibold text-dark-green dark:text-mint"><?= htmlspecialchars($page?->title ?? 'Documentation home', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
+            </span>
+            <span aria-hidden="true" class="text-2xl leading-none text-dark-green dark:text-mint">+</span>
+        </button>
+    </div>
+
+    <div id="documentation-mobile-nav" class="fixed inset-0 z-50 hidden lg:hidden" data-mobile-nav-drawer aria-hidden="true">
+        <button type="button" class="absolute inset-0 bg-black/40" data-mobile-nav-close aria-label="Close documentation navigation"></button>
+        <div class="y-slider relative h-full w-11/12 max-w-sm overflow-y-auto bg-white px-5 py-5 shadow-xl dark:bg-black">
+            <div class="flex items-start justify-between gap-4 border-b border-dark-green/10 pb-5 dark:border-mint/15">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-1 text-black/45 dark:text-white/45">Navigation</p>
+                    <a href="/documentation" class="mt-1 block font-concert-one text-3xl text-dark-green dark:text-mint">Documentation</a>
+                </div>
+                <button type="button" class="rounded-md border border-dark-green/15 px-3 py-2 text-sm font-semibold text-dark-green dark:border-mint/20 dark:text-mint" data-mobile-nav-close>Close</button>
+            </div>
+
+            <nav class="mt-6 space-y-6 text-sm">
+                <?php foreach ($groups as $groupTitle => $groupPages): ?>
+                    <div>
+                        <p class="px-2 text-xs font-semibold uppercase tracking-1 text-black/45 dark:text-white/45"><?= htmlspecialchars($groupTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
+                        <div class="mt-2 space-y-0.5">
+                            <?php foreach ($groupPages as $navPage): ?>
+                                <a href="/documentation/<?= htmlspecialchars($navPage->slug, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="block border-l-2 px-3 py-2 <?= $activeSlug === $navPage->slug ? 'border-dark-green bg-dark-green/5 font-semibold text-dark-green dark:border-mint dark:bg-mint/10 dark:text-mint' : 'border-transparent text-black/70 hover:border-dark-green/30 hover:text-dark-green dark:text-white/70 dark:hover:border-mint/30 dark:hover:text-mint' ?>">
+                                    <?= htmlspecialchars($navPage->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </nav>
+        </div>
+    </div>
+
     <div class="grid gap-10 lg:grid-cols-[17rem_minmax(0,1fr)] xl:grid-cols-[17rem_minmax(0,1fr)_14rem]">
-        <aside id="documentation-sidebar" class="y-slider max-h-80 overflow-y-auto border-b border-dark-green/10 pb-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:border-b-0 lg:pb-0 dark:border-mint/15" data-scroll-memory="documentation-sidebar">
+        <aside id="documentation-sidebar" class="y-slider hidden overflow-y-auto border-b border-dark-green/10 pb-5 lg:sticky lg:top-24 lg:block lg:max-h-[calc(100vh-8rem)] lg:border-b-0 lg:pb-0 dark:border-mint/15" data-scroll-memory="documentation-sidebar">
             <div class="border-b border-dark-green/10 pb-5 dark:border-mint/15">
                 <a href="/documentation" class="font-concert-one text-3xl text-dark-green dark:text-mint">Documentation</a>
                 <p class="mt-2 text-sm leading-6 text-black/60 dark:text-white/60">Focused reference pages for the framework pieces developers reach for most.</p>

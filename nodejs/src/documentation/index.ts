@@ -1,3 +1,7 @@
+import { initMobileNavigationDrawers } from '../shared/MobileNavigationDrawer';
+
+initMobileNavigationDrawers();
+
 document.querySelectorAll<HTMLElement>('[data-scroll-memory]').forEach((element) => {
   const memoryKey = element.dataset.scrollMemory?.trim();
   if (!memoryKey) {
