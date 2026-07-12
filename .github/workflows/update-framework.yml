@@ -10,8 +10,6 @@ on:
         type: boolean
   repository_dispatch:
     types: [framework-released]
-  schedule:
-    - cron: "15 5 * * *"
 
 permissions:
   contents: write
