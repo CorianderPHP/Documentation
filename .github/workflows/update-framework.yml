@@ -117,7 +117,8 @@ jobs:
         run: composer install --no-interaction --prefer-dist --no-progress
 
       - name: Install Node.js dependencies
-        run: php coriander nodejs ci
+        working-directory: nodejs
+        run: npm ci
 
       - name: Update CorianderPHP framework
         shell: bash
