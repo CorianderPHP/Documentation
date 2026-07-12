@@ -135,7 +135,7 @@ jobs:
         run: npm run build-prod
 
       - name: Regenerate project downloads
-        run: php scripts/generate-downloads.php
+        run: composer generate-downloads
 
       - name: Run documentation test suite
         run: composer test
