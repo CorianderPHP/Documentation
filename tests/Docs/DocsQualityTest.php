@@ -59,6 +59,20 @@ final class DocsQualityTest extends TestCase
         self::assertStringContainsString('generate-downloads', (string) file_get_contents(PROJECT_ROOT . '/composer.json'));
     }
 
+    public function testWorkflowsUseFrameworkNodejsBuildCommand(): void
+    {
+        $workflows = [
+            PROJECT_ROOT . '/.github/workflows/tests.yml',
+            PROJECT_ROOT . '/.github/workflows/update-framework.yml',
+        ];
+
+        foreach ($workflows as $workflow) {
+            $contents = (string) file_get_contents($workflow);
+            self::assertStringContainsString('php coriander nodejs run build-prod', $contents, $workflow . ' should build assets through the framework CLI.');
+            self::assertStringNotContainsString('npm run build-prod', $contents, $workflow . ' should not bypass the framework CLI build wrapper.');
+        }
+    }
+
     public function testCodeHighlighterIsOnlyBundledBySharedAsset(): void
     {
         foreach ($this->files(PROJECT_ROOT . '/nodejs/src') as $file) {
