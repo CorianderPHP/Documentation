@@ -53,7 +53,8 @@ jobs:
         run: npm ci
 
       - name: Rebuild frontend assets
-        run: php coriander nodejs run build-prod
+        working-directory: nodejs
+        run: npm run build-prod
 
       - name: Regenerate guided project downloads
         run: composer generate-downloads

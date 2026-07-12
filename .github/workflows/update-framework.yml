@@ -131,7 +131,8 @@ jobs:
           php coriander "${args[@]}"
 
       - name: Rebuild frontend assets
-        run: php coriander nodejs run build-prod
+        working-directory: nodejs
+        run: npm run build-prod
 
       - name: Regenerate project downloads
         run: composer generate-downloads
