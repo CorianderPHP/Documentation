@@ -1,5 +1,6 @@
 <?php
 use CorianderCore\Core\Image\ImageHandler;
+use CorianderCore\Core\Support\PublicUrl;
 ?>
 
 <section class="px-4 py-10 font-poppins sm:px-6 lg:px-8">
@@ -24,23 +25,43 @@ use CorianderCore\Core\Image\ImageHandler;
         <div class="mt-12 border-t border-dark-green/10 py-5 dark:border-mint/15">
             <p class="text-sm font-semibold uppercase tracking-1 text-dark-green dark:text-mint">Project links</p>
             <div class="mt-4 grid divide-y divide-dark-green/10 dark:divide-mint/10 md:grid-cols-2 md:divide-x md:divide-y-0">
-                <a href="https://github.com/CorianderPHP/CorianderPHP" target="_blank" rel="noopener noreferrer" class="group px-3 py-5 transition hover:bg-black/5 md:px-5">
-                    <span class="block font-semibold text-black group-hover:text-dark-green dark:text-white dark:group-hover:text-mint">Framework source</span>
-                    <span class="mt-1 block text-sm leading-6 text-black/65 dark:text-white/65">Read the CorianderPHP framework code, releases, and roadmap work.</span>
+                <a href="https://github.com/CorianderPHP/CorianderPHP" target="_blank" rel="noopener noreferrer" class="group flex gap-4 px-3 py-5 transition hover:bg-black/5 md:px-5">
+                    <div class="h-14 w-14 shrink-0 rounded-lg border border-dark-green/10 bg-true-white p-2 shadow-sm ring-4 ring-dark-green/5 dark:border-mint/20 dark:bg-true-black dark:ring-mint/10">
+                        <img alt="" aria-hidden="true" width="56" height="56" class="h-full w-full object-contain opacity-80 dark:invert" src="<?= PublicUrl::asset('assets/img/home/github_logo.svg') ?>">
+                    </div>
+                    <div>
+                        <span class="block font-semibold text-black group-hover:text-dark-green dark:text-white dark:group-hover:text-mint">Framework source</span>
+                        <span class="mt-1 block text-sm leading-6 text-black/65 dark:text-white/65">Read the CorianderPHP framework code, releases, and roadmap work.</span>
+                    </div>
                 </a>
-                <a href="https://github.com/CorianderPHP/Documentation" target="_blank" rel="noopener noreferrer" class="group px-3 py-5 transition hover:bg-black/5 md:px-5">
-                    <span class="block font-semibold text-black group-hover:text-dark-green dark:text-white dark:group-hover:text-mint">Documentation source</span>
-                    <span class="mt-1 block text-sm leading-6 text-black/65 dark:text-white/65">See how this website, guided projects, and downloadable examples are maintained.</span>
+                <a href="https://github.com/CorianderPHP/Documentation" target="_blank" rel="noopener noreferrer" class="group flex gap-4 px-3 py-5 transition hover:bg-black/5 md:px-5">
+                    <div class="h-14 w-14 shrink-0 rounded-lg border border-dark-green/10 bg-true-white p-2 shadow-sm ring-4 ring-dark-green/5 dark:border-mint/20 dark:bg-true-black dark:ring-mint/10">
+                        <img alt="" aria-hidden="true" width="56" height="56" class="h-full w-full object-contain opacity-80 dark:invert" src="<?= PublicUrl::asset('assets/img/home/github_logo.svg') ?>">
+                    </div>
+                    <div>
+                        <span class="block font-semibold text-black group-hover:text-dark-green dark:text-white dark:group-hover:text-mint">Documentation source</span>
+                        <span class="mt-1 block text-sm leading-6 text-black/65 dark:text-white/65">See how this website, guided projects, and downloadable examples are maintained.</span>
+                    </div>
                 </a>
             </div>
             <div class="grid divide-y divide-dark-green/10 border-t border-dark-green/10 dark:divide-mint/10 dark:border-mint/10 md:grid-cols-2 md:divide-x md:divide-y-0">
-                <a href="https://github.com/CorianderPHP/CorianderPHP/issues/new" target="_blank" rel="noopener noreferrer" class="group px-3 py-5 transition hover:bg-black/5 md:px-5">
-                    <span class="block font-semibold text-black group-hover:text-dark-green dark:text-white dark:group-hover:text-mint">Report a framework bug</span>
-                    <span class="mt-1 block text-sm leading-6 text-black/65 dark:text-white/65">Use this when the framework command, router, database layer, middleware, or core behavior is wrong.</span>
+                <a href="https://github.com/CorianderPHP/CorianderPHP/issues/new?template=bug_report.md" target="_blank" rel="noopener noreferrer" class="group flex gap-4 px-3 py-5 transition hover:bg-black/5 md:px-5">
+                    <div class="h-14 w-14 shrink-0 rounded-lg border border-dark-green/10 bg-true-white p-3 shadow-sm ring-4 ring-dark-green/5 dark:border-mint/20 dark:bg-true-black dark:ring-mint/10">
+                        <img alt="" aria-hidden="true" width="56" height="56" class="h-full w-full object-contain opacity-80 dark:invert" src="<?= PublicUrl::asset('assets/img/home/bug.svg') ?>">
+                    </div>
+                    <div>
+                        <span class="block font-semibold text-black group-hover:text-dark-green dark:text-white dark:group-hover:text-mint">Report a framework bug</span>
+                        <span class="mt-1 block text-sm leading-6 text-black/65 dark:text-white/65">Use this when the framework command, router, database layer, middleware, or core behavior is wrong.</span>
+                    </div>
                 </a>
-                <a href="https://github.com/CorianderPHP/Documentation/issues/new" target="_blank" rel="noopener noreferrer" class="group px-3 py-5 transition hover:bg-black/5 md:px-5">
-                    <span class="block font-semibold text-black group-hover:text-dark-green dark:text-white dark:group-hover:text-mint">Report a documentation issue</span>
-                    <span class="mt-1 block text-sm leading-6 text-black/65 dark:text-white/65">Use this for unclear pages, broken links, outdated examples, or guided project mistakes.</span>
+                <a href="https://github.com/CorianderPHP/Documentation/issues/new" target="_blank" rel="noopener noreferrer" class="group flex gap-4 px-3 py-5 transition hover:bg-black/5 md:px-5">
+                    <div class="h-14 w-14 shrink-0 rounded-lg border border-dark-green/10 bg-true-white p-2 shadow-sm ring-4 ring-dark-green/5 dark:border-mint/20 dark:bg-true-black dark:ring-mint/10">
+                        <img alt="" aria-hidden="true" width="56" height="56" class="h-full w-full object-contain opacity-80 dark:invert" src="<?= PublicUrl::asset('assets/img/home/pencil.svg') ?>">
+                    </div>
+                    <div>
+                        <span class="block font-semibold text-black group-hover:text-dark-green dark:text-white dark:group-hover:text-mint">Report a documentation issue</span>
+                        <span class="mt-1 block text-sm leading-6 text-black/65 dark:text-white/65">Use this for unclear pages, broken links, outdated examples, or guided project mistakes.</span>
+                    </div>
                 </a>
             </div>
         </div>
