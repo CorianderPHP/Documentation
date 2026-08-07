@@ -12,6 +12,9 @@ php coriander <command> [arguments]
 
 Examples:
 
+- `php coriander`
+- `php coriander help`
+- `php coriander help make`
 - `php coriander make:view Home`
 - `php coriander make:route admin`
 - `php coriander make:migration CreateUsersTable`
@@ -22,7 +25,49 @@ Examples:
 - `php coriander version`
 - `php coriander update --dry-run`
 
+## Getting Help
+
+Run the CLI without a command to see a short command overview:
+
+```bash
+php coriander
+```
+
+Run detailed help when you need descriptions and examples:
+
+```bash
+php coriander help
+```
+
+Use focused help for a command family:
+
+```bash
+php coriander help make
+php coriander help nodejs
+php coriander help migrate
+```
+
+Help aliases are also supported:
+
+```bash
+php coriander --help
+php coriander -h
+php coriander make --help
+php coriander nodejs --help
+```
+
 ## Command Reference
+
+### `help`
+
+Show CLI help. Pass a command name for focused help:
+
+```bash
+php coriander help
+php coriander help make
+php coriander help nodejs
+php coriander help migrate
+```
 
 ### `version`
 

@@ -174,6 +174,20 @@ final class DocsQualityTest extends TestCase
         self::assertStringContainsString("'decoding' => 'async'", $contents);
     }
 
+    public function testCliDocumentationCoversDetailedHelp(): void
+    {
+        $contents = (string) file_get_contents(PROJECT_ROOT . '/documentation/cli.md');
+
+        self::assertStringContainsString('php coriander help', $contents);
+        self::assertStringContainsString('php coriander help make', $contents);
+        self::assertStringContainsString('php coriander help nodejs', $contents);
+        self::assertStringContainsString('php coriander help migrate', $contents);
+        self::assertStringContainsString('php coriander --help', $contents);
+        self::assertStringContainsString('php coriander -h', $contents);
+        self::assertStringContainsString('php coriander make --help', $contents);
+        self::assertStringContainsString('php coriander nodejs --help', $contents);
+    }
+
     /**
      * @return string[]
      */

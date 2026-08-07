@@ -12,7 +12,7 @@ $query = $query ?? '';
 $scope = $scope ?? 'all';
 $page = $page ?? null;
 $searchScope = 'reference';
-$searchSuggestions = ['install', 'controllers', 'routes', 'middleware', 'migrations', 'images', 'modules', 'production', 'debugging'];
+$searchSuggestions = ['install', 'cli help', 'controllers', 'routes', 'middleware', 'migrations', 'images', 'modules', 'production', 'debugging'];
 $quickAnswers = [
     [
         'keywords' => ['install', 'installation', 'download', 'composer install', 'nodejs install'],
@@ -22,6 +22,17 @@ $quickAnswers = [
         'code' => "composer install\nphp coriander nodejs run install\nphp coriander nodejs run build-prod",
         'links' => [
             ['label' => 'Installation guide', 'href' => '/documentation/installation'],
+            ['label' => 'NodeJS integration', 'href' => '/documentation/nodejs'],
+        ],
+    ],
+    [
+        'keywords' => ['cli help', 'command help', 'help command', 'php coriander help', '--help', '-h'],
+        'title' => 'Find CLI command help',
+        'summary' => 'Use the short CLI overview, detailed help, or focused help for command families like make, nodejs, and migrate.',
+        'language' => 'bash',
+        'code' => "php coriander\nphp coriander help\nphp coriander help make\nphp coriander nodejs --help",
+        'links' => [
+            ['label' => 'CLI guide', 'href' => '/documentation/cli'],
             ['label' => 'NodeJS integration', 'href' => '/documentation/nodejs'],
         ],
     ],
