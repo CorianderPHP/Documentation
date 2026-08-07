@@ -2,6 +2,18 @@
 
 Start from what you want to build. Each path points to the exact framework pieces you need, without forcing you to read every reference page first.
 
+## I Want To Install The Framework
+
+Start with a framework release, not the documentation website repository.
+
+1. Download the wanted version from the [CorianderPHP releases page](https://github.com/CorianderPHP/CorianderPHP/releases).
+2. Keep the framework and starter app files.
+3. Do not copy repository-maintenance files such as `.github`, `docs`, `AGENTS.md`, `LICENSE`, and `readme.md` into your application unless you intentionally need them.
+4. Run `composer install`.
+5. Run `php coriander nodejs run install`.
+
+Read the full [Installation guide](/documentation/installation) for the complete folder and environment setup.
+
 ## I Want To Create A Page
 
 A normal page usually needs a route, a controller action, and a view.
@@ -97,6 +109,7 @@ src/
 Use this section when you already know the feature you need and want the reference page directly.
 
 - [Recommended App Architecture](/documentation/app-architecture): where controllers, modules, repositories, middleware, views, validation, and permissions belong.
+- [Installation](/documentation/installation): download a framework release, prepare a project folder, install Composer dependencies, install NodeJS dependencies, and configure `.env`.
 - [Request Lifecycle](/documentation/request-lifecycle): how requests move through `public/index.php`, routes, middleware, controllers, modules, and responses.
 - [Database Patterns](/documentation/database-patterns): when to use migrations, `SQLManager`, `sqlScript()`, repositories, SQLite, and MySQL.
 - [Production Checklist](/documentation/production): environment, hosting, HTTPS, proxies, database, logs, assets, and final release checks.

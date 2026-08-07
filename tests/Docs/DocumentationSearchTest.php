@@ -29,6 +29,22 @@ final class DocumentationSearchTest extends TestCase
         }
     }
 
+    public function testSearchFindsInstallationCommands(): void
+    {
+        $results = (new DocumentationSearch(new DocumentationRepository()))->search('php coriander nodejs run install', 'reference');
+
+        self::assertNotEmpty($results);
+        self::assertContains('installation', array_map(static fn(array $result): string => $result['page']->slug, $results));
+    }
+
+    public function testSearchFindsImageHandlerOptionsApi(): void
+    {
+        $results = (new DocumentationSearch(new DocumentationRepository()))->search('ImageHandler options loading decoding', 'reference');
+
+        self::assertNotEmpty($results);
+        self::assertSame('views', $results[0]['page']->slug);
+    }
+
     public function testEmptySearchReturnsNoResults(): void
     {
         self::assertSame([], (new DocumentationSearch(new DocumentationRepository()))->search('   ', 'reference'));

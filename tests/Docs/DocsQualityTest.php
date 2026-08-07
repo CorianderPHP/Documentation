@@ -154,6 +154,26 @@ final class DocsQualityTest extends TestCase
         }
     }
 
+    public function testInstallationDocumentationContainsRequiredSetupSteps(): void
+    {
+        $contents = (string) file_get_contents(PROJECT_ROOT . '/documentation/installation.md');
+
+        self::assertStringContainsString('composer install', $contents);
+        self::assertStringContainsString('php coriander nodejs run install', $contents);
+        self::assertStringContainsString('.github/', $contents);
+        self::assertStringContainsString('AGENTS.md', $contents);
+        self::assertStringContainsString('readme.md', $contents);
+    }
+
+    public function testImageHandlerDocumentationUsesOptionsArrayApi(): void
+    {
+        $contents = (string) file_get_contents(PROJECT_ROOT . '/documentation/views.md');
+
+        self::assertStringContainsString("ImageHandler::render('/public/assets/img/logo.png', [", $contents);
+        self::assertStringContainsString("'loading' => 'lazy'", $contents);
+        self::assertStringContainsString("'decoding' => 'async'", $contents);
+    }
+
     /**
      * @return string[]
      */

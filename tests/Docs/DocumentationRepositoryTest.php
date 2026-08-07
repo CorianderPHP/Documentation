@@ -25,6 +25,16 @@ final class DocumentationRepositoryTest extends TestCase
         self::assertNotContains('index', $slugs);
     }
 
+    public function testInstallationPageIsAvailableInStartHere(): void
+    {
+        $repository = new DocumentationRepository();
+        $groups = $repository->grouped('all');
+
+        self::assertSame('Install CorianderPHP', $repository->find('installation')?->title);
+        self::assertArrayHasKey('Start Here', $groups);
+        self::assertContains('installation', array_map(static fn($page): string => $page->slug, $groups['Start Here']));
+    }
+
     public function testGuidedProjectScopesResolveFromRegistry(): void
     {
         $repository = new DocumentationRepository();
