@@ -19,7 +19,9 @@ export default {
         'mint': '#8FE3B4',
         'white': '#F6FAF7',
         'true-white': '#FFFFFF',
-        'dark-green': '#0F6B4F'
+        'dark-green': '#0F6B4F',
+        'link-blue': '#3568A8',
+        'link-blue-dark': '#93C5FD'
       },
       boxShadow: {
         'white': 'inset 0px 0px 30px 35px #F6FAF7',

@@ -20,7 +20,7 @@
             </div>
             <label class="mt-5 block text-sm font-semibold text-black/70 dark:text-white/70" for="api-playground-body">JSON body</label>
             <textarea id="api-playground-body" class="mt-2 min-h-52 w-full rounded-md border border-dark-green/15 bg-true-white p-3 font-mono text-sm text-black outline-none focus:border-dark-green dark:border-mint/20 dark:bg-true-black dark:text-white dark:focus:border-mint" data-api-body spellcheck="false"></textarea>
-            <button type="button" class="mt-4 w-full rounded-md bg-dark-green px-4 py-2 font-semibold text-true-white transition hover:-translate-y-0.5 hover:bg-dark-green/90 focus:outline-none focus:ring-2 focus:ring-dark-green/30 dark:bg-mint dark:text-black dark:hover:bg-mint/90 dark:focus:ring-mint/30 sm:w-auto" data-api-send>Send request</button>
+            <button type="button" class="mt-4 w-full rounded-md bg-dark-green px-4 py-2 font-semibold text-true-white transition hover:bg-dark-green/90 focus:outline-none focus:ring-2 focus:ring-dark-green/30 dark:bg-mint dark:text-black dark:hover:bg-mint/90 dark:focus:ring-mint/30 sm:w-auto" data-api-send>Send request</button>
         </div>
         <div>
             <p class="text-sm font-semibold uppercase tracking-1 text-dark-green dark:text-mint">Response</p>

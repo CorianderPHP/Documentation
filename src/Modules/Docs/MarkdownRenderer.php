@@ -77,6 +77,10 @@ final class MarkdownRenderer
                     $normalizedLanguage = strtolower($codeLanguage);
                     if ($normalizedLanguage === 'workflow') {
                         $html[] = self::renderWorkflow($code);
+                    } elseif ($normalizedLanguage === 'flow') {
+                        $html[] = self::renderFlow($code);
+                    } elseif ($normalizedLanguage === 'responsibilities') {
+                        $html[] = self::renderResponsibilities($code);
                     } elseif ($normalizedLanguage === 'choices') {
                         $html[] = self::renderChoices($code);
                     } else {
@@ -220,26 +224,106 @@ final class MarkdownRenderer
             $description = trim($description);
             $url = trim($url);
 
-            $content = '<p class="choices-title">' . self::inline($title) . '</p>';
+            $content = '<p class="font-semibold text-dark-green dark:text-mint">' . self::inline($title) . '</p>';
             if ($description !== '') {
-                $content .= '<p class="choices-description">' . self::inline($description) . '</p>';
+                $content .= '<p class="mt-1 text-sm leading-6 text-black/70 dark:text-white/70">' . self::inline($description) . '</p>';
             }
 
             if ($url !== '') {
-                $items[] = '<a class="choices-item choices-link" role="listitem" href="' . self::escape($url) . '">' . $content . '</a>';
+                $items[] = '<div class="grid gap-3 border-b border-dark-green/10 py-4 dark:border-mint/15 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center" role="listitem">'
+                    . '<div class="min-w-0">' . $content . '</div>'
+                    . '<a class="inline-flex justify-self-start rounded-md border border-dark-green/20 px-3 py-2 text-sm font-semibold text-dark-green transition hover:border-dark-green/30 hover:bg-dark-green/5 focus:outline-none focus:ring-2 focus:ring-dark-green/20 dark:border-mint/25 dark:text-mint dark:hover:border-mint/40 dark:hover:bg-mint/5 dark:focus:ring-mint/20" href="' . self::escape($url) . '">Open guide</a>'
+                    . '</div>';
                 continue;
             }
 
-            $items[] = '<div class="choices-item" role="listitem">' . $content . '</div>';
+            $items[] = '<div class="border-b border-dark-green/10 py-4 dark:border-mint/15" role="listitem"><div class="min-w-0">' . $content . '</div></div>';
         }
 
-        return '<div class="choices" role="list">' . implode('', $items) . '</div>';
+        return '<div class="mt-5 grid border-t border-dark-green/10 dark:border-mint/15" role="list">' . implode('', $items) . '</div>';
+    }
+
+    /**
+     * @param string[] $lines
+     */
+    private static function renderFlow(array $lines): string
+    {
+        $steps = array_values(array_filter(array_map('trim', $lines), static fn(string $line): bool => $line !== ''));
+        if ($steps === []) {
+            return '';
+        }
+
+        $items = [];
+        foreach ($steps as $step) {
+            [$title, $description, $details] = array_pad(explode('|', $step, 3), 3, '');
+            $title = trim($title);
+            $description = trim($description);
+            $details = trim($details);
+
+            $detailsHtml = '';
+            if ($details !== '') {
+                $detailItems = array_values(array_filter(array_map('trim', explode(';', $details)), static fn(string $detail): bool => $detail !== ''));
+                if ($detailItems !== []) {
+                    $detailsHtml = '<ul class="mt-3 grid gap-1 text-sm leading-6 text-black/65 dark:text-white/65">'
+                        . implode('', array_map(static fn(string $detail): string => '<li>' . self::inline($detail) . '</li>', $detailItems))
+                        . '</ul>';
+                }
+            }
+
+            $items[] = '<div class="relative grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3" role="listitem">'
+                . '<div class="relative flex justify-center pt-3"><span class="h-3 w-3 rounded-full border border-dark-green bg-true-white dark:border-mint dark:bg-true-black"></span></div>'
+                . '<div class="border-b border-dark-green/10 pb-5 dark:border-mint/15">'
+                . '<p class="font-semibold text-dark-green dark:text-mint">' . self::inline($title) . '</p>'
+                . ($description !== '' ? '<p class="mt-1 text-sm leading-6 text-black/75 dark:text-white/75">' . self::inline($description) . '</p>' : '')
+                . $detailsHtml
+                . '</div>'
+                . '</div>';
+        }
+
+        return '<div class="relative mt-5 grid gap-0 before:absolute before:bottom-7 before:left-5 before:top-5 before:w-px before:bg-dark-green/10 before:content-[\'\'] dark:before:bg-mint/15" role="list">' . implode('', $items) . '</div>';
+    }
+
+    /**
+     * @param string[] $lines
+     */
+    private static function renderResponsibilities(array $lines): string
+    {
+        $responsibilities = array_values(array_filter(array_map('trim', $lines), static fn(string $line): bool => $line !== ''));
+        if ($responsibilities === []) {
+            return '';
+        }
+
+        $items = [];
+        foreach ($responsibilities as $responsibility) {
+            [$title, $description, $details] = array_pad(explode('|', $responsibility, 3), 3, '');
+            $title = trim($title);
+            $description = trim($description);
+            $details = trim($details);
+
+            $detailsHtml = '';
+            if ($details !== '') {
+                $detailItems = array_values(array_filter(array_map('trim', explode(';', $details)), static fn(string $detail): bool => $detail !== ''));
+                if ($detailItems !== []) {
+                    $detailsHtml = '<ul class="mt-4 grid gap-2 text-sm leading-6 text-black/70 dark:text-white/70">'
+                        . implode('', array_map(static fn(string $detail): string => '<li class="border-t border-dark-green/10 pt-2 first:border-t-0 first:pt-0 dark:border-mint/15">' . self::inline($detail) . '</li>', $detailItems))
+                        . '</ul>';
+                }
+            }
+
+            $items[] = '<section class="rounded-md border border-dark-green/10 bg-true-white p-4 shadow-sm dark:border-mint/15 dark:bg-true-black" role="listitem">'
+                . '<h3 class="font-concert-one text-2xl text-dark-green dark:text-mint">' . self::inline($title) . '</h3>'
+                . ($description !== '' ? '<p class="mt-2 text-sm font-semibold leading-6 text-black/75 dark:text-white/75">' . self::inline($description) . '</p>' : '')
+                . $detailsHtml
+                . '</section>';
+        }
+
+        return '<div class="mt-5 grid gap-3 md:grid-cols-2" role="list">' . implode('', $items) . '</div>';
     }
 
     private static function inline(string $value): string
     {
         $escaped = self::escape($value);
-        $escaped = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a class="font-semibold text-dark-green underline decoration-dark-green/30 underline-offset-4 hover:decoration-dark-green dark:text-mint dark:decoration-mint/30 dark:hover:decoration-mint" href="$2">$1</a>', $escaped) ?? $escaped;
+        $escaped = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a class="font-semibold text-link-blue underline decoration-link-blue/35 decoration-2 underline-offset-4 hover:decoration-link-blue dark:text-link-blue-dark dark:decoration-link-blue-dark/45 dark:hover:decoration-link-blue-dark" href="$2">$1</a>', $escaped) ?? $escaped;
         $escaped = preg_replace('/`([^`]+)`/', '<code class="rounded bg-dark-green/10 px-1.5 py-0.5 text-sm text-dark-green dark:bg-mint/10 dark:text-mint">$1</code>', $escaped) ?? $escaped;
         $escaped = preg_replace('/\*\*([^*]+)\*\*/', '<strong>$1</strong>', $escaped) ?? $escaped;
         return $escaped;

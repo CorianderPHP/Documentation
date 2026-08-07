@@ -28,34 +28,12 @@ Framework updates can replace `CorianderCore`. Your app should keep working beca
 
 ## Responsibility Map
 
-Use controllers for request flow:
-
-- read request data
-- call app services or repositories
-- choose the response or view
-- redirect after successful writes
-
-Use modules for reusable app logic:
-
-- repositories
-- services
-- validators
-- permission classes
-- small feature-specific helpers
-
-Use middleware for request gates:
-
-- authentication checks
-- admin-only areas
-- API guards
-- request preconditions
-
-Use views for rendering:
-
-- HTML structure
-- escaped output
-- forms
-- small display conditions
+```responsibilities
+Controllers|Own the request flow.|Read request data; call app services or repositories; choose the response or view; redirect after successful writes.
+Modules|Own reusable app logic.|Repositories; services; validators; permission classes; small feature-specific helpers.
+Middleware|Own request gates.|Authentication checks; admin-only areas; API guards; request preconditions.
+Views|Own rendering.|HTML structure; escaped output; forms; small display conditions.
+```
 
 Views should not own database queries or permission decisions. Prepare the data before rendering.
 
