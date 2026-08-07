@@ -12,8 +12,19 @@ $query = $query ?? '';
 $scope = $scope ?? 'all';
 $page = $page ?? null;
 $searchScope = 'reference';
-$searchSuggestions = ['controllers', 'routes', 'middleware', 'migrations', 'modules', 'production', 'debugging'];
+$searchSuggestions = ['install', 'controllers', 'routes', 'middleware', 'migrations', 'images', 'modules', 'production', 'debugging'];
 $quickAnswers = [
+    [
+        'keywords' => ['install', 'installation', 'download', 'composer install', 'nodejs install'],
+        'title' => 'Install a new project',
+        'summary' => 'Download a CorianderPHP framework release, keep the starter project files, skip repository-maintenance files, then install PHP and NodeJS dependencies.',
+        'language' => 'bash',
+        'code' => "composer install\nphp coriander nodejs run install\nphp coriander nodejs run build-prod",
+        'links' => [
+            ['label' => 'Installation guide', 'href' => '/documentation/installation'],
+            ['label' => 'NodeJS integration', 'href' => '/documentation/nodejs'],
+        ],
+    ],
     [
         'keywords' => ['controller', 'controllers'],
         'title' => 'Create a controller',
@@ -78,6 +89,17 @@ $quickAnswers = [
         'links' => [
             ['label' => 'Views reference', 'href' => '/documentation/views'],
             ['label' => 'Security reference', 'href' => '/documentation/security'],
+        ],
+    ],
+    [
+        'keywords' => ['image', 'images', 'imagehandler', 'webp', 'svg'],
+        'title' => 'Render images in views',
+        'summary' => 'Use ImageHandler with the options-array API so image URLs respect PUBLIC_URL_PREFIX and optional img attributes stay safe.',
+        'language' => 'php',
+        'code' => "<?= \\CorianderCore\\Core\\Image\\ImageHandler::render('/public/assets/img/logo.png', [\n    'alt' => 'Site logo',\n    'class' => 'h-10 w-auto',\n    'loading' => 'lazy',\n]); ?>",
+        'links' => [
+            ['label' => 'Views reference', 'href' => '/documentation/views'],
+            ['label' => 'Installation guide', 'href' => '/documentation/installation'],
         ],
     ],
     [

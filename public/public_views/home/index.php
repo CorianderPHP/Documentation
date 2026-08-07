@@ -6,7 +6,12 @@ use CorianderCore\Core\Support\PublicUrl;
 <section class="px-4 py-10 font-poppins sm:px-6 lg:px-8">
     <div class="mx-auto max-w-5xl">
         <div class="flex items-center gap-4">
-            <?= ImageHandler::render('/public/assets/img/home/coriander_logo.png', 'CorianderPHP logo', 'h-14 w-14 shrink-0 rounded-lg border border-dark-green/10 bg-true-white p-2 shadow-sm ring-4 ring-dark-green/5 dark:border-mint/20 dark:bg-true-black dark:ring-mint/10', 'h-full w-full object-contain', 60) ?>
+            <?= ImageHandler::render('/public/assets/img/home/coriander_logo.png', [
+                'alt' => 'CorianderPHP logo',
+                'pictureClass' => 'h-14 w-14 shrink-0 rounded-lg border border-dark-green/10 bg-true-white p-2 shadow-sm ring-4 ring-dark-green/5 dark:border-mint/20 dark:bg-true-black dark:ring-mint/10',
+                'class' => 'h-full w-full object-contain',
+                'quality' => 60,
+            ]) ?>
             <p class="rounded-full border border-dark-green/15 bg-dark-green/5 px-3 py-1 text-sm font-semibold uppercase tracking-1 text-dark-green dark:border-mint/20 dark:bg-mint/10 dark:text-mint">CorianderPHP</p>
         </div>
 
