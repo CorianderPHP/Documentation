@@ -2,6 +2,12 @@
 
 The local guided project writes to SQLite. The official documentation site is different: it is public, so visitor-written text must not be stored.
 
+You are here in the flow:
+
+```text
+controller action -> PublicDemoWriteGuard -> fake success or real ForumWriteService write
+```
+
 ## Goal
 
 Keep the same forms, routes, validation, and permission checks while preventing public-site persistence when demo mode is enabled.

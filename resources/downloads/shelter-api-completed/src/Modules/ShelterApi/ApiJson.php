@@ -5,6 +5,11 @@ namespace Modules\ShelterApi;
 
 use Nyholm\Psr7\Response;
 
+/*
+ * Response helper:
+ * every API controller returns JSON through this class so success and error
+ * responses stay predictable for clients and tests.
+ */
 final class ApiJson
 {
     public static function response(array $payload, int $status = 200): Response

@@ -60,6 +60,16 @@ The route file returns a closure so `public/routes.php` can include it cleanly.
 
 Public read routes do not need login. Guests can open the forum landing page, topic list, and topic detail.
 
+You are here in the flow:
+
+```text
+GET /forum-demo/topics/1
+  -> route matches forum-demo/topics/{id}
+  -> ForumDemoController::showTopic()
+  -> ForumRepository loads the topic and replies
+  -> ViewRenderer renders public/public_views/forum-demo/topic/index.php
+```
+
 ```php
 return static function (Router $router): void {
     $router->get('forum-demo', static fn () => (new ForumDemoController())->index());
@@ -214,6 +224,8 @@ Open these URLs:
 - [/forum-demo/admin/users](/forum-demo/admin/users)
 
 The admin URLs should redirect guests and members to login. The admin account should enter the protected area.
+
+If a page returns 404, first check the route string and route order. If a page loads but has missing variables, move to the controller chapter because the route matched but the controller did not prepare the expected view data.
 
 ## Common Mistakes
 

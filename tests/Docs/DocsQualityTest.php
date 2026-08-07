@@ -201,6 +201,34 @@ final class DocsQualityTest extends TestCase
         self::assertStringContainsString('$request->getAttribute(\'id\')', $contents);
     }
 
+    public function testGuidedProjectsExplainRequestLifecycles(): void
+    {
+        $forumIndex = (string) file_get_contents(PROJECT_ROOT . '/documentation/projects/forum/index.md');
+        $forumRoutes = (string) file_get_contents(PROJECT_ROOT . '/documentation/projects/forum/routes.md');
+        $shelterIndex = (string) file_get_contents(PROJECT_ROOT . '/documentation/projects/shelter-api/index.md');
+        $shelterRoutes = (string) file_get_contents(PROJECT_ROOT . '/documentation/projects/shelter-api/routes.md');
+
+        self::assertStringContainsString('route -> controller -> module/repository/write service -> view or redirect', $forumIndex);
+        self::assertStringContainsString('You are here in the flow', $forumRoutes);
+        self::assertStringContainsString('route -> API controller -> service -> repository -> JSON response', $shelterIndex);
+        self::assertStringContainsString('HTTP request -> src/Routes/api/shelter.php -> API controller method', $shelterRoutes);
+    }
+
+    public function testGuidedProjectDownloadSourcesContainLearnerOrientationComments(): void
+    {
+        $forumController = (string) file_get_contents(PROJECT_ROOT . '/src/Controllers/ForumDemoController.php');
+        $forumView = (string) file_get_contents(PROJECT_ROOT . '/public/public_views/forum-demo/topic/index.php');
+        $shelterController = (string) file_get_contents(PROJECT_ROOT . '/resources/downloads/shelter-api-completed/src/ApiControllers/ShelterAnimalController.php');
+        $shelterRepository = (string) file_get_contents(PROJECT_ROOT . '/resources/downloads/shelter-api-completed/src/Modules/ShelterApi/AnimalRepository.php');
+        $downloadGenerator = (string) file_get_contents(PROJECT_ROOT . '/scripts/generate-downloads.php');
+
+        self::assertStringContainsString('routes call these public methods', $forumController);
+        self::assertStringContainsString('Rendered by ForumDemoController::showTopic()', $forumView);
+        self::assertStringContainsString('Route entrypoint for /api/shelter/animals', $shelterController);
+        self::assertStringContainsString('Persistence layer', $shelterRepository);
+        self::assertStringContainsString('route -> controller -> module/repository/write service -> view or redirect', $downloadGenerator);
+    }
+
     /**
      * @return string[]
      */

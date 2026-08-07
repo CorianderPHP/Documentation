@@ -151,6 +151,27 @@ final class GuidedProjectRegressionTest extends TestCase
             'src/Modules/ShelterApi/AnimalValidator.php',
             'src/Modules/ShelterApi/ApiJson.php',
         ]);
+
+        $this->assertZipEntryContains(
+            'public/downloads/forum-completed.zip',
+            'src/Controllers/ForumDemoController.php',
+            'routes call these public methods'
+        );
+        $this->assertZipEntryContains(
+            'public/downloads/forum-completed.zip',
+            'public/public_views/forum-demo/topic/index.php',
+            'Rendered by ForumDemoController::showTopic()'
+        );
+        $this->assertZipEntryContains(
+            'public/downloads/shelter-api-completed.zip',
+            'src/ApiControllers/ShelterAnimalController.php',
+            'Route entrypoint for /api/shelter/animals'
+        );
+        $this->assertZipEntryContains(
+            'public/downloads/shelter-api-completed.zip',
+            'README.md',
+            'route -> API controller -> service -> repository -> JSON response'
+        );
     }
 
     /**
@@ -241,6 +262,23 @@ final class GuidedProjectRegressionTest extends TestCase
             foreach ($entries as $entry) {
                 self::assertNotFalse($zip->locateName($entry), $relativeZipPath . ' is missing ' . $entry);
             }
+        } finally {
+            $zip->close();
+        }
+    }
+
+    private function assertZipEntryContains(string $relativeZipPath, string $entry, string $expected): void
+    {
+        $zipPath = PROJECT_ROOT . '/' . $relativeZipPath;
+        self::assertFileExists($zipPath);
+
+        $zip = new ZipArchive();
+        self::assertTrue($zip->open($zipPath), 'Unable to open ' . $relativeZipPath);
+
+        try {
+            $contents = $zip->getFromName($entry);
+            self::assertIsString($contents, $relativeZipPath . ' is missing ' . $entry);
+            self::assertStringContainsString($expected, $contents, $relativeZipPath . ':' . $entry);
         } finally {
             $zip->close();
         }

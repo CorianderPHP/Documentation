@@ -1,4 +1,9 @@
 <?php
+/*
+ * Rendered by ForumDemoController::topics().
+ * The controller passes $topics, $categories, $permissions, and optional $flash.
+ * This template can hide forms, but write permissions are enforced server-side.
+ */
 $topics = $topics ?? [];
 $categories = $categories ?? [];
 $permissions = $permissions ?? [];

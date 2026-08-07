@@ -5,6 +5,12 @@ namespace Modules\ForumDemo\Writes;
 
 use Modules\ForumDemo\Permissions\DemoPermissionService;
 
+/*
+ * Hosted documentation safety layer:
+ * the public demo validates permissions and input, then returns a realistic
+ * result without saving visitor content. A local build can replace this path
+ * with a real ForumWriteService that persists to SQLite.
+ */
 final class DemoWriteGuard
 {
     public function __construct(private readonly DemoPermissionService $permissions = new DemoPermissionService())

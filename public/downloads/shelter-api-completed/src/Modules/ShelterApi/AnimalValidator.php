@@ -3,6 +3,10 @@ declare(strict_types=1);
 
 namespace Modules\ShelterApi;
 
+/*
+ * Validation belongs before repository writes. Keeping accepted species,
+ * statuses, and field messages here lets store() and update() share rules.
+ */
 final class AnimalValidator
 {
     private const SPECIES = ['cat', 'dog', 'bunny', 'bird'];

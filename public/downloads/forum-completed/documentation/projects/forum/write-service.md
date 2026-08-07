@@ -2,6 +2,12 @@
 
 The read repositories load forum data. Write behavior belongs in a separate service so validation, permissions, and SQL updates do not spread across controllers.
 
+You are here in the flow:
+
+```text
+POST route -> controller action -> ForumWriteService -> SQL write -> result array -> controller redirect -> view flash
+```
+
 ## Goal
 
 Create `ForumWriteService` with real SQLite writes for topics, replies, moderation, and user role changes.

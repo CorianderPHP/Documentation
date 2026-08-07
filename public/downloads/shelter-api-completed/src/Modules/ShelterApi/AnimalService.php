@@ -3,6 +3,11 @@ declare(strict_types=1);
 
 namespace Modules\ShelterApi;
 
+/*
+ * Application workflow layer:
+ * controllers call this service. It validates writes, handles not-found rules,
+ * and delegates persistence to AnimalRepository.
+ */
 final class AnimalService
 {
     public function __construct(

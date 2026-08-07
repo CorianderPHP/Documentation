@@ -18,3 +18,11 @@ The playground is a documentation tool. `GET` requests read seeded demo data. `P
 ## How this helps
 
 The code examples in the route, controller, validation, and error chapters are easier to understand when you can immediately see the JSON result. Use the playground as a Postman-like companion while reading the project.
+
+Match each playground request to the code path:
+
+```text
+Playground button -> API route -> controller -> service -> fake or seeded data -> JSON panel
+```
+
+For the hosted documentation site, writes are intentionally fake. In a local completed project, the same controller and service shape can persist to the configured database.

@@ -2,6 +2,12 @@
 
 The route file should describe the HTTP surface and delegate work to controllers. Keep database queries and validation out of the route file.
 
+You are here in the flow:
+
+```text
+HTTP request -> src/Routes/api/shelter.php -> API controller method
+```
+
 ## Route file
 
 You created `src/Routes/api/shelter.php` in the project structure step. Now replace its content with the API routes:
@@ -49,3 +55,13 @@ DELETE /api/shelter/animals/1
 ## Common mistake
 
 Do not build one route like `/api/shelter/animals/action/delete`. That makes permissions, tests, documentation, and client code harder to reason about. Let the method express the action.
+
+## Checkpoint
+
+Run a GET request:
+
+```http
+GET /api/shelter/animals?species=cat
+```
+
+If the route returns 404, check that `src/Routes/api/shelter.php` is included from `public/routes.php`. If it returns JSON but the data is wrong, move to the controller, service, or repository chapter.

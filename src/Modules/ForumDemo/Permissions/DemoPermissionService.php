@@ -3,6 +3,11 @@ declare(strict_types=1);
 
 namespace Modules\ForumDemo\Permissions;
 
+/*
+ * One permission service feeds controllers, middleware, write guards, and views.
+ * Views may hide buttons for UX, but this service is still checked server-side
+ * before protected writes are accepted.
+ */
 final class DemoPermissionService
 {
     /**

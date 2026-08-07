@@ -10,6 +10,11 @@ use Modules\ShelterApi\ValidationException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
+/*
+ * Route entrypoint for /api/shelter/animals.
+ * This controller translates HTTP details into service calls and returns JSON.
+ * It does not build SQL or duplicate validation rules.
+ */
 final class ShelterAnimalController
 {
     public function __construct(private readonly AnimalService $animals = new AnimalService())
@@ -62,6 +67,7 @@ final class ShelterAnimalController
 
     private function jsonBody(ServerRequestInterface $request): array
     {
+        // Keep JSON parsing at the controller boundary before data enters services.
         $body = json_decode((string) $request->getBody(), true);
         return is_array($body) ? $body : [];
     }

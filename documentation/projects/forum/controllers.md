@@ -71,6 +71,15 @@ public function index(): void
 
 The controller asks the repository for data and passes it to the view.
 
+You are here in the flow:
+
+```text
+ForumDemoController::index()
+  -> ForumRepository::topics()
+  -> ViewRenderer::render('forum-demo', ['topics' => ...])
+  -> public/public_views/forum-demo/index.php receives $topics
+```
+
 ## Step: Render Topic Pages
 
 ```php
@@ -231,6 +240,8 @@ This keeps the controller DRY and gives every template the same permission shape
 ## Checkpoint
 
 Open [/forum-demo/topics](/forum-demo/topics). The page should render topics from `ForumRepository` and receive a `permissions` array even when the visitor is a guest.
+
+Open [/forum-demo/topics/1](/forum-demo/topics/1). If the original post renders but replies do not, check `ForumRepository::repliesForTopic()`. If neither renders, check `showTopic()` and the route attribute named `id`.
 
 ## Common Mistakes
 

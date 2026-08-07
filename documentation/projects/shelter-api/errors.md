@@ -2,6 +2,12 @@
 
 An API is easier to consume when every error has the same shape. Clients should not parse framework errors, PHP notices, or plain strings.
 
+You are here in the flow:
+
+```text
+controller or service catches a known failure -> ApiJson::error() -> client receives a stable JSON error
+```
+
 ## Error shape
 
 Use one shape everywhere:
@@ -70,3 +76,13 @@ Keep versioning in the route file. The controller and service names do not need 
 ## MySQL production note
 
 SQLite is good for this guide. For production MySQL, keep the same repository interface and change only the connection configuration and SQL dialect details from the data model step. Controllers should not know which database driver is used.
+
+## Checkpoint
+
+Request a missing animal:
+
+```http
+GET /api/shelter/animals/999999
+```
+
+You should receive `404` and the same top-level `error` shape shown above. If you receive plain text or a PHP error, centralize that path through `ApiJson::error()`.

@@ -33,3 +33,15 @@ The guide uses SQLite because it is easy to run locally and useful for learning 
 ## Recommended path
 
 Read the steps in order the first time. After that, use the search box for concrete tasks such as "route file", "filter species", "validation", "SQLite", or "JSON error".
+
+When you are unsure where a piece belongs, place it in this API lifecycle:
+
+```text
+route -> API controller -> service -> repository -> JSON response
+```
+
+- Routes define the HTTP contract.
+- API controllers read request data and choose the response shape.
+- Services own validation, workflow, and business decisions.
+- Repositories own SQL.
+- `ApiJson` keeps every response shape consistent.

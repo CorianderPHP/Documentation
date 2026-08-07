@@ -6,6 +6,12 @@ use ApiControllers\ShelterLookupController;
 use CorianderCore\Core\Router\Router;
 use Psr\Http\Message\ServerRequestInterface;
 
+/*
+ * Guided project map:
+ * routes describe the HTTP contract, then delegate to API controllers.
+ * Controllers handle request parsing and JSON responses; services and
+ * repositories own validation and SQL.
+ */
 return static function (Router $router): void {
     $router->get('/api/shelter/animals', static fn (ServerRequestInterface $request) => (new ShelterAnimalController())->index($request));
     $router->get('/api/shelter/animals/{id:[0-9]+}', static fn (ServerRequestInterface $request) => (new ShelterAnimalController())->show($request));

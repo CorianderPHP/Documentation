@@ -81,6 +81,17 @@ Every chapter should answer four questions before you copy code:
 
 When a chapter introduces a form write, follow the full request lifecycle: route, controller, permission check, write service, redirect, flash message, and rendered GET page. That is the difference between a demo that appears to work and an app that behaves correctly when users refresh or go back.
 
+When you still feel lost, place the current file in this lifecycle:
+
+```text
+route -> controller -> module/repository/write service -> view or redirect
+```
+
+- If you are in a route file, ask which controller action receives this URL.
+- If you are in a controller, ask which module gives it data and which view receives it.
+- If you are in a module, ask which controller calls it and what result shape it returns.
+- If you are in a view, ask which controller rendered it and which variables were passed.
+
 ## Architecture Rule
 
 Keep each layer boring:
