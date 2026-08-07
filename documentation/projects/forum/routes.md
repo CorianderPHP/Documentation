@@ -62,12 +62,12 @@ Public read routes do not need login. Guests can open the forum landing page, to
 
 You are here in the flow:
 
-```text
-GET /forum-demo/topics/1
-  -> route matches forum-demo/topics/{id}
-  -> ForumDemoController::showTopic()
-  -> ForumRepository loads the topic and replies
-  -> ViewRenderer renders public/public_views/forum-demo/topic/index.php
+```workflow
+Request|`GET /forum-demo/topics/1`
+Route|`forum-demo/topics/{id}` matches because `1` satisfies the numeric constraint.
+Controller|`ForumDemoController::showTopic()` receives the route id.
+Repository|`ForumRepository` loads the topic and its replies.
+View|`ViewRenderer` renders `public/public_views/forum-demo/topic/index.php`.
 ```
 
 ```php
@@ -93,14 +93,12 @@ Before adding write routes, separate URLs into two groups:
 
 For this project, a reply submission follows this path:
 
-```txt
-POST /forum-demo/topics/1/replies
-  -> ForumDemoController::storeReply()
-  -> PublicDemoWriteGuard or ForumWriteService
-  -> store a flash result
-  -> 302 redirect to /forum-demo/topics/1
-GET /forum-demo/topics/1
-  -> render topic and consume flash
+```workflow
+POST route|`POST /forum-demo/topics/1/replies` calls `ForumDemoController::storeReply()`.
+Write layer|`PublicDemoWriteGuard` handles hosted demo safety, or `ForumWriteService` writes locally.
+Flash|The controller stores the result message in session.
+Redirect|The response redirects to `/forum-demo/topics/1`.
+GET page|The topic page renders again and consumes the flash message once.
 ```
 
 This pattern is called Post/Redirect/Get. It prevents browser warnings like "confirm form resubmission" when a user refreshes or presses Back.

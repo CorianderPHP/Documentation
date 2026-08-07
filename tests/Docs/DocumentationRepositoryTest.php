@@ -33,6 +33,8 @@ final class DocumentationRepositoryTest extends TestCase
         self::assertSame('Install CorianderPHP', $repository->find('installation')?->title);
         self::assertArrayHasKey('Start Here', $groups);
         self::assertContains('installation', array_map(static fn($page): string => $page->slug, $groups['Start Here']));
+        self::assertContains('static-views', array_map(static fn($page): string => $page->slug, $groups['Start Here']));
+        self::assertContains('dynamic-views', array_map(static fn($page): string => $page->slug, $groups['Start Here']));
     }
 
     public function testGuidedProjectScopesResolveFromRegistry(): void

@@ -4,8 +4,10 @@ The route file should describe the HTTP surface and delegate work to controllers
 
 You are here in the flow:
 
-```text
-HTTP request -> src/Routes/api/shelter.php -> API controller method
+```workflow
+HTTP request|The client calls an `/api/shelter/...` URL.
+Route file|`src/Routes/api/shelter.php` matches the path and HTTP method.
+Controller method|The route delegates to the matching API controller action.
 ```
 
 ## Route file

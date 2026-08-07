@@ -4,9 +4,11 @@ Filtering belongs close to the repository. Validation belongs before writes reac
 
 You are here in the flow:
 
-```text
-controller -> AnimalService -> AnimalValidator for writes
-controller -> AnimalService -> AnimalRepository for filtered reads
+```workflow
+Controller|Sends query parameters or JSON body data to `AnimalService`.
+AnimalService|Chooses validation for writes or filtering for reads.
+AnimalValidator|Validates create and update input before writes reach SQL.
+AnimalRepository|Builds allowed filtered read queries with bound parameters.
 ```
 
 ## Supported filters

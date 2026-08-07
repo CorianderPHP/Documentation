@@ -4,8 +4,11 @@ Controllers should stay thin. They read request data, call the service layer, an
 
 You are here in the flow:
 
-```text
-route -> ShelterAnimalController -> AnimalService -> ApiJson::response()
+```workflow
+Route|Selects the controller method for the HTTP request.
+ShelterAnimalController|Reads request data and calls the service.
+AnimalService|Runs the API workflow and returns data or errors.
+ApiJson|Builds the PSR-7 JSON response.
 ```
 
 ## JSON helper

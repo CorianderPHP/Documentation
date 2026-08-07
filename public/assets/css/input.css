@@ -144,4 +144,143 @@
     .dark .y-slider::-webkit-scrollbar-thumb:hover {
         background: rgba(143, 227, 180, 0.76);
     }
+
+    .workflow {
+        margin-top: 1.25rem;
+        display: grid;
+        gap: 0;
+    }
+
+    .workflow-step {
+        position: relative;
+        display: grid;
+        grid-template-columns: 2.25rem minmax(0, 1fr);
+        gap: 0.875rem;
+        padding-block: 0;
+    }
+
+    .workflow-step::before {
+        content: "";
+        position: absolute;
+        left: 1.075rem;
+        top: 2.35rem;
+        bottom: 0;
+        width: 2px;
+        border-radius: 999px;
+        background: rgba(15, 107, 79, 0.18);
+    }
+
+    .workflow-step:not(:last-child) .workflow-content {
+        border-bottom: 1px solid rgba(15, 107, 79, 0.12);
+    }
+
+    .workflow-marker {
+        z-index: 1;
+        display: grid;
+        width: 2.25rem;
+        height: 2.25rem;
+        place-items: center;
+        border: 1px solid rgba(15, 107, 79, 0.24);
+        border-radius: 999px;
+        background: #f6faf7;
+        color: #0f6b4f;
+        font-size: 0.875rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-top: 0.35rem;
+    }
+
+    .workflow-content {
+        min-width: 0;
+        padding: 0.75rem 0 0.9rem;
+    }
+
+    .workflow-title {
+        font-weight: 700;
+        color: #0f6b4f;
+    }
+
+    .workflow-description {
+        margin-top: 0.25rem;
+        color: rgba(17, 24, 39, 0.72);
+        font-size: 0.925rem;
+        line-height: 1.65;
+    }
+
+    .dark .workflow-step::before {
+        background: rgba(143, 227, 180, 0.24);
+    }
+
+    .dark .workflow-step:not(:last-child) .workflow-content {
+        border-bottom-color: rgba(143, 227, 180, 0.16);
+    }
+
+    .dark .workflow-marker {
+        border-color: rgba(143, 227, 180, 0.34);
+        background: #111827;
+        color: #8fe3b4;
+    }
+
+    .dark .workflow-title {
+        color: #8fe3b4;
+    }
+
+    .dark .workflow-description {
+        color: rgba(255, 255, 255, 0.72);
+    }
+
+    .choices {
+        margin-top: 1.25rem;
+        display: grid;
+        border-top: 1px solid rgba(15, 107, 79, 0.12);
+    }
+
+    .choices-item {
+        display: block;
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(15, 107, 79, 0.12);
+    }
+
+    .choices-link {
+        transition: background-color 160ms ease, border-color 160ms ease;
+    }
+
+    .choices-link:hover,
+    .choices-link:focus-visible {
+        background: rgba(17, 24, 39, 0.05);
+        outline: none;
+    }
+
+    .choices-title {
+        font-weight: 700;
+        color: #0f6b4f;
+    }
+
+    .choices-description {
+        margin-top: 0.25rem;
+        color: rgba(17, 24, 39, 0.72);
+        font-size: 0.925rem;
+        line-height: 1.65;
+    }
+
+    .dark .choices {
+        border-top-color: rgba(143, 227, 180, 0.16);
+    }
+
+    .dark .choices-item {
+        border-bottom-color: rgba(143, 227, 180, 0.16);
+    }
+
+    .dark .choices-link:hover,
+    .dark .choices-link:focus-visible {
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .dark .choices-title {
+        color: #8fe3b4;
+    }
+
+    .dark .choices-description {
+        color: rgba(255, 255, 255, 0.72);
+    }
 }

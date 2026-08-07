@@ -6,10 +6,12 @@ This page lists common problems and where to look first.
 
 Check:
 
-1. The route exists.
-2. The route file is required by `public/routes.php`.
-3. The method matches the request method.
-4. Dynamic route parameters match the pattern.
+```workflow
+Route exists|Confirm the URL is registered somewhere.
+Route file loaded|Confirm the route file is required by `public/routes.php`.
+Method matches|Check that GET, POST, PATCH, or DELETE matches the request.
+Parameters match|Check that dynamic route parameters satisfy the route pattern.
+```
 
 Example:
 
@@ -36,7 +38,7 @@ If a URL returns Apache `Forbidden`, check:
 - whether the host blocks direct directory access
 - whether the route is being handled by Apache before PHP
 
-The application route should reach `index.php`.
+The application route should reach `public/index.php`.
 
 ## Asset MIME Type Error
 

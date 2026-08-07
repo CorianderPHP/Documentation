@@ -42,7 +42,7 @@ final class DocumentationSearchTest extends TestCase
         $results = (new DocumentationSearch(new DocumentationRepository()))->search('ImageHandler options loading decoding', 'reference');
 
         self::assertNotEmpty($results);
-        self::assertSame('views', $results[0]['page']->slug);
+        self::assertSame('assets', $results[0]['page']->slug);
     }
 
     public function testSearchFindsCliHelpDocumentation(): void
@@ -58,7 +58,15 @@ final class DocumentationSearchTest extends TestCase
         $results = (new DocumentationSearch(new DocumentationRepository()))->search('dynamic view render data', 'reference');
 
         self::assertNotEmpty($results);
-        self::assertSame('views', $results[0]['page']->slug);
+        self::assertSame('dynamic-views', $results[0]['page']->slug);
+    }
+
+    public function testSearchFindsStaticViewDocumentation(): void
+    {
+        $results = (new DocumentationSearch(new DocumentationRepository()))->search('static view metadata sitemap about', 'reference');
+
+        self::assertNotEmpty($results);
+        self::assertSame('static-views', $results[0]['page']->slug);
     }
 
     public function testEmptySearchReturnsNoResults(): void

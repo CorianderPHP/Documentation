@@ -16,6 +16,8 @@ Examples:
 - `php coriander help`
 - `php coriander help make`
 - `php coriander make:view Home`
+- `php coriander make:controller Dashboard`
+- `php coriander make:controller Users --api`
 - `php coriander make:route admin`
 - `php coriander make:migration CreateUsersTable`
 - `php coriander migrate:status`
@@ -137,6 +139,22 @@ Create a timestamped migration file under `database/migrations`.
 ```bash
 php coriander make:migration CreateUsersTable
 ```
+
+### `make:controller`
+
+Create a web controller under `src/Controllers`:
+
+```bash
+php coriander make:controller Dashboard
+```
+
+Create an API controller under `src/ApiControllers`:
+
+```bash
+php coriander make:controller Users --api
+```
+
+The CLI appends `Controller` automatically when needed. `php coriander make:controller Blog` creates `BlogController.php`.
 
 ### `make:route`
 

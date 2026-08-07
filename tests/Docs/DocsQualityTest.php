@@ -13,6 +13,7 @@ final class DocsQualityTest extends TestCase
      */
     private const SUPPORTED_CODE_LANGUAGES = [
         'bash',
+        'choices',
         'env',
         'html',
         'http',
@@ -30,6 +31,7 @@ final class DocsQualityTest extends TestCase
         'tsx',
         'txt',
         'typescript',
+        'workflow',
     ];
 
     public function testGuidedProjectNavigationTargetsExistingMarkdown(): void
@@ -104,24 +106,16 @@ final class DocsQualityTest extends TestCase
         foreach ($this->markdownFiles() as $file) {
             preg_match_all('/\[[^\]]+\]\(([^)]+)\)/', (string) file_get_contents($file), $matches);
             foreach ($matches[1] as $target) {
-                $path = strtok($target, '#?');
-                if (!is_string($path) || $path === '' || preg_match('/^[a-z]+:/i', $path) === 1) {
-                    continue;
-                }
+                $this->assertInternalTargetResolves($file, $target);
+            }
 
-                if (str_starts_with($path, '/public/downloads/')) {
-                    self::assertFileExists(PROJECT_ROOT . $path, $file . ' links to missing download ' . $path);
-                    continue;
-                }
-
-                if (str_starts_with($path, '/documentation/')) {
-                    $slug = substr($path, strlen('/documentation/'));
-                    self::assertTrue($slug === '' || $this->markdownTargetExists($slug), $file . ' links to missing documentation page ' . $path);
-                    continue;
-                }
-
-                if (str_starts_with($path, '/guided-projects/')) {
-                    self::assertTrue($this->guidedProjectPathExists($path), $file . ' links to missing guided project page ' . $path);
+            preg_match_all('/^```choices\s*\R([\s\S]*?)^```/m', (string) file_get_contents($file), $choiceMatches);
+            foreach ($choiceMatches[1] as $choiceBlock) {
+                foreach (preg_split('/\r\n|\r|\n/', trim($choiceBlock)) ?: [] as $choiceLine) {
+                    $parts = array_map('trim', explode('|', $choiceLine, 3));
+                    if (($parts[2] ?? '') !== '') {
+                        $this->assertInternalTargetResolves($file, $parts[2]);
+                    }
                 }
             }
         }
@@ -167,7 +161,7 @@ final class DocsQualityTest extends TestCase
 
     public function testImageHandlerDocumentationUsesOptionsArrayApi(): void
     {
-        $contents = (string) file_get_contents(PROJECT_ROOT . '/documentation/views.md');
+        $contents = (string) file_get_contents(PROJECT_ROOT . '/documentation/assets.md');
 
         self::assertStringContainsString("ImageHandler::render('/public/assets/img/logo.png', [", $contents);
         self::assertStringContainsString("'loading' => 'lazy'", $contents);
@@ -188,17 +182,22 @@ final class DocsQualityTest extends TestCase
         self::assertStringContainsString('php coriander nodejs --help', $contents);
     }
 
-    public function testViewsDocumentationCoversDynamicViews(): void
+    public function testViewsDocumentationIsSplitByViewType(): void
     {
-        $contents = (string) file_get_contents(PROJECT_ROOT . '/documentation/views.md');
+        $overview = (string) file_get_contents(PROJECT_ROOT . '/documentation/views.md');
+        $static = (string) file_get_contents(PROJECT_ROOT . '/documentation/static-views.md');
+        $dynamic = (string) file_get_contents(PROJECT_ROOT . '/documentation/dynamic-views.md');
 
-        self::assertStringContainsString('Static Views And Dynamic Views', $contents);
-        self::assertStringContainsString('Dynamic View From Scratch', $contents);
-        self::assertStringContainsString('ViewRenderer', $contents);
-        self::assertStringContainsString("\$this->view->render('articles/show'", $contents);
-        self::assertStringContainsString('public/public_views/articles/show/index.php', $contents);
-        self::assertStringContainsString("\$router->get('/articles/{id}'", $contents);
-        self::assertStringContainsString('$request->getAttribute(\'id\')', $contents);
+        self::assertStringContainsString('Static View Guide](/documentation/static-views)', $overview);
+        self::assertStringContainsString('Dynamic View Guide](/documentation/dynamic-views)', $overview);
+        self::assertStringContainsString('Assets And Images](/documentation/assets)', $overview);
+        self::assertStringContainsString('public/public_views/about/index.php', $static);
+        self::assertStringContainsString('$addViewInSitemap = true', $static);
+        self::assertStringContainsString('ViewRenderer', $dynamic);
+        self::assertStringContainsString("\$this->view->render('articles/show'", $dynamic);
+        self::assertStringContainsString('public/public_views/articles/show/index.php', $dynamic);
+        self::assertStringContainsString("\$router->get('/articles/{id}'", $dynamic);
+        self::assertStringContainsString('$request->getAttribute(\'id\')', $dynamic);
     }
 
     public function testGuidedProjectsExplainRequestLifecycles(): void
@@ -208,10 +207,12 @@ final class DocsQualityTest extends TestCase
         $shelterIndex = (string) file_get_contents(PROJECT_ROOT . '/documentation/projects/shelter-api/index.md');
         $shelterRoutes = (string) file_get_contents(PROJECT_ROOT . '/documentation/projects/shelter-api/routes.md');
 
-        self::assertStringContainsString('route -> controller -> module/repository/write service -> view or redirect', $forumIndex);
+        self::assertStringContainsString('```workflow', $forumIndex);
+        self::assertStringContainsString('Route|Maps the URL to a controller action.', $forumIndex);
         self::assertStringContainsString('You are here in the flow', $forumRoutes);
-        self::assertStringContainsString('route -> API controller -> service -> repository -> JSON response', $shelterIndex);
-        self::assertStringContainsString('HTTP request -> src/Routes/api/shelter.php -> API controller method', $shelterRoutes);
+        self::assertStringContainsString('```workflow', $shelterIndex);
+        self::assertStringContainsString('Repository|Runs SQL and returns storage data.', $shelterIndex);
+        self::assertStringContainsString('Route file|`src/Routes/api/shelter.php` matches the path and HTTP method.', $shelterRoutes);
     }
 
     public function testGuidedProjectDownloadSourcesContainLearnerOrientationComments(): void
@@ -226,7 +227,7 @@ final class DocsQualityTest extends TestCase
         self::assertStringContainsString('Rendered by ForumDemoController::showTopic()', $forumView);
         self::assertStringContainsString('Route entrypoint for /api/shelter/animals', $shelterController);
         self::assertStringContainsString('Persistence layer', $shelterRepository);
-        self::assertStringContainsString('route -> controller -> module/repository/write service -> view or redirect', $downloadGenerator);
+        self::assertStringContainsString('Route|Maps URLs to controller actions.', $downloadGenerator);
     }
 
     /**
@@ -275,5 +276,28 @@ final class DocsQualityTest extends TestCase
         }
 
         return false;
+    }
+
+    private function assertInternalTargetResolves(string $file, string $target): void
+    {
+        $path = strtok($target, '#?');
+        if (!is_string($path) || $path === '' || preg_match('/^[a-z]+:/i', $path) === 1) {
+            return;
+        }
+
+        if (str_starts_with($path, '/public/downloads/')) {
+            self::assertFileExists(PROJECT_ROOT . $path, $file . ' links to missing download ' . $path);
+            return;
+        }
+
+        if (str_starts_with($path, '/documentation/')) {
+            $slug = substr($path, strlen('/documentation/'));
+            self::assertTrue($slug === '' || $this->markdownTargetExists($slug), $file . ' links to missing documentation page ' . $path);
+            return;
+        }
+
+        if (str_starts_with($path, '/guided-projects/')) {
+            self::assertTrue($this->guidedProjectPathExists($path), $file . ' links to missing guided project page ' . $path);
+        }
     }
 }

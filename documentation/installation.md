@@ -1,6 +1,6 @@
 # Install CorianderPHP
 
-Start from a framework release when you want a normal CorianderPHP project. Do not clone the documentation website as your application.
+Start from a framework release when you want a normal CorianderPHP project. Do not use the documentation website repository as your application, and do not copy documentation-only files into a new app.
 
 ## Download A Release
 
@@ -12,9 +12,9 @@ Use the latest stable release for a normal project. Use a prerelease only when y
 
 ## Prepare The Project Folder
 
-Extract the release archive into your project folder.
+Extract the release archive into your project folder. A release archive is the easiest path because it is meant to become an application.
 
-Keep the framework and starter application files, but do not copy repository-maintenance files into your app unless you explicitly need them.
+If you use the GitHub source tree instead of a release archive, remove repository-only files before treating the folder as your app. These files are useful for maintaining the framework repository, but they are not needed to run a normal application.
 
 You normally do not need:
 
@@ -26,23 +26,7 @@ LICENSE
 readme.md
 ```
 
-Keep application and framework files such as:
-
-```structure
-CorianderCore/
-config/
-database/
-nodejs/
-public/
-src/
-.env-example
-composer.json
-composer.lock
-coriander
-index.php
-```
-
-If a release contains extra project-maintenance files, treat them the same way: useful for the framework repository, but not required for a new app.
+If a release contains extra project-maintenance files, treat them the same way: useful for the framework repository, but not required for a new app. When you are unsure, remove only files you recognize as repository metadata.
 
 ## Install PHP Dependencies
 

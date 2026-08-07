@@ -38,6 +38,43 @@ MD);
         self::assertStringContainsString('data-language="structure"', $result['html']);
     }
 
+    public function testRendersWorkflowFencesAsStepBlocks(): void
+    {
+        $result = (new MarkdownRenderer())->render(<<<'MD'
+```workflow
+Route|Matches `/articles/{id}`.
+Controller|Loads the article and prepares view data.
+View|Renders public/public_views/articles/show/index.php
+```
+MD);
+
+        self::assertStringContainsString('class="workflow"', $result['html']);
+        self::assertStringContainsString('role="listitem"', $result['html']);
+        self::assertStringContainsString('class="workflow-marker">1</div>', $result['html']);
+        self::assertStringContainsString('Route', $result['html']);
+        self::assertStringContainsString('Matches <code', $result['html']);
+        self::assertStringNotContainsString('<pre', $result['html']);
+    }
+
+    public function testRendersChoicesFencesAsNonNumberedOptions(): void
+    {
+        $result = (new MarkdownRenderer())->render(<<<'MD'
+```choices
+Static view|Fixed content pages.|/documentation/static-views
+Assets|Images and public files.
+```
+MD);
+
+        self::assertStringContainsString('class="choices"', $result['html']);
+        self::assertStringContainsString('class="choices-item choices-link"', $result['html']);
+        self::assertStringContainsString('role="listitem"', $result['html']);
+        self::assertStringContainsString('href="/documentation/static-views"', $result['html']);
+        self::assertStringContainsString('Fixed content pages.', $result['html']);
+        self::assertStringContainsString('Images and public files.', $result['html']);
+        self::assertStringNotContainsString('workflow-marker', $result['html']);
+        self::assertStringNotContainsString('<pre', $result['html']);
+    }
+
     public function testRendersMarkdownTables(): void
     {
         $result = (new MarkdownRenderer())->render(<<<'MD'

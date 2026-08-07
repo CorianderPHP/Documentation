@@ -22,7 +22,7 @@ Point the web server document root to the project public entry point expected by
 
 On shared hosting or Plesk, confirm:
 
-- requests reach `index.php`
+- requests reach `public/index.php`
 - `.htaccess` rewrite rules are active
 - static assets under `public/assets` return the correct MIME type
 - the public URL prefix matches how the host serves the project
@@ -108,11 +108,13 @@ Confirm the log path is writable and rotated.
 
 Do not edit `CorianderCore` for app behavior. When the framework updates, review:
 
-1. route smoke tests
-2. documentation quality tests
-3. generated downloads
-4. frontend build
-5. deployment-specific `.env` changes
+```choices
+Route smoke tests|Confirm public pages, documentation routes, demos, and downloads still respond.
+Documentation quality tests|Confirm links, supported code fences, and guided project navigation are still valid.
+Generated downloads|Regenerate and verify completed project packages.
+Frontend build|Rebuild TypeScript and Tailwind assets.
+Environment review|Check deployment-specific `.env` changes before release.
+```
 
 ## Final Verification
 

@@ -4,8 +4,13 @@ The read repositories load forum data. Write behavior belongs in a separate serv
 
 You are here in the flow:
 
-```text
-POST route -> controller action -> ForumWriteService -> SQL write -> result array -> controller redirect -> view flash
+```workflow
+POST route|Receives the form submission and calls the controller action.
+Controller|Reads parsed form data and current user, then delegates the write.
+ForumWriteService|Checks permission, validates input, and runs the SQL write.
+Result|Returns one result array for web views and API responses.
+Redirect|The controller stores the result as flash and redirects to a GET page.
+View|The GET page renders the flash message once.
 ```
 
 ## Goal

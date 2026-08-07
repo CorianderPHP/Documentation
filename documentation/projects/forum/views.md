@@ -23,10 +23,10 @@ The landing page receives `$topics`, `$currentUser`, and `$permissions`. Keep it
 
 You are here in the flow:
 
-```text
-ForumDemoController::index()
-  -> $this->render('forum-demo', ['topics' => ...])
-  -> public/public_views/forum-demo/index.php
+```workflow
+Controller|`ForumDemoController::index()` prepares the landing page data.
+Render call|`$this->render('forum-demo', ['topics' => ...])` chooses the view name.
+View file|`public/public_views/forum-demo/index.php` receives `$topics`, `$currentUser`, and `$permissions`.
 ```
 
 ```html

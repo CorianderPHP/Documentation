@@ -73,11 +73,11 @@ The controller asks the repository for data and passes it to the view.
 
 You are here in the flow:
 
-```text
-ForumDemoController::index()
-  -> ForumRepository::topics()
-  -> ViewRenderer::render('forum-demo', ['topics' => ...])
-  -> public/public_views/forum-demo/index.php receives $topics
+```workflow
+Controller|`ForumDemoController::index()` handles the matched route.
+Repository|`ForumRepository::topics()` returns the rows needed for the landing page.
+Renderer|`ViewRenderer::render('forum-demo', ['topics' => ...])` selects the view and passes data.
+View|`public/public_views/forum-demo/index.php` receives `$topics`.
 ```
 
 ## Step: Render Topic Pages

@@ -74,9 +74,16 @@ final class MarkdownRenderer
         foreach ($lines as $line) {
             if (str_starts_with(trim($line), '```')) {
                 if ($inCode) {
-                    $languageClass = $codeLanguage !== '' ? ' data-language="' . self::escape($codeLanguage) . '"' : '';
-                    $codeLanguageAttribute = $codeLanguage !== '' ? ' code-lang="' . self::escape($codeLanguage) . '"' : '';
-                    $html[] = '<pre class="mt-5 overflow-x-auto rounded-lg border border-dark-green/15 bg-true-white p-4 text-sm text-black shadow-sm dark:border-mint/20 dark:bg-true-black dark:text-white"' . $languageClass . '><code' . $codeLanguageAttribute . '>' . self::escape(implode("\n", $code)) . '</code></pre>';
+                    $normalizedLanguage = strtolower($codeLanguage);
+                    if ($normalizedLanguage === 'workflow') {
+                        $html[] = self::renderWorkflow($code);
+                    } elseif ($normalizedLanguage === 'choices') {
+                        $html[] = self::renderChoices($code);
+                    } else {
+                        $languageClass = $codeLanguage !== '' ? ' data-language="' . self::escape($codeLanguage) . '"' : '';
+                        $codeLanguageAttribute = $codeLanguage !== '' ? ' code-lang="' . self::escape($codeLanguage) . '"' : '';
+                        $html[] = '<pre class="mt-5 overflow-x-auto rounded-lg border border-dark-green/15 bg-true-white p-4 text-sm text-black shadow-sm dark:border-mint/20 dark:bg-true-black dark:text-white"' . $languageClass . '><code' . $codeLanguageAttribute . '>' . self::escape(implode("\n", $code)) . '</code></pre>';
+                    }
                     $inCode = false;
                     $code = [];
                     $codeLanguage = '';
@@ -162,6 +169,71 @@ final class MarkdownRenderer
         $flushTable();
 
         return ['html' => implode("\n", $html), 'headings' => $headings];
+    }
+
+    /**
+     * @param string[] $lines
+     */
+    private static function renderWorkflow(array $lines): string
+    {
+        $steps = array_values(array_filter(array_map('trim', $lines), static fn(string $line): bool => $line !== ''));
+        if ($steps === []) {
+            return '';
+        }
+
+        $items = [];
+        foreach ($steps as $index => $step) {
+            [$title, $description] = array_pad(explode('|', $step, 2), 2, '');
+            $title = trim($title);
+            $description = trim($description);
+
+            $descriptionHtml = $description !== ''
+                ? '<p class="workflow-description">' . self::inline($description) . '</p>'
+                : '';
+
+            $items[] = '<div class="workflow-step" role="listitem">'
+                . '<div class="workflow-marker">' . ($index + 1) . '</div>'
+                . '<div class="workflow-content">'
+                . '<p class="workflow-title">' . self::inline($title) . '</p>'
+                . $descriptionHtml
+                . '</div>'
+                . '</div>';
+        }
+
+        return '<div class="workflow" role="list">' . implode('', $items) . '</div>';
+    }
+
+    /**
+     * @param string[] $lines
+     */
+    private static function renderChoices(array $lines): string
+    {
+        $choices = array_values(array_filter(array_map('trim', $lines), static fn(string $line): bool => $line !== ''));
+        if ($choices === []) {
+            return '';
+        }
+
+        $items = [];
+        foreach ($choices as $choice) {
+            [$title, $description, $url] = array_pad(explode('|', $choice, 3), 3, '');
+            $title = trim($title);
+            $description = trim($description);
+            $url = trim($url);
+
+            $content = '<p class="choices-title">' . self::inline($title) . '</p>';
+            if ($description !== '') {
+                $content .= '<p class="choices-description">' . self::inline($description) . '</p>';
+            }
+
+            if ($url !== '') {
+                $items[] = '<a class="choices-item choices-link" role="listitem" href="' . self::escape($url) . '">' . $content . '</a>';
+                continue;
+            }
+
+            $items[] = '<div class="choices-item" role="listitem">' . $content . '</div>';
+        }
+
+        return '<div class="choices" role="list">' . implode('', $items) . '</div>';
     }
 
     private static function inline(string $value): string

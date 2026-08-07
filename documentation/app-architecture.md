@@ -64,10 +64,20 @@ Views should not own database queries or permission decisions. Prepare the data 
 Keep controllers thin:
 
 ```php
+namespace Controllers;
+
+use CorianderCore\Core\Router\ViewRenderer;
 use Modules\Blog\BlogRepository;
 
 final class BlogController
 {
+    private ViewRenderer $view;
+
+    public function __construct()
+    {
+        $this->view = new ViewRenderer();
+    }
+
     public function show(string $id): void
     {
         $post = (new BlogRepository())->findPublished((int) $id);
@@ -79,7 +89,7 @@ final class BlogController
 }
 ```
 
-Move query details into the repository:
+Move query details into the repository. This is an app-owned class under `src/Modules/Blog`, not a framework class:
 
 ```php
 namespace Modules\Blog;
@@ -188,15 +198,19 @@ Then call it from controllers, middleware, and views. The forum guided project u
 
 Start with:
 
-1. one route file
-2. one controller
-3. one view
+```workflow
+Route file|Define the URL contract first.
+Controller|Add one request handler for the feature.
+View|Render the prepared data in one template.
+```
 
 Then add:
 
-1. a module when logic grows
-2. a repository when data access grows
-3. middleware when access rules repeat
-4. tests when a behavior matters after updates
+```choices
+Module|Extract reusable logic when the controller starts hiding the request flow.
+Repository|Move data access out when SQL or persistence details grow.
+Middleware|Add route gates when access rules repeat.
+Tests|Cover behavior that must keep working after framework updates.
+```
 
 This keeps small features small while still giving larger features a clear place to grow.

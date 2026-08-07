@@ -4,8 +4,10 @@ An API is easier to consume when every error has the same shape. Clients should 
 
 You are here in the flow:
 
-```text
-controller or service catches a known failure -> ApiJson::error() -> client receives a stable JSON error
+```workflow
+Known failure|A controller or service detects not found, validation, conflict, or malformed input.
+ApiJson::error()|The helper builds one consistent error payload.
+Client response|The client receives a stable JSON error with the correct HTTP status.
 ```
 
 ## Error shape

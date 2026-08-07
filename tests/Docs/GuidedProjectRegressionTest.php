@@ -170,7 +170,7 @@ final class GuidedProjectRegressionTest extends TestCase
         $this->assertZipEntryContains(
             'public/downloads/shelter-api-completed.zip',
             'README.md',
-            'route -> API controller -> service -> repository -> JSON response'
+            'Route|`src/Routes/api/shelter.php` maps HTTP methods and URLs.'
         );
     }
 

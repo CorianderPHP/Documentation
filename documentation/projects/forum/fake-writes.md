@@ -4,8 +4,11 @@ The local guided project writes to SQLite. The official documentation site is di
 
 You are here in the flow:
 
-```text
-controller action -> PublicDemoWriteGuard -> fake success or real ForumWriteService write
+```workflow
+Controller action|Receives the same form payload used by a local project.
+PublicDemoWriteGuard|Checks whether the hosted documentation demo is read-only.
+Demo mode|Returns a validated fake success or permission error without saving visitor text.
+Local mode|Returns `null`, so the controller continues into `ForumWriteService`.
 ```
 
 ## Goal

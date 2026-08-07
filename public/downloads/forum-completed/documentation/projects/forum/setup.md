@@ -64,9 +64,18 @@ if (is_file($forumDemoRoutes)) {
 
 Do this once. After that, every forum URL belongs in `src/Routes/forum-demo.php`.
 
-## Step: Create The Controller
+## Step: Create The Controllers
 
-Create `src/Controllers/ForumDemoController.php`.
+Use the framework generator for the web controller and API controller:
+
+```bash
+php coriander make:controller ForumDemo
+php coriander make:controller ForumDemo --api
+```
+
+The first command creates `src/Controllers/ForumDemoController.php`. The second command creates `src/ApiControllers/ForumDemoController.php`.
+
+For this checkpoint, replace the generated web controller body with a tiny placeholder:
 
 ```php
 <?php
@@ -83,7 +92,7 @@ final class ForumDemoController
 }
 ```
 
-This placeholder proves that the route and controller can be connected before the feature becomes complex.
+This placeholder proves that the route and controller can be connected before the feature becomes complex. The Controllers and API chapters replace the generated starter code with the real forum behavior.
 
 ## Step: Create Module Folders
 

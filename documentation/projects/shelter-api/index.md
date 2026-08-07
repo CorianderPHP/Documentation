@@ -36,8 +36,12 @@ Read the steps in order the first time. After that, use the search box for concr
 
 When you are unsure where a piece belongs, place it in this API lifecycle:
 
-```text
-route -> API controller -> service -> repository -> JSON response
+```workflow
+Route|Matches the HTTP method and API path.
+API controller|Reads route attributes, query parameters, or JSON body data.
+Service|Applies validation, workflow rules, and business decisions.
+Repository|Runs SQL and returns storage data.
+JSON response|`ApiJson` returns a stable response shape.
 ```
 
 - Routes define the HTTP contract.

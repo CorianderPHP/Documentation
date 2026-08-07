@@ -47,8 +47,11 @@ The hosted public demo protects visitor writes, but the guide explains where loc
 
 ## Request Flow
 
-```text
-route -> controller -> module/repository/write service -> view or redirect
+```workflow
+Route|Maps URLs to controller actions.
+Controller|Prepares view data and redirects after writes.
+Module or repository|Owns auth, permissions, demo write safety, and data access.
+View or redirect|Renders prepared variables for GET requests or redirects after POST requests.
 ```
 
 - `src/Routes/forum-demo.php` maps URLs to controller actions.

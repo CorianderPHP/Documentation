@@ -21,8 +21,12 @@ The code examples in the route, controller, validation, and error chapters are e
 
 Match each playground request to the code path:
 
-```text
-Playground button -> API route -> controller -> service -> fake or seeded data -> JSON panel
+```workflow
+Playground button|Builds the request from the selected method, URL, and body.
+API route|Matches the playground endpoint.
+Controller|Reads the request and calls the shelter API service.
+Service|Returns seeded data or a fake write result.
+JSON panel|Shows the response exactly as a client would receive it.
 ```
 
 For the hosted documentation site, writes are intentionally fake. In a local completed project, the same controller and service shape can persist to the configured database.

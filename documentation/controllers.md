@@ -12,19 +12,46 @@ php coriander make:controller Blog
 php coriander make:controller Blog --api
 ```
 
-The command creates `BlogController.php` with basic `index`, `show`, and `store` methods. Controllers render views using the `ViewRenderer` helper and should wrap risky operations in `try`/`catch` blocks to log errors gracefully.
+The web command creates `src/Controllers/BlogController.php`. The API command creates `src/ApiControllers/BlogController.php`.
+
+Generated web controllers include a `ViewRenderer` instance. Use it when the controller should render a server-side view from `public/public_views`.
+
+Example with prepared data:
 
 ```php
-public function show($id): void
+<?php
+declare(strict_types=1);
+
+namespace Controllers;
+
+use CorianderCore\Core\Router\ViewRenderer;
+
+final class BlogController
 {
-    try {
-        $item = ArticleRepository::find($id);
-        $this->view->render('blog/show', ['item' => $item]);
-    } catch (\Throwable $e) {
-        // log error and return proper response
+    private ViewRenderer $view;
+
+    public function __construct()
+    {
+        $this->view = new ViewRenderer();
+    }
+
+    public function show(string $id): void
+    {
+        $post = [
+            'id' => (int) $id,
+            'title' => 'First post',
+        ];
+
+        $this->view->render('blog/show', [
+            'post' => $post,
+        ]);
     }
 }
 ```
+
+The array keys passed to `render()` become variables in the view. In this example, the view receives `$post`.
+
+When the data comes from a database, move that lookup into a repository under `src/Modules`. The controller should call that repository instead of building SQL directly.
 
 ## Best Practices
 
