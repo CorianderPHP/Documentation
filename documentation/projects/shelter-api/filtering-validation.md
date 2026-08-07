@@ -2,6 +2,15 @@
 
 Filtering belongs close to the repository. Validation belongs before writes reach the repository. Keep both reusable so the controllers stay small.
 
+You are here in the flow:
+
+```workflow
+Controller|Sends query parameters or JSON body data to `AnimalService`.
+AnimalService|Chooses validation for writes or filtering for reads.
+AnimalValidator|Validates create and update input before writes reach SQL.
+AnimalRepository|Builds allowed filtered read queries with bound parameters.
+```
+
 ## Supported filters
 
 The list endpoint accepts these query parameters:
@@ -102,3 +111,16 @@ Invalid input should return HTTP `422`:
 ## DRY rule
 
 Use the same validator from `store()` and `update()`. For update routes, allow partial input but validate any field that is present.
+
+## Checkpoint
+
+Send an invalid create request:
+
+```http
+POST /api/shelter/animals
+Content-Type: application/json
+
+{"species":"dragon"}
+```
+
+You should receive `422` with an `error.fields.species` entry. If validation succeeds unexpectedly, check that the controller calls the service and that the service calls `AnimalValidator`.

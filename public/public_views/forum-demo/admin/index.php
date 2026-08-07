@@ -1,4 +1,9 @@
 <?php
+/*
+ * Rendered by ForumDemoController::admin().
+ * The route group is protected by ForumDemoAdminMiddleware before this view is
+ * reached. Forms still post to write actions that check permissions again.
+ */
 $users = $users ?? [];
 $categories = $categories ?? [];
 $topics = $topics ?? [];

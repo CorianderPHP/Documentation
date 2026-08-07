@@ -2,6 +2,15 @@
 
 The local guided project writes to SQLite. The official documentation site is different: it is public, so visitor-written text must not be stored.
 
+You are here in the flow:
+
+```workflow
+Controller action|Receives the same form payload used by a local project.
+PublicDemoWriteGuard|Checks whether the hosted documentation demo is read-only.
+Demo mode|Returns a validated fake success or permission error without saving visitor text.
+Local mode|Returns `null`, so the controller continues into `ForumWriteService`.
+```
+
 ## Goal
 
 Keep the same forms, routes, validation, and permission checks while preventing public-site persistence when demo mode is enabled.

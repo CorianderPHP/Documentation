@@ -1,4 +1,9 @@
 <?php
+/*
+ * Rendered by ForumDemoController::index().
+ * Receives $topics plus shared $currentUser and $permissions from the
+ * controller render helper. The view displays prepared data only.
+ */
 /** @var array<int,array{id:int,title:string,author:string,role:string,replies:int,locked:bool,status:string,excerpt:string,category:string,updated_at:string}> $topics */
 $currentUser = $currentUser ?? null;
 $permissions = $permissions ?? [];

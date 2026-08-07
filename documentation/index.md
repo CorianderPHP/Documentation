@@ -4,13 +4,15 @@ Start from what you want to build. Each path points to the exact framework piece
 
 ## I Want To Install The Framework
 
-Start with a framework release, not the documentation website repository.
+Start with a framework release, not the documentation website repository and not the framework GitHub source tree.
 
-1. Download the wanted version from the [CorianderPHP releases page](https://github.com/CorianderPHP/CorianderPHP/releases).
-2. Keep the framework and starter app files.
-3. Do not copy repository-maintenance files such as `.github`, `docs`, `AGENTS.md`, `LICENSE`, and `readme.md` into your application unless you intentionally need them.
-4. Run `composer install`.
-5. Run `php coriander nodejs run install`.
+```workflow
+Download|Download the wanted version from the [CorianderPHP releases page](https://github.com/CorianderPHP/CorianderPHP/releases).
+Extract the archive|Put the release contents in your application folder.
+Remove repository-only files|If you copied from GitHub instead of a release archive, remove files such as `.github`, `docs`, `AGENTS.md`, `LICENSE`, and `readme.md` unless you intentionally need repository maintenance files.
+Install PHP dependencies|Run `composer install`.
+Install frontend dependencies|Run `php coriander nodejs run install`.
+```
 
 Read the full [Installation guide](/documentation/installation) for the complete folder and environment setup.
 
@@ -20,12 +22,14 @@ A normal page usually needs a route, a controller action, and a view.
 
 If you are deciding where files should live, start with [Recommended App Architecture](/documentation/app-architecture).
 
-1. Use [Routing](/documentation/routing) to understand how URLs reach your code.
-2. Use [Controllers](/documentation/controllers) to create the request handler.
-3. Use [Views](/documentation/views) to render the HTML.
-4. Use [Security](/documentation/security) when the page contains a form.
+```workflow
+Routing|Use [Routing](/documentation/routing) to understand how URLs reach your code.
+Controller|Use [Controllers](/documentation/controllers) to create the request handler.
+View|Use [View Overview](/documentation/views), then choose [Static View Guide](/documentation/static-views) or [Dynamic View Guide](/documentation/dynamic-views).
+Security|Use [Security](/documentation/security) when the page contains a form.
+```
 
-Useful command:
+Useful command when the page needs controller logic:
 
 ```bash
 php coriander make:controller Blog
@@ -35,9 +39,11 @@ php coriander make:controller Blog
 
 Controllers should stay thin. They read the request, call app-owned modules or repositories, and return a response or render a view.
 
-1. Read [Controllers](/documentation/controllers).
-2. Read [Views](/documentation/views) if the controller returns HTML.
-3. Read [Routing](/documentation/routing) if you need custom URLs.
+```workflow
+Controller reference|Read [Controllers](/documentation/controllers).
+View rendering|Read [Dynamic View Guide](/documentation/dynamic-views) if the controller returns HTML.
+Custom URL|Read [Routing](/documentation/routing) if you need custom URLs.
+```
 
 For API endpoints, generate an API controller:
 
@@ -49,10 +55,12 @@ php coriander make:controller Shelter --api
 
 An API usually needs route files, API controllers, validation, JSON responses, and database access.
 
-1. Start with the [Shelter REST API guided project](/guided-projects/shelter-api).
-2. Use [Routing](/documentation/routing) for API route files.
-3. Use [Controllers](/documentation/controllers) for API controller structure.
-4. Use [Database](/documentation/database) when the API reads or writes persistent data.
+```workflow
+Guided project|Start with the [Shelter REST API guided project](/guided-projects/shelter-api).
+Routes|Use [Routing](/documentation/routing) for API route files.
+Controllers|Use [Controllers](/documentation/controllers) for API controller structure.
+Database|Use [Database](/documentation/database) when the API reads or writes persistent data.
+```
 
 The guided project includes a playground so you can test GET, POST, PATCH, and DELETE behavior without changing a real database.
 
@@ -60,10 +68,12 @@ The guided project includes a playground so you can test GET, POST, PATCH, and D
 
 Database work usually starts with a migration, then moves into repositories or modules that call `SQLManager`.
 
-1. Use [Database](/documentation/database) for connection, migrations, and `SQLManager`.
-2. Use [Database Patterns](/documentation/database-patterns) to decide between helpers, `sqlScript()`, repositories, SQLite, and MySQL.
-3. Use [Modules](/documentation/modules) to keep repository code out of controllers.
-4. Use [Routing](/documentation/routing) and [Controllers](/documentation/controllers) to expose the data through pages or APIs.
+```workflow
+Connection and migrations|Use [Database](/documentation/database) for connection, migrations, and `SQLManager`.
+Query patterns|Use [Database Patterns](/documentation/database-patterns) to decide between helpers, `sqlScript()`, repositories, SQLite, and MySQL.
+Repository module|Use [Modules](/documentation/modules) to keep repository code out of controllers.
+Expose data|Use [Routing](/documentation/routing) and [Controllers](/documentation/controllers) to expose the data through pages or APIs.
+```
 
 Useful commands:
 
@@ -78,9 +88,11 @@ For larger SQL queries, prefer `sqlScript()` so the query stays readable and reu
 
 Authentication tells the app who the user is. Permissions decide what that user may do.
 
-1. Use [Middleware](/documentation/middleware) to protect route groups.
-2. Use [Security](/documentation/security) for CSRF and form safety.
-3. Follow the [Forum permissions guided project](/guided-projects/forum) for a complete web example.
+```workflow
+Middleware|Use [Middleware](/documentation/middleware) to protect route groups.
+Security|Use [Security](/documentation/security) for CSRF and form safety.
+Complete example|Follow the [Forum permissions guided project](/guided-projects/forum) for a complete web example.
+```
 
 The forum project shows guests, members, and admins using the same permission rules from views, controllers, middleware, write services, and API endpoints.
 
@@ -88,11 +100,13 @@ The forum project shows guests, members, and admins using the same permission ru
 
 Use custom modules for app-owned logic that should not live in controllers or `CorianderCore`.
 
-1. Read [Recommended App Architecture](/documentation/app-architecture).
-2. Read [Modules](/documentation/modules).
-3. Use [Request Lifecycle](/documentation/request-lifecycle) to understand where middleware, controllers, modules, and views run.
-4. Put app-specific services, repositories, and permission classes under `src/Modules`.
-5. Keep official framework code inside `CorianderCore` untouched.
+```workflow
+Architecture|Read [Recommended App Architecture](/documentation/app-architecture).
+Modules|Read [Modules](/documentation/modules).
+Lifecycle|Use [Request Lifecycle](/documentation/request-lifecycle) to understand where middleware, controllers, modules, and views run.
+App code|Put app-specific services, repositories, and permission classes under `src/Modules`.
+Core boundary|Keep official framework code inside `CorianderCore` untouched.
+```
 
 Recommended shape:
 
@@ -120,7 +134,10 @@ Use this section when you already know the feature you need and want the referen
 - [Routing](/documentation/routing): route files, groups, middleware, response handling, and not-found behavior.
 - [Controllers](/documentation/controllers): web controllers, API controllers, rendering, and action structure.
 - [Middleware](/documentation/middleware): PSR-15 middleware and route-group protection.
-- [Views](/documentation/views): public views, view data, escaping, and forms.
+- [View Overview](/documentation/views): when to use static views, dynamic views, and asset handling.
+- [Static View Guide](/documentation/static-views): fixed pages with `index.php`, `metadata.php`, sitemap settings, and static assets.
+- [Dynamic View Guide](/documentation/dynamic-views): controller-rendered pages, `ViewRenderer`, route parameters, prepared data, and forms.
+- [Assets And Images](/documentation/assets): public assets, `PUBLIC_URL_PREFIX`, and `ImageHandler`.
 - [Database](/documentation/database): migrations, SQLite/MySQL configuration, `SQLManager`, and `sqlScript()`.
 - [Modules](/documentation/modules): app-owned reusable logic outside controllers.
 - [Security](/documentation/security): CSRF, headers, trusted proxies, and request safety.

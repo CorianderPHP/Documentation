@@ -168,7 +168,7 @@ final class DocumentationRepository
             return 'Project: ' . $project->navTitle;
         }
 
-        if (in_array($slug, ['index', 'installation', 'concepts', 'cli', 'routing', 'controllers', 'middleware', 'views', 'database'], true)) {
+        if (in_array($slug, ['index', 'installation', 'concepts', 'cli', 'routing', 'controllers', 'middleware', 'views', 'static-views', 'dynamic-views', 'database'], true)) {
             return 'Start Here';
         }
 

@@ -7,6 +7,12 @@ use Middleware\ForumDemoAdminMiddleware;
 use Nyholm\Psr7\Response;
 use Psr\Http\Message\ServerRequestInterface;
 
+/*
+ * Guided project map:
+ * this file is loaded from public/routes.php, then each URL delegates to
+ * ForumDemoController. Routes choose the action; controllers prepare data,
+ * enforce request flow, and render views or redirects.
+ */
 return static function (Router $router): void {
     $router->get('forum-demo', static fn (ServerRequestInterface $request) => (new ForumDemoController())->index($request));
     $router->get('forum-demo/login', static fn () => (new ForumDemoController())->login());

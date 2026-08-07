@@ -5,6 +5,11 @@ namespace Modules\ShelterApi;
 
 use CorianderCore\Core\Database\SQLManager;
 
+/*
+ * Persistence layer:
+ * only repositories should know SQL details. Controllers and services call
+ * methods like list(), find(), and create() instead of building queries.
+ */
 final class AnimalRepository
 {
     public function list(array $filters): array
@@ -125,6 +130,7 @@ final class AnimalRepository
 
     private function rows(array|bool $result): array
     {
+        // sqlScript returns one row for single-row results and a list for many rows.
         if ($result === true || $result === []) {
             return [];
         }

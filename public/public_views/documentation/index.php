@@ -92,13 +92,15 @@ $quickAnswers = [
         ],
     ],
     [
-        'keywords' => ['view', 'views', 'template', 'html'],
-        'title' => 'Render a view',
-        'summary' => 'Keep page markup in views and pass prepared data from controllers. Use CSRF helpers for state-changing forms.',
+        'keywords' => ['view', 'views', 'template', 'html', 'dynamic view', 'render view', 'pass data to view'],
+        'title' => 'Render a dynamic view',
+        'summary' => 'Create a view folder, prepare data in a controller, then render the view with the variables the template needs.',
         'language' => 'php',
-        'code' => "\$this->view->render('blog/show', [\n    'post' => \$post,\n]);",
+        'code' => "\$this->view->render('articles/show', [\n    'article' => \$article,\n    'relatedArticles' => \$relatedArticles,\n]);",
         'links' => [
             ['label' => 'Views reference', 'href' => '/documentation/views'],
+            ['label' => 'Controller reference', 'href' => '/documentation/controllers'],
+            ['label' => 'Routing reference', 'href' => '/documentation/routing'],
             ['label' => 'Security reference', 'href' => '/documentation/security'],
         ],
     ],
@@ -276,8 +278,8 @@ foreach ($results as $result) {
                             </div>
                             <div class="divide-y divide-dark-green/10 dark:divide-mint/10">
                                 <?php foreach ($groupPages as $docPage): ?>
-                                    <a href="/documentation/<?= htmlspecialchars($docPage->slug, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="grid gap-2 px-3 py-6 transition hover:bg-black/5 md:grid-cols-[14rem_1fr]">
-                                        <span class="font-semibold text-dark-green dark:text-mint"><?= htmlspecialchars($docPage->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
+                                    <a href="/documentation/<?= htmlspecialchars($docPage->slug, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="group grid gap-2 px-3 py-6 transition hover:bg-black/5 md:grid-cols-[14rem_1fr]">
+                                        <span class="font-semibold text-link-blue underline decoration-link-blue/35 decoration-2 underline-offset-4 group-hover:decoration-link-blue dark:text-link-blue-dark dark:decoration-link-blue-dark/45 dark:group-hover:decoration-link-blue-dark"><?= htmlspecialchars($docPage->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                                         <span class="text-sm leading-6 text-black/65 dark:text-white/65"><?= htmlspecialchars($docPage->description, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                                     </a>
                                 <?php endforeach; ?>
@@ -301,7 +303,7 @@ foreach ($results as $result) {
                             <pre class="mt-4 overflow-x-auto rounded-lg border border-dark-green/15 bg-true-white p-4 text-sm text-black shadow-sm dark:border-mint/20 dark:bg-true-black dark:text-white" data-language="<?= htmlspecialchars($quickAnswer['language'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"><code code-lang="<?= htmlspecialchars($quickAnswer['language'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"><?= htmlspecialchars($quickAnswer['code'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></code></pre>
                             <div class="mt-4 flex flex-wrap gap-2 text-sm font-semibold">
                                 <?php foreach ($quickAnswer['links'] as $link): ?>
-                                    <a href="<?= htmlspecialchars($link['href'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="rounded-md border border-dark-green/15 px-3 py-2 text-dark-green hover:border-dark-green/30 dark:border-mint/20 dark:text-mint dark:hover:border-mint/40"><?= htmlspecialchars($link['label'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
+                                    <a href="<?= htmlspecialchars($link['href'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="rounded-md border border-dark-green/15 px-3 py-2 text-link-blue underline decoration-link-blue/35 decoration-2 underline-offset-4 hover:border-dark-green/30 hover:decoration-link-blue dark:border-mint/20 dark:text-link-blue-dark dark:decoration-link-blue-dark/45 dark:hover:border-mint/40 dark:hover:decoration-link-blue-dark"><?= htmlspecialchars($link['label'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
                                 <?php endforeach; ?>
                             </div>
                         </section>
@@ -315,7 +317,7 @@ foreach ($results as $result) {
                             <p class="mt-2 text-sm leading-6 text-black/65 dark:text-white/65">Try one of the focused searches below, or use a framework word like controller, route, middleware, migration, module, view, database, or security.</p>
                             <div class="mt-4 flex flex-wrap gap-2 text-sm font-semibold">
                                 <?php foreach ($searchSuggestions as $suggestion): ?>
-                                    <a href="/documentation/search?q=<?= urlencode($suggestion) ?>" class="rounded-md border border-dark-green/15 px-3 py-2 text-dark-green hover:border-dark-green/30 dark:border-mint/20 dark:text-mint dark:hover:border-mint/40"><?= htmlspecialchars($suggestion, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
+                                    <a href="/documentation/search?q=<?= urlencode($suggestion) ?>" class="rounded-md border border-dark-green/15 px-3 py-2 text-link-blue underline decoration-link-blue/35 decoration-2 underline-offset-4 hover:border-dark-green/30 hover:decoration-link-blue dark:border-mint/20 dark:text-link-blue-dark dark:decoration-link-blue-dark/45 dark:hover:border-mint/40 dark:hover:decoration-link-blue-dark"><?= htmlspecialchars($suggestion, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
                                 <?php endforeach; ?>
                             </div>
                         </div>
@@ -325,8 +327,8 @@ foreach ($results as $result) {
                                 <h2 class="border-b border-dark-green/10 pb-3 font-concert-one text-3xl text-dark-green dark:border-mint/15 dark:text-mint"><?= htmlspecialchars($section, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
                                 <div class="divide-y divide-dark-green/10 dark:divide-mint/10">
                                     <?php foreach ($sectionResults as $result): ?>
-                                        <a href="/documentation/<?= htmlspecialchars($result['page']->slug, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="block px-3 py-6 transition hover:bg-black/5">
-                                            <h3 class="font-concert-one text-2xl text-dark-green dark:text-mint"><?= htmlspecialchars($result['page']->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h3>
+                                        <a href="/documentation/<?= htmlspecialchars($result['page']->slug, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="group block px-3 py-6 transition hover:bg-black/5">
+                                            <h3 class="font-concert-one text-2xl text-link-blue underline decoration-link-blue/35 decoration-2 underline-offset-4 group-hover:decoration-link-blue dark:text-link-blue-dark dark:decoration-link-blue-dark/45 dark:group-hover:decoration-link-blue-dark"><?= htmlspecialchars($result['page']->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h3>
                                             <p class="mt-2 text-sm leading-6 text-black/65 dark:text-white/65"><?= htmlspecialchars($result['excerpt'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
                                         </a>
                                     <?php endforeach; ?>

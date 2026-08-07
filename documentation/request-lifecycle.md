@@ -4,16 +4,15 @@ This page explains what happens between an HTTP request and the response a user 
 
 ## Lifecycle Overview
 
-```structure
-Browser or API client
-  -> public/index.php
-  -> framework bootstrap
-  -> public/routes.php
-  -> route file
-  -> middleware
-  -> controller
-  -> module or repository
-  -> view or response
+```workflow
+Browser or API client|Sends the HTTP request.
+Front controller|`public/index.php` loads the app and starts dispatch.
+Bootstrap|Framework services, environment values, and request handling are prepared.
+Routes|`public/routes.php` and app route files register URL handlers.
+Middleware|Request gates can allow, reject, or wrap the handler.
+Controller|The matched action coordinates the request.
+Module or repository|App-owned logic loads data, validates input, or writes persistence.
+View or response|The app renders HTML or returns a PSR-7 response.
 ```
 
 Understanding this flow helps you decide where code belongs.
@@ -135,13 +134,13 @@ Use views for presentation, not data loading. Escape public strings before outpu
 
 For forms and other writes, use Post/Redirect/Get:
 
-```structure
-POST /posts
-  -> validate input
-  -> authorize action
-  -> write through service or repository
-  -> store flash message
-  -> redirect to GET page
+```workflow
+POST route|Receives submitted form data.
+Validation|Checks required fields and input shape.
+Authorization|Confirms the current user may perform the action.
+Write service|Writes through a service or repository.
+Flash|Stores a one-time result message.
+Redirect|Returns a 302 to the GET page.
 ```
 
 This prevents browser refresh from resubmitting the form.
@@ -150,9 +149,11 @@ This prevents browser refresh from resubmitting the form.
 
 When a route does not work, check in order:
 
-1. Is the route file required by `public/routes.php`?
-2. Does the URL pattern match the actual request?
-3. Is middleware blocking the request?
-4. Is the controller method being called?
-5. Does the controller render an existing view?
-6. Does the module/repository throw an exception?
+```workflow
+Route file|Is the route file required by `public/routes.php`?
+URL pattern|Does the pattern match the actual request?
+Middleware|Is middleware blocking the request?
+Controller|Is the controller method being called?
+View|Does the controller render an existing view?
+Module or repository|Does app-owned logic throw an exception?
+```

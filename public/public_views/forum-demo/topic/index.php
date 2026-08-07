@@ -1,4 +1,9 @@
 <?php
+/*
+ * Rendered by ForumDemoController::showTopic().
+ * $topic is the original post; $replies are secondary discussion. Moderation
+ * forms submit to POST routes and return here through Post/Redirect/Get.
+ */
 $topic = $topic ?? null;
 $replies = $replies ?? [];
 $permissions = $permissions ?? [];

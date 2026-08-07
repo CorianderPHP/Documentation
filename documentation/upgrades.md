@@ -70,11 +70,13 @@ If the update changes framework behavior, update the documentation website in th
 
 For this documentation website, framework update pull requests should:
 
-1. update framework-managed files
-2. include the framework release notes in the PR description
-3. run generated downloads
-4. run tests
-5. run frontend builds
+```workflow
+Framework files|Update framework-managed files from the release.
+Release notes|Include the framework release notes in the PR description.
+Downloads|Regenerate completed project downloads.
+Tests|Run documentation and demo tests.
+Frontend build|Rebuild TypeScript and Tailwind assets.
+```
 
 That keeps documentation and demos aligned with the framework without manually checking every small release.
 
@@ -84,10 +86,12 @@ Do not patch `CorianderCore` locally as a permanent fix.
 
 Instead:
 
-1. confirm the break with a focused test
-2. update app-owned code when the framework behavior is correct
-3. open a framework issue when the framework behavior is wrong
-4. add documentation notes if the change affects users
+```workflow
+Focused test|Confirm the break with the smallest test that proves it.
+App-owned fix|Update app-owned code when the framework behavior is correct.
+Framework issue|Open a framework issue when the framework behavior is wrong.
+Documentation note|Add documentation notes when the change affects users.
+```
 
 ## Rollback
 

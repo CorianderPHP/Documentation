@@ -132,12 +132,12 @@ foreach ($flatNavigation as $item) {
                         <div class="flex flex-wrap gap-2">
                             <?php if ($project->liveDemo !== null): ?>
                                 <?php $livePath = $project->liveDemo['path'] . ($project->liveDemo['withReturn'] ? '?from=' . urlencode($demoReturnPath) : ''); ?>
-                                <a href="<?= htmlspecialchars($livePath, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="rounded-md bg-dark-green px-3 py-2 text-sm font-semibold text-true-white transition hover:-translate-y-0.5 hover:bg-dark-green/90 focus:outline-none focus:ring-2 focus:ring-dark-green/30 dark:bg-mint dark:text-black dark:hover:bg-mint/90 dark:focus:ring-mint/30"><?= htmlspecialchars($project->liveDemo['cta'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
+                                <a href="<?= htmlspecialchars($livePath, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="rounded-md bg-dark-green px-3 py-2 text-sm font-semibold text-true-white transition hover:bg-dark-green/90 focus:outline-none focus:ring-2 focus:ring-dark-green/30 dark:bg-mint dark:text-black dark:hover:bg-mint/90 dark:focus:ring-mint/30"><?= htmlspecialchars($project->liveDemo['cta'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
                             <?php endif; ?>
                             <?php foreach ($project->headerActions as $action): ?>
-                                <a href="<?= htmlspecialchars($action['path'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="rounded-md bg-dark-green px-3 py-2 text-sm font-semibold text-true-white transition hover:-translate-y-0.5 hover:bg-dark-green/90 focus:outline-none focus:ring-2 focus:ring-dark-green/30 dark:bg-mint dark:text-black dark:hover:bg-mint/90 dark:focus:ring-mint/30"><?= htmlspecialchars($action['label'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
+                                <a href="<?= htmlspecialchars($action['path'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="rounded-md bg-dark-green px-3 py-2 text-sm font-semibold text-true-white transition hover:bg-dark-green/90 focus:outline-none focus:ring-2 focus:ring-dark-green/30 dark:bg-mint dark:text-black dark:hover:bg-mint/90 dark:focus:ring-mint/30"><?= htmlspecialchars($action['label'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
                             <?php endforeach; ?>
-                            <a href="#project-downloads" class="rounded-md border border-dark-green/20 px-3 py-2 text-sm font-semibold text-dark-green transition hover:-translate-y-0.5 hover:border-dark-green hover:bg-dark-green/5 focus:outline-none focus:ring-2 focus:ring-dark-green/20 dark:border-mint/25 dark:text-mint dark:hover:border-mint dark:hover:bg-mint/10 dark:focus:ring-mint/20"><?= htmlspecialchars($project->downloadLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
+                            <a href="#project-downloads" class="rounded-md border border-dark-green/20 px-3 py-2 text-sm font-semibold text-dark-green transition hover:border-dark-green hover:bg-dark-green/5 focus:outline-none focus:ring-2 focus:ring-dark-green/20 dark:border-mint/25 dark:text-mint dark:hover:border-mint dark:hover:bg-mint/10 dark:focus:ring-mint/20"><?= htmlspecialchars($project->downloadLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
                         </div>
                     </div>
                 </div>
@@ -154,8 +154,8 @@ foreach ($flatNavigation as $item) {
                         <p class="py-5 text-black/70 dark:text-white/70"><?= htmlspecialchars($project->noResultsText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
                     <?php else: ?>
                         <?php foreach ($results as $result): ?>
-                            <a href="<?= htmlspecialchars($project->pathForSlug($result['page']->slug), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="block py-5">
-                                <h2 class="font-concert-one text-2xl text-dark-green dark:text-mint"><?= htmlspecialchars($result['page']->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
+                            <a href="<?= htmlspecialchars($project->pathForSlug($result['page']->slug), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="group block px-3 py-5 transition hover:bg-black/5">
+                                <h2 class="font-concert-one text-2xl text-link-blue underline decoration-link-blue/35 decoration-2 underline-offset-4 group-hover:decoration-link-blue dark:text-link-blue-dark dark:decoration-link-blue-dark/45 dark:group-hover:decoration-link-blue-dark"><?= htmlspecialchars($result['page']->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
                                 <p class="mt-2 text-sm leading-6 text-black/65 dark:text-white/65"><?= htmlspecialchars($result['excerpt'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
                             </a>
                         <?php endforeach; ?>
@@ -171,7 +171,7 @@ foreach ($flatNavigation as $item) {
                         <p class="text-sm font-semibold uppercase tracking-1 text-dark-green dark:text-mint">Live version</p>
                         <h2 class="mt-2 font-concert-one text-3xl text-dark-green dark:text-mint"><?= htmlspecialchars($project->liveDemo['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
                         <p class="mt-2 max-w-3xl text-black/70 dark:text-white/70"><?= htmlspecialchars($project->liveDemo['description'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
-                        <a href="<?= htmlspecialchars($livePath, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="mt-4 inline-flex rounded-md bg-dark-green px-4 py-2 font-semibold text-true-white transition hover:-translate-y-0.5 hover:bg-dark-green/90 focus:outline-none focus:ring-2 focus:ring-dark-green/30 dark:bg-mint dark:text-black dark:hover:bg-mint/90 dark:focus:ring-mint/30"><?= htmlspecialchars($project->liveDemo['cta'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
+                        <a href="<?= htmlspecialchars($livePath, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="mt-4 inline-flex rounded-md bg-dark-green px-4 py-2 font-semibold text-true-white transition hover:bg-dark-green/90 focus:outline-none focus:ring-2 focus:ring-dark-green/30 dark:bg-mint dark:text-black dark:hover:bg-mint/90 dark:focus:ring-mint/30"><?= htmlspecialchars($project->liveDemo['cta'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
                     </div>
                 <?php endif; ?>
                 <?php if (isset($project->extraSections[$page->slug])): ?>
@@ -186,19 +186,19 @@ foreach ($flatNavigation as $item) {
                     <p class="text-sm font-semibold uppercase tracking-1 text-dark-green dark:text-mint">Project files</p>
                     <h2 class="mt-2 font-concert-one text-3xl text-dark-green dark:text-mint"><?= htmlspecialchars($project->downloadTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
                     <p class="mt-2 max-w-3xl text-black/70 dark:text-white/70"><?= htmlspecialchars($project->downloadDescription, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
-                    <a href="<?= htmlspecialchars($project->downloadPath, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="mt-4 inline-flex rounded-md bg-dark-green px-4 py-2 font-semibold text-true-white transition hover:-translate-y-0.5 hover:bg-dark-green/90 focus:outline-none focus:ring-2 focus:ring-dark-green/30 dark:bg-mint dark:text-black dark:hover:bg-mint/90 dark:focus:ring-mint/30"><?= htmlspecialchars($project->downloadLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
+                    <a href="<?= htmlspecialchars($project->downloadPath, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="mt-4 inline-flex rounded-md bg-dark-green px-4 py-2 font-semibold text-true-white transition hover:bg-dark-green/90 focus:outline-none focus:ring-2 focus:ring-dark-green/30 dark:bg-mint dark:text-black dark:hover:bg-mint/90 dark:focus:ring-mint/30"><?= htmlspecialchars($project->downloadLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
                 </div>
                 <nav class="mt-8 grid gap-3 border-t border-dark-green/10 pt-6 dark:border-mint/15 md:grid-cols-2">
                     <?php if ($adjacent['previous'] !== null): ?>
-                        <a href="<?= htmlspecialchars($adjacent['previous']['path'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="block rounded-md border border-dark-green/15 p-4 text-sm hover:border-dark-green dark:border-mint/20 dark:hover:border-mint">
+                        <a href="<?= htmlspecialchars($adjacent['previous']['path'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="group block rounded-md border border-dark-green/15 p-4 text-sm transition hover:border-dark-green hover:bg-black/5 dark:border-mint/20 dark:hover:border-mint">
                             <span class="text-black/45 dark:text-white/45">Previous</span>
-                            <span class="mt-1 block font-semibold text-dark-green dark:text-mint"><?= htmlspecialchars($adjacent['previous']['label'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
+                            <span class="mt-1 block font-semibold text-link-blue underline decoration-link-blue/35 decoration-2 underline-offset-4 group-hover:decoration-link-blue dark:text-link-blue-dark dark:decoration-link-blue-dark/45 dark:group-hover:decoration-link-blue-dark"><?= htmlspecialchars($adjacent['previous']['label'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                         </a>
                     <?php endif; ?>
                     <?php if ($adjacent['next'] !== null): ?>
-                        <a href="<?= htmlspecialchars($adjacent['next']['path'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="block rounded-md border border-dark-green/15 p-4 text-sm hover:border-dark-green dark:border-mint/20 dark:hover:border-mint <?= $adjacent['previous'] === null ? 'md:col-start-2' : '' ?>">
+                        <a href="<?= htmlspecialchars($adjacent['next']['path'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="group block rounded-md border border-dark-green/15 p-4 text-sm transition hover:border-dark-green hover:bg-black/5 dark:border-mint/20 dark:hover:border-mint <?= $adjacent['previous'] === null ? 'md:col-start-2' : '' ?>">
                             <span class="text-black/45 dark:text-white/45">Next</span>
-                            <span class="mt-1 block font-semibold text-dark-green dark:text-mint"><?= htmlspecialchars($adjacent['next']['label'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
+                            <span class="mt-1 block font-semibold text-link-blue underline decoration-link-blue/35 decoration-2 underline-offset-4 group-hover:decoration-link-blue dark:text-link-blue-dark dark:decoration-link-blue-dark/45 dark:group-hover:decoration-link-blue-dark"><?= htmlspecialchars($adjacent['next']['label'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                         </a>
                     <?php endif; ?>
                 </nav>

@@ -12,6 +12,12 @@ use Modules\ForumDemo\Writes\DemoWriteGuard;
 use Nyholm\Psr7\Response;
 use Psr\Http\Message\ServerRequestInterface;
 
+/*
+ * Guided project controller:
+ * routes call these public methods. GET methods prepare data and render
+ * public/public_views/forum-demo/* views. POST methods validate through the
+ * demo write guard, store a one-time flash result, then redirect to a GET URL.
+ */
 final class ForumDemoController
 {
     private const FLASH_KEY = 'forum_demo_flash';
@@ -169,6 +175,12 @@ final class ForumDemoController
     private function render(string $view, array $data): void
     {
         $user = $this->auth->currentUser();
+
+        /*
+         * Every forum view receives the same shared context. If a template needs
+         * a new common variable, add it here instead of duplicating setup in
+         * each controller action.
+         */
         $this->view->render($view, $data + [
             'currentUser' => $user,
             'permissions' => $this->permissions->matrix($user),

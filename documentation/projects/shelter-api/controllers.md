@@ -2,6 +2,15 @@
 
 Controllers should stay thin. They read request data, call the service layer, and return JSON. The service and repository own business rules and database access.
 
+You are here in the flow:
+
+```workflow
+Route|Selects the controller method for the HTTP request.
+ShelterAnimalController|Reads request data and calls the service.
+AnimalService|Runs the API workflow and returns data or errors.
+ApiJson|Builds the PSR-7 JSON response.
+```
+
 ## JSON helper
 
 Create `src/Modules/ShelterApi/ApiJson.php`:
@@ -120,3 +129,13 @@ final class ShelterLookupController
 ## Why services matter
 
 If controllers directly query SQL, every endpoint starts duplicating rules. The service gives you one place for allowed statuses, validation errors, soft deletes, and response shaping.
+
+## Checkpoint
+
+Call:
+
+```http
+GET /api/shelter/animals/1
+```
+
+You should receive a JSON object with a top-level `data` key. If the response shape is inconsistent, check `ApiJson`. If the endpoint finds the wrong animal, check the service and repository path.

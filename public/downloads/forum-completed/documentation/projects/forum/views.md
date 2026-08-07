@@ -21,6 +21,14 @@ public/public_views/forum-demo/admin-users/index.php
 
 The landing page receives `$topics`, `$currentUser`, and `$permissions`. Keep it focused on the newest discussions and the current account state. Do not show non-clickable category blocks just because the database has categories.
 
+You are here in the flow:
+
+```workflow
+Controller|`ForumDemoController::index()` prepares the landing page data.
+Render call|`$this->render('forum-demo', ['topics' => ...])` chooses the view name.
+View file|`public/public_views/forum-demo/index.php` receives `$topics`, `$currentUser`, and `$permissions`.
+```
+
 ```html
 <h1>Forum with permissions</h1>
 
@@ -133,6 +141,8 @@ public/assets/js/forum-demo/index.js
 ## Checkpoint
 
 Open [/forum-demo/topics](/forum-demo/topics) as a guest, member, and admin. The content should stay readable, while forms and admin links adapt to the user.
+
+If a variable is undefined in a view, do not create it inside the template. Go back to the controller render call and pass the missing data explicitly.
 
 ## Common Mistakes
 

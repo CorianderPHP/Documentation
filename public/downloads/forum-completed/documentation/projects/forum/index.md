@@ -61,14 +61,16 @@ public/public_views/forum-demo/
 
 Use the sidebar order. The point is not memorizing every line. The point is learning where each responsibility belongs.
 
-1. Create the app-owned project structure so framework updates can replace `CorianderCore` without deleting your forum code.
-2. Add the SQLite data model for users, categories, topics, replies, moderation events, repositories, and seed data.
-3. Define routes before controllers so URLs become a readable contract for public pages, member writes, admin actions, and API endpoints.
-4. Build thin controllers that coordinate requests, call modules, use Post/Redirect/Get, and render prepared view data.
-5. Create views for forum lists, topic pages, forms, login, and admin screens while escaping every public string.
-6. Add authentication, permissions, admin middleware, and the write service so web forms and API endpoints use the same authorization rules.
-7. Protect the public demo writes so the official site can validate visitor actions without storing unsafe text.
-8. Finish with API endpoints and production notes for moving the same structure from SQLite to MySQL.
+```workflow
+Project structure|Create app-owned files so framework updates can replace `CorianderCore` without deleting forum code.
+SQLite data model|Add users, categories, topics, replies, moderation events, repositories, and seed data.
+Routes|Define URLs before controllers so public pages, member writes, admin actions, and API endpoints have a readable contract.
+Controllers|Build thin request coordinators that call modules, use Post/Redirect/Get, and render prepared view data.
+Views|Create forum lists, topic pages, forms, login, and admin screens while escaping every public string.
+Permissions and writes|Add authentication, permissions, admin middleware, and a write service used by web forms and API endpoints.
+Protected demo|Prevent hosted public demo writes from storing unsafe visitor text.
+Production path|Finish with API endpoints and notes for moving from SQLite to MySQL.
+```
 
 ## How To Read Each Chapter
 
@@ -80,6 +82,21 @@ Every chapter should answer four questions before you copy code:
 - How do I know it worked?
 
 When a chapter introduces a form write, follow the full request lifecycle: route, controller, permission check, write service, redirect, flash message, and rendered GET page. That is the difference between a demo that appears to work and an app that behaves correctly when users refresh or go back.
+
+When you still feel lost, place the current file in this lifecycle:
+
+```workflow
+Route|Maps the URL to a controller action.
+Controller|Reads route attributes or form data, then asks modules for work.
+Module or repository|Loads data, checks permissions, validates input, or writes through SQL.
+Response|Renders a view for GET requests or redirects after POST requests.
+View|Displays only the prepared variables it receives.
+```
+
+- If you are in a route file, ask which controller action receives this URL.
+- If you are in a controller, ask which module gives it data and which view receives it.
+- If you are in a module, ask which controller calls it and what result shape it returns.
+- If you are in a view, ask which controller rendered it and which variables were passed.
 
 ## Architecture Rule
 
