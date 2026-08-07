@@ -53,6 +53,14 @@ final class DocumentationSearchTest extends TestCase
         self::assertSame('cli', $results[0]['page']->slug);
     }
 
+    public function testSearchFindsDynamicViewDocumentation(): void
+    {
+        $results = (new DocumentationSearch(new DocumentationRepository()))->search('dynamic view render data', 'reference');
+
+        self::assertNotEmpty($results);
+        self::assertSame('views', $results[0]['page']->slug);
+    }
+
     public function testEmptySearchReturnsNoResults(): void
     {
         self::assertSame([], (new DocumentationSearch(new DocumentationRepository()))->search('   ', 'reference'));

@@ -188,6 +188,19 @@ final class DocsQualityTest extends TestCase
         self::assertStringContainsString('php coriander nodejs --help', $contents);
     }
 
+    public function testViewsDocumentationCoversDynamicViews(): void
+    {
+        $contents = (string) file_get_contents(PROJECT_ROOT . '/documentation/views.md');
+
+        self::assertStringContainsString('Static Views And Dynamic Views', $contents);
+        self::assertStringContainsString('Dynamic View From Scratch', $contents);
+        self::assertStringContainsString('ViewRenderer', $contents);
+        self::assertStringContainsString("\$this->view->render('articles/show'", $contents);
+        self::assertStringContainsString('public/public_views/articles/show/index.php', $contents);
+        self::assertStringContainsString("\$router->get('/articles/{id}'", $contents);
+        self::assertStringContainsString('$request->getAttribute(\'id\')', $contents);
+    }
+
     /**
      * @return string[]
      */
