@@ -19,7 +19,7 @@ $projects = $projects ?? [];
                 <a href="<?= htmlspecialchars($project->basePath, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="grid gap-4 px-5 py-5 transition hover:bg-dark-green/5 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-dark-green/20 dark:hover:bg-mint/5 dark:focus:ring-mint/20 lg:grid-cols-[16rem_minmax(0,1fr)] lg:items-start">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-1 text-black/45 dark:text-white/45"><?= htmlspecialchars($project->listEyebrow, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
-                        <h2 class="mt-1 font-concert-one text-3xl text-dark-green dark:text-mint"><?= htmlspecialchars($project->listTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?> <span aria-hidden="true" class="text-2xl">-&gt;</span></h2>
+                        <h2 class="mt-1 font-concert-one text-3xl text-dark-green dark:text-mint"><?= htmlspecialchars($project->listTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
                         <div class="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-black/55 dark:text-white/55">
                             <?php foreach ($project->listTags as $tag): ?>
                                 <span class="rounded-full border border-dark-green/15 px-2 py-1 dark:border-mint/20"><?= htmlspecialchars($tag, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
