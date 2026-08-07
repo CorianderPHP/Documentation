@@ -45,6 +45,14 @@ final class DocumentationSearchTest extends TestCase
         self::assertSame('views', $results[0]['page']->slug);
     }
 
+    public function testSearchFindsCliHelpDocumentation(): void
+    {
+        $results = (new DocumentationSearch(new DocumentationRepository()))->search('php coriander help nodejs --help', 'reference');
+
+        self::assertNotEmpty($results);
+        self::assertSame('cli', $results[0]['page']->slug);
+    }
+
     public function testEmptySearchReturnsNoResults(): void
     {
         self::assertSame([], (new DocumentationSearch(new DocumentationRepository()))->search('   ', 'reference'));
