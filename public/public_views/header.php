@@ -23,6 +23,7 @@ if (file_exists($metaDataPath)) {
     ?>
 
     <link rel="stylesheet" href="<?= \CorianderCore\Core\Support\PublicUrl::versionedAsset('assets/css/output.css') ?>">
+    <script defer src="https://analytics.corianderphp.com/script.js" data-website-id="6217b3ee-0db5-4cbe-a2ac-466d90c6c5c1"></script>
 </head>
 
 <body class="flex min-h-screen w-full flex-col bg-white text-black scrollbar dark:bg-black dark:text-white">
