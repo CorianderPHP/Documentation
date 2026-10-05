@@ -58,7 +58,15 @@ try {
     $container->set(Router::class, fn() => new Router());
 
     $router = $container->get(Router::class);
-    $router->addMiddleware(new SecurityHeadersMiddleware());
+    $router->addMiddleware(new SecurityHeadersMiddleware([
+        'Content-Security-Policy' => "default-src 'self'; script-src 'self' https://analytics.corianderphp.com; connect-src 'self' https://analytics.corianderphp.com; base-uri 'self'; frame-ancestors 'none'; object-src 'none'",
+        'X-Content-Type-Options' => 'nosniff',
+        'X-Frame-Options' => 'DENY',
+        'Referrer-Policy' => 'strict-origin-when-cross-origin',
+        'Permissions-Policy' => 'geolocation=(), microphone=(), camera=()',
+        'Cross-Origin-Opener-Policy' => 'same-origin',
+        'Cross-Origin-Resource-Policy' => 'same-origin',
+    ]));
     $router->addMiddleware(new ApiRequestLimitsMiddleware(
         defined('API_MAX_BODY_BYTES') ? (int) API_MAX_BODY_BYTES : null,
         defined('API_TIMEOUT_SECONDS') ? (int) API_TIMEOUT_SECONDS : null
@@ -88,5 +96,4 @@ try {
 
     echo 'Internal Server Error';
 }
-
 
