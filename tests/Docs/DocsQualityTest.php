@@ -89,6 +89,16 @@ final class DocsQualityTest extends TestCase
         }
     }
 
+    public function testAnalyticsHostIsAllowedByContentSecurityPolicy(): void
+    {
+        $header = (string) file_get_contents(PROJECT_ROOT . '/public/public_views/header.php');
+        $frontController = (string) file_get_contents(PROJECT_ROOT . '/public/index.php');
+
+        self::assertStringContainsString('https://analytics.corianderphp.com/script.js', $header);
+        self::assertStringContainsString("script-src 'self' https://analytics.corianderphp.com", $frontController);
+        self::assertStringContainsString("connect-src 'self' https://analytics.corianderphp.com", $frontController);
+    }
+
     public function testCodeFenceLanguagesAreSupportedByHighlighter(): void
     {
         foreach ($this->markdownFiles() as $file) {
