@@ -53,6 +53,21 @@ The array keys passed to `render()` become variables in the view. In this exampl
 
 When the data comes from a database, move that lookup into a repository under `src/Modules`. The controller should call that repository instead of building SQL directly.
 
+## Register The Action
+
+Generating a controller does not expose it over HTTP. Add this route to `public/routes.php`:
+
+```php
+use Controllers\BlogController;
+use Psr\Http\Message\ServerRequestInterface;
+
+$router->get('/blog/{id:[0-9]+}', static fn (ServerRequestInterface $request) =>
+    (new BlogController())->show((string) $request->getAttribute('id'))
+);
+```
+
+Opening `/blog/42` now calls `show('42')`. For a redirect, error, or JSON endpoint, return a PSR-7 response such as `Nyholm\Psr7\Response`; the router preserves its status, headers, and body. Do not return a plain array from an explicit API route. See [Routing](/documentation/routing) for a JSON response example.
+
 ## Best Practices
 
 - Keep actions small and delegate business logic to separate classes.

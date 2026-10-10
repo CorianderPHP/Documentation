@@ -1,5 +1,13 @@
 RewriteEngine On
 
+# Deny private files before checking assets or dispatching app routes.
+RewriteRule (^|/)\. - [F,L]
+RewriteRule ^(?:CorianderCore|src|config|vendor|nodejs|database|backups|cache|logs|resources|scripts|tests)(?:/|$) - [F,L,NC]
+RewriteRule ^public/(?:public_views(?:/|$)|routes\.php$) - [F,L,NC]
+RewriteRule ^public/downloads/[^/]+/ - [F,L,NC]
+RewriteRule \.(?:bak(?:\.\d+)?|log|sqlite(?:3)?|db)$ - [F,L,NC]
+RewriteRule ^(?:coriander|composer\.(?:json|lock|phar)|phpunit\.xml|AGENTS\.md)$ - [F,L,NC]
+
 # Ensure the default directory index is public/index.php
 DirectoryIndex public/index.php
 

@@ -7,6 +7,7 @@ use Nyholm\Psr7\Response;
 use Psr\Http\Message\ServerRequestInterface;
 
 return static function (Router $router): void {
+    $router->get('api/documentation/search', static fn (ServerRequestInterface $request) => (new \ApiControllers\DocumentationController())->get_search($request));
     $router->get('documentation', static fn () => (new DocsController())->index());
     $router->get('documentation/search', static fn (ServerRequestInterface $request) => (new DocsController())->search($request));
     $router->get('documentation/forum-project', static fn () => new Response(302, ['Location' => '/guided-projects/forum'], ''));

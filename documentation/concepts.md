@@ -6,6 +6,8 @@ This page explains the moving pieces in a CorianderPHP application before you op
 
 Routes map URLs to code. Small apps can define routes directly in `public/routes.php`, but feature areas should use app-owned route files in `src/Routes`.
 
+Routes are explicit by default. Creating a controller or view does not register a URL; include each route file and register the homepage at `/` too.
+
 ```structure
 src/Routes/dashboard.php
 src/Routes/forum-demo.php

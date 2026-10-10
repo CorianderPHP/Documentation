@@ -14,7 +14,7 @@ Assets|Images, public files, `PUBLIC_URL_PREFIX` handling, or `ImageHandler`.|/d
 
 ## Static Views
 
-Read [Static View Guide](/documentation/static-views) when the page can be rendered directly from a view folder.
+Read [Static View Guide](/documentation/static-views) when a registered route can render a view without a controller preparing data. The view folder alone does not expose a URL.
 
 Static views are enough when:
 

@@ -20,13 +20,24 @@ public/
       metadata.php
 ```
 
-For a normal static page, `/about` maps to `public/public_views/about/index.php`.
+## Register The URL
+
+Add this to `public/routes.php`:
+
+```php
+use CorianderCore\Core\Router\ViewRenderer;
+
+$router->get('/about', static fn () => (new ViewRenderer())->render('about'));
+```
+
+Now `/about` renders `public/public_views/about/index.php`. Creating the folder alone does not expose a page: routing is explicit by default. Register `/` separately when the view is your homepage.
 
 ## Request Flow
 
 ```workflow
 Request|The browser opens `/about`.
-View folder|The framework resolves `public/public_views/about`.
+Route|The registered GET route calls `ViewRenderer::render('about')`.
+View folder|The renderer resolves `public/public_views/about`.
 Metadata|`metadata.php` provides the page title, description, and sitemap settings.
 Template|`index.php` renders the HTML content.
 ```
@@ -65,6 +76,8 @@ $sitemapPriority = 0.7;
 ```
 
 Use `metadata.php` for page metadata and sitemap settings. Do not load database data from this file.
+
+The renderer evaluates shared templates and view files on each render. In your shared `header.php`, load the selected metadata with `require`, not `require_once`, so rendering a second page does not reuse or skip the previous page's metadata.
 
 ## Add Static Assets
 

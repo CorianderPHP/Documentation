@@ -29,6 +29,8 @@ On shared hosting or Plesk, confirm:
 
 If CSS is returned as `text/html`, the asset path is being routed to the app instead of the real CSS file.
 
+If the document root is the project root, rewrites alone do not protect existing files. Deny direct access to `.env`, hidden files, `CorianderCore`, `src`, `config`, `vendor`, `nodejs`, databases, logs, and `public/public_views`. Keep these deny rules before asset and application rewrites. Use equivalent rules in nginx when Apache `.htaccess` is not applied. See the [v0.2.3.3 upgrade checklist](/documentation/upgrades) for the app-owned files to review.
+
 ## HTTPS And Proxies
 
 Use HTTPS in production.
@@ -55,6 +57,8 @@ php coriander migrate
 ```
 
 Do not edit already-run migration files in production.
+
+For SQLite, the deployment user must be able to create/open the adjacent `.coriander-migrations.lock` file. Do not remove it during a running deployment. With MySQL, schema statements may commit implicitly even when a migration fails; do not rely on transactional rollback as a replacement for backups.
 
 ## Writable Paths
 
@@ -90,7 +94,17 @@ Before release:
 - validate request data server-side
 - escape public strings in views
 - protect admin routes with middleware
+- register every public route explicitly and avoid legacy automatic aliases around protected actions
 - check that API payload limits fit the project
+
+Verify normal GET and HEAD requests after deployment:
+
+```bash
+curl -i https://your-app.example/
+curl -I https://your-app.example/
+```
+
+Both should return the expected status and headers; HEAD must not send an HTML body. Check that requesting `.env` or a PHP file under `src/` returns a denied response without exposing its contents.
 
 ## Logs
 

@@ -2,6 +2,8 @@
 
 These files are app-owned CorianderPHP project files. They do not include the CorianderPHP framework.
 
+Use CorianderPHP v0.2.3.3 or later. The API already uses explicit routes and PSR-7 JSON responses; do not enable automatic routing. Unlike the website playground, this downloaded project persists writes to your local database.
+
 ## Request Flow
 
 ```workflow
@@ -38,6 +40,8 @@ DB_NAME=database/shelter.sqlite
 ```bash
 php coriander migrate
 ```
+
+The CLI user needs write access to the SQLite directory, including the adjacent `.coriander-migrations.lock` file. Keep the framework's request-aware `ResponseEmitter::emit($response, $request->getMethod())` in `public/index.php` so HEAD requests return headers without a JSON body.
 
 ## Endpoints
 

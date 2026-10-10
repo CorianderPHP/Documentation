@@ -87,6 +87,10 @@ php coriander migrate:rollback --step=2
 - Use `--allow-changed` only in local development when intentionally editing history.
 - Keep migrations immutable in shared/staging/production environments.
 
+Each migration's changes and history record share a transaction where the database supports it. With SQLite, a failure rolls back both. MySQL DDL statements can commit implicitly, so a schema migration is not guaranteed to roll back atomically; keep backups and test deployment migrations first.
+
+Migration commands acquire a database-scoped lock to prevent concurrent runners from applying the same work. File-backed SQLite uses a persistent lock file next to the database, for example `database/app.sqlite.coriander-migrations.lock`. The directory must be writable by the CLI user. Do not delete the lock file while a migration process may be running; the file's presence alone does not mean the lock is held. MySQL uses a named database lock.
+
 ## Error Handling
 
 - `DatabaseHandler` logs warnings if required constants are missing, unsupported drivers are used, or the connection cannot be established.

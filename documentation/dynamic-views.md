@@ -161,6 +161,8 @@ Edit `public/public_views/articles/show/index.php`:
 <?php endif; ?>
 ```
 
+Each `render()` call evaluates the template again with the new data. Shared headers, footers, and metadata must also be repeatable: use `require` for these rendering files, not `require_once`. Keep `require_once` for bootstrapping configuration and autoloaders.
+
 The keys passed from the controller become variables in the view:
 
 ```php

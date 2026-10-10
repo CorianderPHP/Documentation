@@ -230,7 +230,7 @@ If a page returns 404, first check the route string and route order. If a page l
 - Registering generic topic routes before more specific named topic routes.
 - Forgetting `ServerRequestInterface` when a route needs request attributes or form data.
 - Putting permission checks in the route closure instead of middleware or services.
-- Putting API endpoints here. The demo API uses the framework API controller convention.
+- Assuming a controller folder exposes URLs automatically. Register the API routes explicitly too; the [API chapter](/guided-projects/forum/api) provides the route definitions.
 
 ## Next
 

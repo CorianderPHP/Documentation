@@ -92,7 +92,7 @@ Behavior:
 - Shows current and latest version before applying updates.
 - Asks for confirmation in interactive mode.
 - Updates only managed framework paths (`CorianderCore` and `coriander`).
-- Protects local modified files by skipping them unless `--force` is used.
+- Uses Git to detect edits, renamed or deleted tracked files, and untracked files in managed paths; skips those changes unless `--force` is used. Safe local-change detection requires a Git checkout.
 - Creates `.bak` backups before overwriting managed files.
 - Automatically rolls back applied files if an update operation fails mid-way.
 - Runs post-update tasks (`composer dump-autoload`).
@@ -100,6 +100,8 @@ Behavior:
 - Retries transient GitHub API failures and reports rate-limit errors clearly.
 - Validates `--backup-dir` as a safe relative path (no absolute paths or `..` traversal segments).
 - Enforces updater policy guard (environment, optional auth token, optional rate limit).
+
+The updater does not migrate app-owned `.htaccess`, `public/index.php`, `public/routes.php`, or templates. Review the release notes and [Upgrade Guide](/documentation/upgrades) before deploying changed routing, bootstrap, or security behavior. If your deployment has no Git checkout, update in a reviewed Git branch and deploy the tested result.
 
 #### Flags
 
