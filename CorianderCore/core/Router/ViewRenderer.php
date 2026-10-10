@@ -4,68 +4,61 @@ declare(strict_types=1);
 namespace CorianderCore\Core\Router;
 
 /**
- * ViewRenderer
- *
- * Handles locating and rendering public views with sanitized data.
- * Workflow:
- * 1. Escape string data for safe HTML output.
- * 2. Extract the sanitized variables into the view scope.
- * 3. Include shared header and footer around the view.
+ * Renders views with escaped string data and independently inherited layouts.
  */
 class ViewRenderer
 {
+    public function __construct(private string $directory = PROJECT_ROOT . '/src/Views') {}
+
     /**
-     * Render a public view page.
+     * Use the nearest existing header and footer independently; omit absent parts.
      *
-     * Looks for an index.php in the specified view directory and includes
-     * header and footer templates if found.
-     *
-     * @param string $viewPath Path relative to public/public_views.
-     * @param array  $data     Variables extracted into the view scope.
-     * @return bool True if the view was rendered, otherwise false.
+     * @param array<string,mixed> $data Variables exposed to all rendered files; strings are HTML-escaped recursively.
+     * @throws \InvalidArgumentException For reserved or invalid view names.
+     * @throws \RuntimeException For missing views or files outside the view root.
      */
-    public function render(string $viewPath, array $data = []): bool
+    public function response(string $view, array $data = [], int $status = 200, bool $layout = true): \Psr\Http\Message\ResponseInterface
     {
-        $normalizedPath = SafePath::normalizeRelativePath($viewPath);
-        if ($normalizedPath === null) {
-            return false;
+        $name = SafePath::normalizeRelativePath($view);
+        if ($name === null || in_array(basename($name), ['_header', '_footer', '_header.php', '_footer.php'], true)) {
+            throw new \InvalidArgumentException('Invalid view name');
         }
-
-        $escapedData = $this->escapeData($data);
-        extract($escapedData, EXTR_OVERWRITE);
-
-        $viewsRoot = PROJECT_ROOT . '/public/public_views';
-        $fullViewPath = $viewsRoot . '/' . $normalizedPath . '/index.php';
-
-        if (!file_exists($fullViewPath)) {
-            return false;
+        $name = str_ends_with($name, '.php') ? $name : $name . '.php';
+        $file = SafePath::resolveFile($this->directory, $name);
+        $files = [$file];
+        if ($layout) {
+            $header = null;
+            $footer = null;
+            $ancestor = dirname($name);
+            while (true) {
+                $prefix = $ancestor === '.' ? '' : $ancestor . '/';
+                if ($header === null && file_exists($this->directory . '/' . $prefix . '_header.php')) {
+                    $header = SafePath::resolveFile($this->directory, $prefix . '_header.php');
+                }
+                if ($footer === null && file_exists($this->directory . '/' . $prefix . '_footer.php')) {
+                    $footer = SafePath::resolveFile($this->directory, $prefix . '_footer.php');
+                }
+                if (($header !== null && $footer !== null) || $ancestor === '.') {
+                    break;
+                }
+                $ancestor = dirname($ancestor);
+            }
+            $files = array_filter([$header, $file, $footer], static fn(?string $path): bool => $path !== null);
         }
-
-        $realViewsRoot = realpath($viewsRoot);
-        $realViewPath = realpath($fullViewPath);
-        if ($realViewsRoot === false || $realViewPath === false) {
-            return false;
-        }
-
-        $prefix = rtrim($realViewsRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-        if (!str_starts_with($realViewPath, $prefix)) {
-            return false;
-        }
-
-        $__corianderRequestedView = $normalizedPath;
-
-        require $viewsRoot . '/header.php';
-        require $fullViewPath;
-        require $viewsRoot . '/footer.php';
-
-        return true;
+        $render = static function (array $__files, array $__data): void {
+            // Application data must not replace the renderer's file list.
+            extract($__data, EXTR_SKIP);
+            foreach ($__files as $__file) {
+                require $__file;
+            }
+        };
+        [, $html] = \CorianderCore\Core\Support\OutputBuffer::capture(fn() => $render($files, $this->escapeData($data)));
+        return \CorianderCore\Core\Http\Responses::html($html, $status);
     }
 
     /**
-     * Escape data recursively for safe HTML output.
-     *
-     * @param array $data Data to escape.
-     * @return array Escaped data.
+     * @param array<string,mixed> $data
+     * @return array<string,mixed>
      */
     private function escapeData(array $data): array
     {
