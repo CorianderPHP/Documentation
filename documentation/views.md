@@ -1,45 +1,43 @@
 # View Overview
 
-CorianderPHP views live in `public/public_views`. A view folder contains an `index.php` template and a `metadata.php` file.
-
-Use this page to choose the right guide.
+Templates live in `src/Views`, outside the public web directory. Routes render them explicitly with `Responses::view()`. A template does not create a URL.
 
 ## Which View Do I Need?
 
 ```choices
-Static view|Fixed pages such as home, about, contact, legal pages, or content that does not need request data.|/documentation/static-views
-Dynamic view|Controller-prepared pages such as article detail pages, dashboards, forms, permissions, or database content.|/documentation/dynamic-views
-Assets|Images, public files, `PUBLIC_URL_PREFIX` handling, or `ImageHandler`.|/documentation/assets
+Static view|A fixed page such as about, contact, or legal information.|/documentation/static-views
+Dynamic view|A page whose handler prepares article data, permissions, forms, or database rows.|/documentation/dynamic-views
+Assets and images|Public files, URL prefixes, and ImageHandler.|/documentation/assets
 ```
 
-## Static Views
+Read [Static View Guide](/documentation/static-views) or [Dynamic View Guide](/documentation/dynamic-views). Use [Assets And Images](/documentation/assets) for media.
 
-Read [Static View Guide](/documentation/static-views) when a registered route can render a view without a controller preparing data. The view folder alone does not expose a URL.
+Both view types use the same renderer and layout rules. "Static" describes the content, not automatic routing or a different template engine.
 
-Static views are enough when:
+## Shared Layouts
 
-- the content is mostly fixed
-- the page does not need route parameters
-- the page does not submit a form
-- the page does not need user-specific permissions
-- the page does not read database rows
+```structure
+src/Views/
+  _header.php
+  _footer.php
+  home.php
+  admin/
+    _header.php
+    users/show.php
+```
 
-## Dynamic Views
+When rendering `admin/users/show`, the renderer finds the nearest `_header.php` and nearest `_footer.php` independently. This example uses the admin header and root footer.
 
-Read [Dynamic View Guide](/documentation/dynamic-views) when a controller needs to load data and pass it to a template.
+Layouts do not stack. Each header/footer is included at most once. If one is absent in the entire ancestry, that part is omitted. Parent layouts still apply when there are no local layout files.
 
-Dynamic views are needed when:
+Use `Responses::view('fragment', $data, layout: false)` to skip layout lookup for a fragment.
 
-- the URL contains a route parameter such as `/articles/{id}`
-- the page displays database rows
-- the page depends on the current user or permissions
-- the page renders validation errors or old form input
-- the page needs flash messages after a redirect
+## Data And Escaping
 
-## Shared Rules
+Header, page, and footer receive the same passed data. String values in arrays are recursively HTML-escaped; do not escape them a second time in the template. Objects are not recursively sanitized: encode untrusted object properties yourself or pass arrays of plain data.
 
-- Keep templates focused on presentation.
-- Do not run database queries in views.
-- Do not make permission decisions only in views.
-- Store assets under `public/assets`.
-- Use [Assets And Images](/documentation/assets) when rendering images with framework asset-path handling.
+HTML escaping does not validate URL schemes or make JavaScript/CSS contexts safe. Keep visitor input out of executable contexts and validate external URLs.
+
+Every render evaluates templates again with the current data. Define reusable functions/classes in autoloaded app files, not in repeatedly included templates.
+
+0.3.0 removed metadata files and `public/public_views`. Pass title/description as view data and use explicit sitemap URLs; see [Upgrade Guide](/documentation/upgrades).

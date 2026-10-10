@@ -4,12 +4,12 @@ The guided project starts with SQLite because it is simple to run locally. The s
 
 ## Goal
 
-Move from local SQLite to a production-ready database without rewriting routes, controllers, views, or permission names.
+Move from local SQLite to a production-ready database without rewriting routes, request handlers, views, or permission names.
 
 ## What Stays The Same
 
 - Route structure
-- Controller action names
+- Handler action names
 - View structure
 - Repository public methods
 - Permission ability names
@@ -81,7 +81,7 @@ Each service should:
 - write to the database with `SQLManager::sqlScript()` or the simple SQL helpers
 - return a predictable result array or object
 
-Keep custom joins and writes inside repositories or services. Controllers should not contain SQL when moving from SQLite to MySQL.
+Keep custom joins and writes inside repositories or services. Request Handlers should not contain SQL when moving from SQLite to MySQL.
 
 ## Step: Add Production Rules
 
@@ -102,12 +102,12 @@ After switching to MySQL, open the same URLs:
 - [/forum-demo/topics](/forum-demo/topics)
 - `/forum/topics` in your real app
 
-The app should feel the same from the route, controller, and view perspective.
+The app should feel the same from the route, handler, and view perspective.
 
 ## Common Mistakes
 
 - Rewriting routes and views when only persistence changed.
-- Letting SQL details leak into controllers.
+- Letting SQL details leak into request handlers.
 - Disabling public demo protection on the official documentation site.
 
 ## Next

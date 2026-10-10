@@ -86,8 +86,7 @@ jobs:
             echo "## Documentation Review Checklist"
             echo
             echo "- [ ] Check installation and start-project docs."
-            echo "- [ ] Check routing and middleware docs."
-            echo "- [ ] Check controllers and views docs."
+            echo "- [ ] Check routing, handlers, middleware, views, and session docs."
             echo "- [ ] Check database and SQL docs."
             echo "- [ ] Check guided projects and demo downloads."
             echo

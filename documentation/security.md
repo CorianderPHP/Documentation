@@ -1,110 +1,87 @@
 # Security Guide
 
-This page summarizes framework-level security behavior and recommended usage patterns.
+Security middleware is declared in `src/Routes/_middleware.php`. Keep framework protection and add app-specific authorization in child directories or services.
 
-## Routing and View Path Safety
+## CSRF: Web And Cookie-Based APIs
 
-- Routing is explicit by default. Register protected actions inside their middleware group; a controller's other public methods are not automatic URLs.
-- Avoid enabling `automaticRouting` for a protected app without auditing convention-generated aliases. An alias can bypass middleware attached only to an explicit route.
+By default, `CsrfMiddleware` validates POST, PUT, PATCH, and DELETE on **all paths, including /api**. The old implicit API exemption is gone.
 
-- View rendering accepts only normalized relative paths under `public/public_views`.
-- Rejected inputs include:
-  - dot segments (`.` and `..`)
-  - absolute paths
-  - null bytes
-  - Windows drive-prefixed paths
-- Shared templates (`header.php`, `footer.php`) use an internally normalized view key, not raw request path input.
+Include a token in web forms:
 
-## CSRF Protection
-
-- CSRF middleware validates mutating web methods: `POST`, `PUT`, `PATCH`, `DELETE`.
-- Use `\CorianderCore\Core\Security\Csrf::input()` in forms.
-- For non-API JSON requests, include the token in the JSON body as `csrf_token`.
-
-The default CSRF middleware skips `/api/*`, and API requests do not start a session automatically. A stateless API can use token-based authentication. An API that uses a browser login cookie must explicitly start the session and validate CSRF tokens, as shown in the [forum API guide](/guided-projects/forum/api).
-
-## Proxy and TLS Detection
-
-When CorianderPHP runs behind a reverse proxy/load balancer, HTTPS detection for secure cookies relies on `TRUSTED_PROXIES`.
-
-- `TRUSTED_PROXIES` accepts a comma-separated list of IPs/CIDRs (default: `127.0.0.1,::1`).
-- Proxy headers (`X-Forwarded-Proto`, `Forwarded`, etc.) are trusted only when `REMOTE_ADDR` matches this allowlist.
-- Example: `TRUSTED_PROXIES=127.0.0.1,::1,10.0.0.0/8,192.168.0.0/16`
-## Response Security Headers
-
-`SecurityHeadersMiddleware` is enabled by default and injects a secure baseline:
-
-- `Content-Security-Policy`
-- `X-Content-Type-Options`
-- `X-Frame-Options`
-- `Referrer-Policy`
-- `Permissions-Policy`
-- `Cross-Origin-Opener-Policy`
-- `Cross-Origin-Resource-Policy`
-- `Strict-Transport-Security` (HTTPS requests)
-
-Custom header policy:
-
-- Pass custom headers to `SecurityHeadersMiddleware` where the middleware is registered.
-
-Example:
-
-```php
-$router->addMiddleware(new SecurityHeadersMiddleware([
-    'Content-Security-Policy' => "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn.discordapp.com/ https://files.stripe.com/; font-src 'self'; connect-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'",
-    'X-Content-Type-Options' => 'nosniff',
-    'X-Frame-Options' => 'DENY',
-    'Referrer-Policy' => 'strict-origin-when-cross-origin',
-    'Permissions-Policy' => 'geolocation=(), microphone=(), camera=()',
-    'Cross-Origin-Opener-Policy' => 'same-origin',
-    'Cross-Origin-Resource-Policy' => 'same-origin',
-]));
+```html
+<form method="POST" action="/articles">
+    <?= \CorianderCore\Core\Security\Csrf::input() ?>
+    <input name="title">
+    <button type="submit">Save</button>
+</form>
 ```
 
-To disable the middleware headers, pass `enabled: false` when registering it.
+For JSON requests authenticated by a browser session cookie, send the same token in the **body**:
 
-## API Request Limits
+```json
+{
+  "csrf_token": "token-from-the-current-session",
+  "title": "My article"
+}
+```
 
-`ApiRequestLimitsMiddleware` is enabled by default for `/api/*` endpoints.
+Send the session cookie too. The built-in middleware does not read an `X-CSRF-Token` header. Token generation/validation starts the session when needed; application auth still needs explicit session startup.
 
-- Rejects payloads above `API_MAX_BODY_BYTES` (default: `1048576` bytes).
-- Applies request execution/input timeout via `API_TIMEOUT_SECONDS` (default: `15`).
+## Stateless API Exceptions
 
-## SQL Safety
+Only exempt a prefix when it does not rely on browser login cookies:
 
-- Prefer map-based helpers for common conditions:
-  - `findWhere`
-  - `updateWhere`
-  - `deleteWhere`
-- Raw-string condition methods remain available for advanced SQL expressions but are not recommended for routine usage.
-- For selecting all columns, prefer `findAll($table)`.
+```php
+use CorianderCore\Core\Security\CsrfMiddleware;
 
-## Updater Safety
+// In the root _middleware.php array, replace the existing CSRF entry.
+new CsrfMiddleware(apiPrefixes: ['api/shelter'])
+```
 
-- Update archives are checked for unsafe archive paths before extraction (zip-slip defense).
-- Updater source is restricted to expected GitHub download hosts.
-- Updater repository is restricted by allowlist:
-  - default: `CorianderPHP/CorianderPHP`
-  - override with `CORIANDER_UPDATE_ALLOWED_REPOS=owner/repo,owner/repo2`
-- Updater command can be hardened with:
-  - `CORIANDER_UPDATER_AUTH_TOKEN` (requires `--auth-token=...`)
-  - `CORIANDER_UPDATER_MAX_ATTEMPTS_PER_HOUR` (default: `5`)
-  - `CORIANDER_UPDATER_ENABLED=0` (global disable)
-  - `CORIANDER_UPDATER_ALLOW_PRODUCTION=1` (explicit production opt-in)
+This is a CSRF exception, **not authentication or authorization**. A deployed writable API needs suitable authentication (for example validated bearer tokens), permission checks, and rate limiting. Never broadly exempt all `api` routes when any use a session cookie.
 
-## Logging and Error Handling
+The public [shelter playground](/guided-projects/shelter-api/playground) is stateless and never persists visitor writes. The [forum API](/guided-projects/forum/api) uses login cookies and remains CSRF-protected.
 
-- Runtime bootstrap and database initialization are wrapped to avoid leaking raw failures.
-- Logger supports structured JSON output and file rotation for production logs.
-- In production, keep `display_errors=0` and rely on logs/monitoring.
+## Input And Body Limits
 
-## Project Responsibilities
+The request factory bounds the body before JSON parsing and rejects malformed JSON with 400 or oversized data with 413. Read `getParsedBody()` instead of parsing again.
 
-CorianderPHP hardens framework-level defaults, but application code remains responsible for:
+The starter applies `ApiRequestLimitsMiddleware(apiPrefixes: [])` to all routes. `API_MAX_BODY_BYTES` defaults to 1048576 bytes; `API_TIMEOUT_SECONDS` defaults to 15. Configure both PHP/web-server upload limits and application limits when accepting uploads.
 
-- validating input data
-- authorization checks
-- output encoding in non-framework rendering paths
-- secure secret management and environment configuration
+Validate field types, lengths, allowed values, identifiers, and uploaded content. A parsed request is not trusted input.
 
+## Response Headers
 
+Keep `SecurityHeadersMiddleware` in root middleware. It supplies CSP, nosniff, frame/referrer policies, cross-origin policies, and HTTPS HSTS behavior.
+
+For an external script, allow only its required host:
+
+```php
+use CorianderCore\Core\Security\SecurityHeadersMiddleware;
+
+new SecurityHeadersMiddleware([
+    'Content-Security-Policy' => "default-src 'self'; script-src 'self' https://analytics.example.com; connect-src 'self' https://analytics.example.com; base-uri 'self'; frame-ancestors 'none'; object-src 'none'",
+    'X-Content-Type-Options' => 'nosniff',
+    'X-Frame-Options' => 'DENY',
+])
+```
+
+Custom header arrays replace the defaults: preserve the other baseline headers you need, rather than accidentally dropping them. Do not use a wildcard to work around a blocked resource.
+
+## Route And Template Safety
+
+Only method files expose endpoints; views and action classes do not. Use directory middleware for protected areas, including all write handlers. Filenames with private prefixes are not routes.
+
+View paths must be normalized relative names under `src/Views`. Do not build them from raw request values. The renderer escapes string data recursively in arrays; objects, URL validation, and JavaScript/CSS contexts need your own care.
+
+## Cookies, Proxies, And Errors
+
+Use HTTPS in production. `TRUSTED_PROXIES` accepts trusted IPs/CIDRs; forwarded TLS headers are trusted only for matching peers. Do not trust every proxy just to fix cookie settings.
+
+Use `APP_ENV=production` and `APP_DEBUG=0`. `ErrorResponse` exposes detailed traces only for local/development with debug enabled; elsewhere it returns generic errors and logs unexpected exceptions. Keep PHP `display_errors=0` on the server.
+
+## Database And Framework Updates
+
+Use bound parameters with `SQLManager::sqlScript()`, or safe map-based helpers such as `findWhere`. Keep migrations and backups outside public access.
+
+The updater validates sources/archive paths and supports policy restrictions. Keep secrets, logs, source files, and backups private. See [Production Checklist](/documentation/production) and [Upgrade Guide](/documentation/upgrades).

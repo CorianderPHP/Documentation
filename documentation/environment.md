@@ -28,6 +28,8 @@ The loader does not parse complex shell syntax, arrays, multiline values, or var
 
 ## Override Behavior
 
+The 0.3.0 starter defaults to `APP_ENV=production` and `APP_DEBUG=0`. The example above deliberately enables local debugging. Existing `.env` files are not rewritten on framework updates; choose safe values explicitly for a public deployment.
+
 Existing server or shell environment variables are not overwritten by `.env`.
 
 This keeps production deployment variables in control while preserving a simple local developer workflow.

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Modules\ShelterApi;
+namespace App\Modules\ShelterApi;
 
 use RuntimeException;
 

@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace Modules\ForumDemo\Auth;
+namespace App\Modules\ForumDemo\Auth;
 
-use Modules\ForumDemo\Data\DemoUserRepository;
+use App\Modules\ForumDemo\Data\DemoUserRepository;
+use CorianderCore\Core\Bootstrap\SessionBootstrap;
 
 final class DemoAuth
 {
@@ -15,6 +16,7 @@ final class DemoAuth
 
     public function login(string $email, string $password): bool
     {
+        SessionBootstrap::start();
         $user = $this->users->findByEmail($email);
         if ($user === null || !hash_equals($user['password'], $password)) {
             return false;
@@ -26,6 +28,7 @@ final class DemoAuth
 
     public function loginAs(string $role): bool
     {
+        SessionBootstrap::start();
         $user = $this->users->findByRole($role);
         if ($user === null) {
             return false;
@@ -37,6 +40,7 @@ final class DemoAuth
 
     public function logout(): void
     {
+        SessionBootstrap::start();
         unset($_SESSION[self::SESSION_KEY]);
     }
 
@@ -45,6 +49,7 @@ final class DemoAuth
      */
     public function currentUser(): ?array
     {
+        SessionBootstrap::start();
         $id = $_SESSION[self::SESSION_KEY] ?? null;
         return is_int($id) ? $this->users->find($id) : null;
     }

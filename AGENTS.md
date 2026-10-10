@@ -22,7 +22,7 @@ Documentation website code should live in:
 
 - `src/`
 - `documentation/`
-- `public/public_views/`
+- `src/Views/` (private templates and inherited layouts)
 - `public/assets/`
 - `resources/`
 - `scripts/`

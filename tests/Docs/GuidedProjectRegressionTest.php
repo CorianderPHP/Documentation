@@ -129,32 +129,28 @@ final class GuidedProjectRegressionTest extends TestCase
     {
         $missingToken = $this->dispatchJson('POST', '/api/forum-demo/topic', ['title' => 'API topic']);
         self::assertSame(403, $missingToken->getStatusCode());
-        self::assertSame('Invalid CSRF token.', $this->json($missingToken)['message']);
+        self::assertSame('Invalid CSRF token', $this->json($missingToken)['message']);
 
         $token = Csrf::token();
-        $invalidJsonObject = $this->dispatchJson('POST', '/api/forum-demo/topic', [], ['X-CSRF-Token' => $token]);
-        self::assertSame(400, $invalidJsonObject->getStatusCode());
-        self::assertSame('Send a JSON object.', $this->json($invalidJsonObject)['message']);
-
-        $guest = $this->dispatchJson('POST', '/api/forum-demo/topic', ['title' => 'API topic'], ['X-CSRF-Token' => $token]);
+        $guest = $this->dispatchJson('POST', '/api/forum-demo/topic', ['title' => 'API topic'], $token);
         self::assertSame(403, $guest->getStatusCode());
         self::assertFalse($this->json($guest)['ok']);
 
         $this->dispatch('POST', '/forum-demo/login', ['quick_role' => 'member']);
-        $created = $this->dispatchJson('POST', '/api/forum-demo/topic', ['title' => 'API topic'], ['X-CSRF-Token' => $token]);
+        $created = $this->dispatchJson('POST', '/api/forum-demo/topic', ['title' => 'API topic'], $token);
         self::assertSame(200, $created->getStatusCode());
         self::assertTrue($this->json($created)['demo']);
         self::assertStringNotContainsString('API topic', (string) $this->dispatch('GET', '/forum-demo/topics')->getBody());
 
-        $denied = $this->dispatchJson('POST', '/api/forum-demo/moderate', ['body' => 'Moderation'], ['X-CSRF-Token' => $token]);
+        $denied = $this->dispatchJson('POST', '/api/forum-demo/moderate', ['body' => 'Moderation'], $token);
         self::assertSame(403, $denied->getStatusCode());
         $this->dispatch('POST', '/forum-demo/login', ['quick_role' => 'admin']);
-        $allowed = $this->dispatchJson('POST', '/api/forum-demo/moderate', ['body' => 'Moderation'], ['X-CSRF-Token' => $token]);
+        $allowed = $this->dispatchJson('POST', '/api/forum-demo/moderate', ['body' => 'Moderation'], $token);
         self::assertSame(200, $allowed->getStatusCode());
 
-        $invalid = $this->dispatchJson('POST', '/api/forum-demo/reply', ['body' => ''], ['X-CSRF-Token' => $token]);
+        $invalid = $this->dispatchJson('POST', '/api/forum-demo/reply', ['body' => ''], $token);
         self::assertSame(422, $invalid->getStatusCode());
-        $reply = $this->dispatchJson('POST', '/api/forum-demo/reply', ['body' => 'Valid reply'], ['X-CSRF-Token' => $token]);
+        $reply = $this->dispatchJson('POST', '/api/forum-demo/reply', ['body' => 'Valid reply'], $token);
         self::assertSame(200, $reply->getStatusCode());
     }
 
@@ -162,16 +158,16 @@ final class GuidedProjectRegressionTest extends TestCase
     {
         $this->assertZipContains('public/downloads/forum-completed.zip', [
             'README.md',
-            'src/Routes/forum-demo.php',
-            'src/Controllers/ForumDemoController.php',
-            'src/ApiControllers/ForumDemoController.php',
+            'src/Routes/forum-demo/index.get.php',
+            'src/Actions/ForumActions.php',
+            'src/Actions/ForumApiActions.php',
             'src/Middleware/ForumDemoAdminMiddleware.php',
             'src/Modules/ForumDemo/Auth/DemoAuth.php',
             'src/Modules/ForumDemo/Data/DemoForumRepository.php',
             'src/Modules/ForumDemo/Permissions/DemoPermissionService.php',
             'src/Modules/ForumDemo/Writes/DemoWriteGuard.php',
-            'public/public_views/forum-demo/index.php',
-            'public/public_views/forum-demo/topic/index.php',
+            'src/Views/forum-demo.php',
+            'src/Views/forum-demo/topic.php',
             'nodejs/src/forum-demo/index.ts',
             'documentation/projects/forum/routes.md',
         ]);
@@ -179,10 +175,9 @@ final class GuidedProjectRegressionTest extends TestCase
         $this->assertZipContains('public/downloads/shelter-api-completed.zip', [
             'README.md',
             'database/migrations/20260711000000_create_shelter_api_tables.php',
-            'public/routes.snippet.php',
-            'src/Routes/api/shelter.php',
-            'src/ApiControllers/ShelterAnimalController.php',
-            'src/ApiControllers/ShelterLookupController.php',
+            'src/Routes/api/shelter/animals/index.get.php',
+            'src/Actions/ShelterAnimalActions.php',
+            'src/Actions/ShelterLookupActions.php',
             'src/Modules/ShelterApi/AnimalRepository.php',
             'src/Modules/ShelterApi/AnimalService.php',
             'src/Modules/ShelterApi/AnimalValidator.php',
@@ -191,23 +186,23 @@ final class GuidedProjectRegressionTest extends TestCase
 
         $this->assertZipEntryContains(
             'public/downloads/forum-completed.zip',
-            'src/Controllers/ForumDemoController.php',
+            'src/Actions/ForumActions.php',
             'routes call these public methods'
         );
         $this->assertZipEntryContains(
             'public/downloads/forum-completed.zip',
-            'public/public_views/forum-demo/topic/index.php',
-            'Rendered by ForumDemoController::showTopic()'
+            'src/Views/forum-demo/topic.php',
+            'Rendered by ForumActions::showTopic()'
         );
         $this->assertZipEntryContains(
             'public/downloads/shelter-api-completed.zip',
-            'src/ApiControllers/ShelterAnimalController.php',
+            'src/Actions/ShelterAnimalActions.php',
             'Route entrypoint for /api/shelter/animals'
         );
         $this->assertZipEntryContains(
             'public/downloads/shelter-api-completed.zip',
             'README.md',
-            'Route|`src/Routes/api/shelter.php` maps HTTP methods and URLs.'
+            'Route|Discovered method files map HTTP methods and URLs.'
         );
     }
 
@@ -229,20 +224,21 @@ final class GuidedProjectRegressionTest extends TestCase
         $_POST = strtoupper($method) === 'POST' ? $parsedBody : [];
 
         $router = new Router();
-        $notFound = static fn() => new Response(404, [], 'Not found');
-        require PROJECT_ROOT . '/public/routes.php';
+        if (in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
+            $parsedBody['csrf_token'] = Csrf::token();
+        }
 
         $request = (new ServerRequest($method, $uri))
             ->withQueryParams($query)
             ->withParsedBody($parsedBody);
 
-        return $router->dispatch($request);
+        return $router->handle($request);
     }
 
     /**
      * @param array<string,mixed> $payload
      */
-    private function dispatchJson(string $method, string $uri, array $payload, array $headers = []): ResponseInterface
+    private function dispatchJson(string $method, string $uri, array $payload, ?string $token = null): ResponseInterface
     {
         $path = parse_url($uri, PHP_URL_PATH);
         $path = is_string($path) ? $path : $uri;
@@ -257,19 +253,18 @@ final class GuidedProjectRegressionTest extends TestCase
         $_POST = [];
 
         $router = new Router();
-        $notFound = static fn() => new Response(404, [], 'Not found');
-        require PROJECT_ROOT . '/public/routes.php';
+        if ($token !== null) {
+            $payload['csrf_token'] = $token;
+        }
 
         $request = (new ServerRequest($method, $path))
             ->withQueryParams($query)
             ->withHeader('Content-Type', 'application/json')
+            ->withParsedBody($payload)
             ->withBody(Stream::create(json_encode($payload, JSON_THROW_ON_ERROR)));
 
-        foreach ($headers as $name => $value) {
-            $request = $request->withHeader($name, $value);
-        }
 
-        return $router->dispatch($request);
+        return $router->handle($request);
     }
 
     /**

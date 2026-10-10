@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Modules\ForumDemo\Data;
+namespace App\Modules\ForumDemo\Data;
 
 final class DemoUserRepository
 {

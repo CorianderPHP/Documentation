@@ -1,144 +1,50 @@
 # Production Checklist
 
-Use this checklist before deploying a CorianderPHP app.
+Deploy tested app-owned code together with the framework version it supports. A successful core update alone is not a successful application migration.
 
-## Environment
-
-Production should not use local debug settings:
+## Environment And Dependencies
 
 ```env
 APP_ENV=production
 APP_DEBUG=0
-APP_TIMEZONE=Europe/Paris
-LOG_LEVEL=warning
-LOG_FORMAT=json
+PROJECT_URL=https://example.com
+PUBLIC_URL_PREFIX=
 ```
 
-Keep secrets in `.env` or host-managed secret storage. Do not commit real credentials.
-
-## Public Root
-
-Point the web server document root to the project public entry point expected by your setup.
-
-On shared hosting or Plesk, confirm:
-
-- requests reach `public/index.php`
-- `.htaccess` rewrite rules are active
-- static assets under `public/assets` return the correct MIME type
-- the public URL prefix matches how the host serves the project
-
-If CSS is returned as `text/html`, the asset path is being routed to the app instead of the real CSS file.
-
-If the document root is the project root, rewrites alone do not protect existing files. Deny direct access to `.env`, hidden files, `CorianderCore`, `src`, `config`, `vendor`, `nodejs`, databases, logs, and `public/public_views`. Keep these deny rules before asset and application rewrites. Use equivalent rules in nginx when Apache `.htaccess` is not applied. See the [v0.2.3.3 upgrade checklist](/documentation/upgrades) for the app-owned files to review.
-
-## HTTPS And Proxies
-
-Use HTTPS in production.
-
-When the app runs behind a reverse proxy, configure trusted proxies:
-
-```env
-TRUSTED_PROXIES=127.0.0.1,::1,10.0.0.0/8
-```
-
-Only trusted proxy IPs may influence HTTPS detection from forwarded headers.
-
-## Database
-
-Choose the database intentionally:
-
-- SQLite for small or local deployments.
-- MySQL for most hosted multi-user apps.
-
-Run migrations during deployment:
+Use your real HTTPS URL. Keep secrets out of Git and PHP `display_errors=0`. Install production Composer dependencies and build assets before serving traffic.
 
 ```bash
-php coriander migrate
-```
-
-Do not edit already-run migration files in production.
-
-For SQLite, the deployment user must be able to create/open the adjacent `.coriander-migrations.lock` file. Do not remove it during a running deployment. With MySQL, schema statements may commit implicitly even when a migration fails; do not rely on transactional rollback as a replacement for backups.
-
-## Writable Paths
-
-Make only required runtime folders writable by PHP.
-
-Common writable areas:
-
-- logs
-- cache
-- SQLite database directory, when using SQLite
-- generated files, if the app creates them
-
-Do not make the whole project world-writable.
-
-## Frontend Assets
-
-Build assets before deployment:
-
-```bash
+composer install --no-dev --optimize-autoloader
+php coriander nodejs ci
 php coriander nodejs run build-prod
 ```
 
-Commit or deploy the generated assets if the host does not build Node assets during release.
+Run tests in CI before installing without development packages.
 
-## Security
+## Document Root And Private Files
 
-Before release:
+Prefer `public/` as the document root. This keeps `src/Views`, routes, environment files, database, and framework source outside direct web access.
 
-- keep `APP_DEBUG=0`
-- use HTTPS
-- configure `TRUSTED_PROXIES`
-- keep CSRF tokens in mutating web forms
-- validate request data server-side
-- escape public strings in views
-- protect admin routes with middleware
-- register every public route explicitly and avoid legacy automatic aliases around protected actions
-- check that API payload limits fit the project
+If your host serves the project root, use `PUBLIC_URL_PREFIX=/public` and explicit Apache/nginx deny rules before static-file/application rewrites. Protect hidden files, source/config/vendor, databases, cache, logs, resources, scripts, tests, and backups.
 
-Verify normal GET and HEAD requests after deployment:
+Do not rely only on "rewrite missing files": existing private files could still be served. Restrict directly executable PHP to the front controller. Test both source exposure and real asset URLs.
 
-```bash
-curl -i https://your-app.example/
-curl -I https://your-app.example/
-```
+## Sessions, HTTPS, And Middleware
 
-Both should return the expected status and headers; HEAD must not send an HTML body. Check that requesting `.env` or a PHP file under `src/` returns a denied response without exposing its contents.
+Configure HTTPS and only trusted reverse proxies. Keep root security headers, request limits, and CSRF middleware. Verify admin child middleware and cookie-authenticated API tokens.
 
-## Logs
+Sessions start when authentication/flash/CSRF needs them; public pages can remain session-free. Do not remove session startup from auth services.
 
-Use JSON logs when possible:
+A stateless writable API needs authentication, authorization, and abuse controls; a CSRF exception alone provides none of these.
 
-```env
-LOG_CHANNEL=file
-LOG_FORMAT=json
-LOG_LEVEL=warning
-```
+## Database And Permissions
 
-Confirm the log path is writable and rotated.
+Back up the database, apply migrations deliberately, and make only necessary storage/cache directories writable. SQLite needs a writable parent directory; a MySQL deployment needs reviewed dialect/constraint behavior.
 
-## Framework Updates
+Do not expose a tutorial's fixed demo credentials as production authentication. The hosted demo's fake-success writes are for safety, not a production persistence strategy.
 
-Do not edit `CorianderCore` for app behavior. When the framework updates, review:
+## Cache And Release Checks
 
-```choices
-Route smoke tests|Confirm public pages, documentation routes, demos, and downloads still respond.
-Documentation quality tests|Confirm links, supported code fences, and guided project navigation are still valid.
-Generated downloads|Regenerate and verify completed project packages.
-Frontend build|Rebuild TypeScript and Tailwind assets.
-Environment review|Check deployment-specific `.env` changes before release.
-```
+Production route maps refresh automatically, normally after 30 seconds. Clear caches after deploy when immediate route changes are required. Confirm the route list, logs, and health checks.
 
-## Final Verification
-
-Run:
-
-```bash
-composer dump-autoload
-composer generate-downloads
-composer test
-php coriander nodejs run build-prod
-```
-
-Then check the deployed site with real URLs, not only local paths.
+Verify homepage, representative docs/pages, authentication, admin denial, writes, JSON errors, 404, 405/Allow, and body-free HEAD requests. See [Upgrade Guide](/documentation/upgrades) when crossing 0.2.x to 0.3.0.

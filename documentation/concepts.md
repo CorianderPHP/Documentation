@@ -1,83 +1,40 @@
-# Framework Concepts
+# Core Concepts
 
-This page explains the moving pieces in a CorianderPHP application before you open the detailed reference pages.
+CorianderPHP combines file-based routing, PSR request/response objects, PHP views, middleware, database tools, and frontend build commands. Application code lives outside the replaceable framework core.
 
 ## Routes
 
-Routes map URLs to code. Small apps can define routes directly in `public/routes.php`, but feature areas should use app-owned route files in `src/Routes`.
+A method file defines a URL: `src/Routes/about.get.php` serves GET /about. It returns a callable; the callable returns a PSR response. Discovery does not execute every route file.
 
-Routes are explicit by default. Creating a controller or view does not register a URL; include each route file and register the homepage at `/` too.
+## Handlers
 
-```structure
-src/Routes/dashboard.php
-src/Routes/forum-demo.php
-```
+Handlers read request input, call reusable app logic, and select a response. Keep a tiny endpoint in the route file or delegate to an ordinary `App\Actions` class. The framework does not discover action classes automatically.
 
-Keep route files focused on URL shape, HTTP methods, route groups, and middleware attachment.
+## Modules
 
-## Controllers
-
-Controllers coordinate requests. They receive input, call modules or repositories, and render a view or return a response.
-
-Good controller actions are usually short:
-
-- read request data
-- call app logic
-- render a view
-- redirect or return an error response when needed
+Custom modules are your own services, repositories, validators, and permission classes. Use `src/Modules` with the starter's `App\` namespace. Official framework modules live in the framework repository; do not put application features in `CorianderCore`.
 
 ## Views
 
-Views live in `public/public_views`. They render prepared data. They should not contain database queries, permission rules, or large business decisions.
-
-Escape output in views because a demo can become a real app later.
-
-## Custom App Modules
-
-Custom app modules live in `src/Modules`. Use them for project-specific logic:
-
-```structure
-src/Modules/Dashboard/DashboardSummary.php
-src/Modules/ForumDemo/Permissions/DemoPermissionService.php
-```
-
-These are different from official Coriander modules distributed with the framework. App modules are yours and should stay outside `CorianderCore`.
+Templates live in `src/Views`. A handler returns `Responses::view()`; the renderer includes the nearest `_header.php` and `_footer.php` and supplies prepared data. Views never create routes.
 
 ## Middleware
 
-Middleware runs around a request. Use it when a rule applies to a whole route or group of routes.
+`src/Routes/_middleware.php` declares root protection. Child directories can add gates for admin or API areas. Middleware receives matched parameters before the handler runs.
 
-Common middleware uses:
+## Database And Sessions
 
-- admin-only areas
-- request limits
-- authentication gates
-- headers or security policy
+Migrations describe tables. Repositories use `SQLManager` and parameterized `sqlScript()` queries. Authentication code explicitly starts a session with `SessionBootstrap::start()`; public pages do not need a session.
 
-## API Controllers
+## A Typical Request
 
-API controllers live in `src/ApiControllers`. They are separate from web controllers so JSON behavior does not leak into server-rendered pages.
+```workflow
+Request factory|Builds a bounded, parsed PSR request from the incoming HTTP request.
+Router|Discovers the matching method file and path parameters.
+Middleware|Checks request gates and can stop with an error response.
+Handler|Reads input and calls app modules or repositories.
+Response|Returns HTML, a rendered view, JSON, or a redirect.
+Emitter|Sends status, headers, and body; suppresses the body for HEAD.
+```
 
-Use API controllers when the response is data, not an HTML view.
-
-## Database
-
-Add a database when a feature needs persistence. For learning, start with modules and arrays until the request flow is clear, then replace the data module with a database-backed repository.
-
-## What Not To Edit
-
-Do not put app features inside `CorianderCore`. Framework updates manage that directory. Keep project code in:
-
-- `src/Routes`
-- `src/Controllers`
-- `src/ApiControllers`
-- `src/Middleware`
-- `src/Modules`
-- `public/public_views`
-- `nodejs/src`
-
-If a feature feels impossible without editing `CorianderCore`, that is probably a framework improvement to report separately.
-
-## Next
-
-Start with [Documentation](/documentation), then use the focused reference pages when you need exact API details.
+Start with [Installation](/documentation/installation), [Routing](/documentation/routing), and [Views](/documentation/views). Existing 0.2.x apps need the [Upgrade Guide](/documentation/upgrades).

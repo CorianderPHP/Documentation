@@ -1,194 +1,58 @@
 # Recommended App Architecture
 
-CorianderPHP works best when the framework core stays boring and the application owns its feature code. Keep `CorianderCore` replaceable, then organize the app by responsibility.
-
-## The Rule
-
-Do not put project behavior inside `CorianderCore`.
-
-Use app-owned folders:
+Keep framework files separate from application behavior. This structure works for a small site and can grow into the guided projects:
 
 ```structure
+CorianderCore/                 # Framework-managed
+coriander                      # Framework-managed CLI
 src/
-  Controllers/
-  ApiControllers/
-  Middleware/
-  Modules/
-  Routes/
+  Routes/                      # Discovered method files and _middleware.php
+  Actions/                     # Optional ordinary request-coordination classes
+  Middleware/                  # App-owned PSR-15 request gates
+  Modules/                     # Repositories, services, validation, permissions
+  Views/                       # Private templates and inherited layouts
+database/migrations/
 public/
-  public_views/
-documentation/
-database/
-nodejs/
-resources/
+  index.php                    # Application bootstrap
+  assets/                      # Browser-accessible assets
 tests/
 ```
 
-Framework updates can replace `CorianderCore`. Your app should keep working because controllers, modules, views, routes, migrations, assets, and tests live outside it.
+`Actions` is a convention, not a required framework feature. A small handler can stay in its route file. The starter's Composer mapping `"App\\": "src/"` autoloads these ordinary classes.
 
 ## Responsibility Map
 
+These are separate responsibilities, not steps each class must perform:
+
 ```responsibilities
-Controllers|Own the request flow.|Read request data; call app services or repositories; choose the response or view; redirect after successful writes.
-Modules|Own reusable app logic.|Repositories; services; validators; permission classes; small feature-specific helpers.
-Middleware|Own request gates.|Authentication checks; admin-only areas; API guards; request preconditions.
-Views|Own rendering.|HTML structure; escaped output; forms; small display conditions.
+Routes and handlers|Own HTTP request flow.|Read request data; call app services; choose HTML or JSON; redirect after successful writes.
+Modules|Own reusable app logic.|Repositories; business workflows; validators; permission rules.
+Middleware|Own request gates.|Authentication; admin access; request limits; shared response headers.
+Views|Own rendering.|HTML structure; prepared data; forms; small display conditions.
 ```
 
-Views should not own database queries or permission decisions. Prepare the data before rendering.
+Views should not query the database or decide permission rules. Prepare data before rendering; enforce authorization in middleware/services even when a view hides controls.
 
-## Controller Shape
+## Start Small
 
-Keep controllers thin:
+Create a route and return `Responses::view()` or `Responses::json()`. Extract an action class when several routes share dependencies. Extract a module when logic repeats, needs independent tests, or hides the request flow.
 
-```php
-namespace Controllers;
+For example, an article detail handler asks an `ArticleRepository` for a record and passes that record to `src/Views/articles/show.php`. The repository owns SQL; the handler owns 404 behavior; the view owns HTML.
 
-use CorianderCore\Core\Router\ViewRenderer;
-use Modules\Blog\BlogRepository;
+## SOLID And DRY In Practice
 
-final class BlogController
-{
-    private ViewRenderer $view;
+- Keep one reason to change per class: database queries in repositories, permission decisions in a permission service.
+- Reuse the same write service from web and API handlers instead of duplicating SQL or authorization.
+- Inject a dependency when you need another implementation or test double. Do not add an interface just to wrap one class.
+- Keep CSRF and request gates in inherited middleware, not copied into every route.
+- Return one consistent response/result shape rather than repeating error formatting.
 
-    public function __construct()
-    {
-        $this->view = new ViewRenderer();
-    }
+Framework 0.3.0 removes the old Container and controller discovery. Your action classes can still use constructors and factories; they are ordinary application code.
 
-    public function show(string $id): void
-    {
-        $post = (new BlogRepository())->findPublished((int) $id);
+## Request Boundary And Persistence
 
-        $this->view->render('blog/show', [
-            'post' => $post,
-        ]);
-    }
-}
-```
+Read query/body values from the request and validate their types. Use bound SQL parameters, migrations for schema changes, and explicit session startup for authentication.
 
-Move query details into the repository. This is an app-owned class under `src/Modules/Blog`, not a framework class:
+Follow [Request Lifecycle](/documentation/request-lifecycle), [Request Handlers](/documentation/handlers), and [Database Patterns](/documentation/database-patterns). The [Forum](/guided-projects/forum) and [Shelter API](/guided-projects/shelter-api) show these boundaries in larger features.
 
-```php
-namespace Modules\Blog;
-
-use CorianderCore\Core\Database\SQLManager;
-
-final class BlogRepository
-{
-    public function findPublished(int $id): ?array
-    {
-        $row = SQLManager::sqlScript(
-            'SELECT id, title, body FROM posts WHERE id = :id AND status = :status LIMIT 1',
-            ['id' => $id, 'status' => 'published']
-        );
-
-        return $row === [] ? null : $row;
-    }
-}
-```
-
-## Feature Folder Example
-
-For a blog feature:
-
-```structure
-src/
-  Controllers/
-    BlogController.php
-  Modules/
-    Blog/
-      BlogRepository.php
-      BlogService.php
-      BlogValidator.php
-  Routes/
-    blog.php
-public/
-  public_views/
-    blog/
-      index.php
-      show.php
-database/
-  migrations/
-    20260712000000_create_posts_table.php
-```
-
-This keeps the public URL contract, request code, business logic, templates, and schema changes easy to find.
-
-## When To Add A Module
-
-Add a custom module when code is reused, tested independently, or too detailed for a controller.
-
-Good module candidates:
-
-- persistence logic
-- permission decisions
-- validation rules
-- external API clients
-- import/export services
-- domain-specific write workflows
-
-Do not add a module only to wrap one line. Start simple, then extract when the controller starts hiding the actual request flow.
-
-## Where Validation Belongs
-
-Simple request validation can live near the controller. Reusable validation belongs in a module.
-
-```php
-namespace Modules\Blog;
-
-final class BlogValidator
-{
-    public function validatePost(array $data): array
-    {
-        $errors = [];
-
-        if (trim((string) ($data['title'] ?? '')) === '') {
-            $errors['title'] = 'Title is required.';
-        }
-
-        return $errors;
-    }
-}
-```
-
-## Where Permissions Belong
-
-Do not spread permission rules across views, controllers, and middleware.
-
-Create one permission service:
-
-```php
-namespace Modules\Blog;
-
-final class BlogPermissionService
-{
-    public function canEdit(array $user, array $post): bool
-    {
-        return $user['role'] === 'admin' || $user['id'] === $post['author_id'];
-    }
-}
-```
-
-Then call it from controllers, middleware, and views. The forum guided project uses this pattern for members, moderators, and admins.
-
-## Recommended Growth Path
-
-Start with:
-
-```workflow
-Route file|Define the URL contract first.
-Controller|Add one request handler for the feature.
-View|Render the prepared data in one template.
-```
-
-Then add:
-
-```choices
-Module|Extract reusable logic when the controller starts hiding the request flow.
-Repository|Move data access out when SQL or persistence details grow.
-Middleware|Add route gates when access rules repeat.
-Tests|Cover behavior that must keep working after framework updates.
-```
-
-This keeps small features small while still giving larger features a clear place to grow.
+Never edit `CorianderCore` to add app behavior. Report a framework defect in the [framework issue tracker](https://github.com/CorianderPHP/CorianderPHP/issues).

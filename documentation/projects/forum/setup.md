@@ -1,137 +1,79 @@
 # Forum Project Structure
 
-This chapter creates the app-owned structure for the forum. It keeps the demo update-safe because no project code is placed inside `CorianderCore`.
+Start from an installed **CorianderPHP 0.3.0** app; see [Installation](/documentation/installation). This chapter establishes app-owned folders before adding SQLite, permissions, and forms.
 
-## Goal
+## Create The First Route
 
-Create the folders and files that will hold the forum feature before adding behavior.
-
-## Files Created
-
-```structure
-src/Routes/forum-demo.php
-src/Controllers/ForumDemoController.php
-src/ApiControllers/ForumDemoController.php
-src/Middleware/ForumDemoAdminMiddleware.php
-src/Modules/ForumDemo/Auth/
-src/Modules/ForumDemo/Data/
-src/Modules/ForumDemo/Permissions/
-src/Modules/ForumDemo/Writes/
-database/migrations/
-public/public_views/forum-demo/
-nodejs/src/forum-demo/
-```
-
-## Step: Create The Route File
-
-You can use the framework route generator to create the file:
+You can run:
 
 ```bash
 php coriander make:route forum-demo
 ```
 
-This creates `src/Routes/forum-demo.php` with a small starter route. The generated file will look like this:
+This creates `src/Routes/forum-demo.get.php`. Replace its contents with a temporary response:
 
 ```php
 <?php
-declare(strict_types=1);
+use CorianderCore\Core\Http\Responses;
+use Psr\Http\Message\ServerRequestInterface;
 
-use CorianderCore\Core\Router\Router;
-use Nyholm\Psr7\Response;
-use Nyholm\Psr7\ServerRequest;
-
-return static function (Router $router): void {
-    $router->get('forum-demo', static function (ServerRequest $request): Response {
-        return new Response(200, [], 'forum-demo route');
-    });
-};
+return static fn (ServerRequestInterface $request) =>
+    Responses::html('<h1>Forum setup works</h1>');
 ```
 
-This proves the route file is registered and reachable. In the Routes chapter, you will replace this starter route with the real forum routes.
+Visit `/forum-demo` and check `php coriander routes:list`. Discovery is automatic: do not add an include to `public/routes.php`.
 
-The route file keeps feature URLs out of `public/routes.php`. The public routes file only includes feature route files.
+For the finished feature we will move this root handler to `forum-demo/index.get.php`. **Remove the temporary `forum-demo.get.php` when doing that**: both represent the same GET URL and would conflict.
 
-## Step: Register The Route File
-
-In `public/routes.php`, include the route file.
-
-```php
-$forumDemoRoutes = PROJECT_ROOT . '/src/Routes/forum-demo.php';
-if (is_file($forumDemoRoutes)) {
-    (require $forumDemoRoutes)($router);
-}
-```
-
-Do this once. After that, every forum URL belongs in `src/Routes/forum-demo.php`.
-
-## Step: Create The Controllers
-
-Use the framework generator for the web controller and API controller:
-
-```bash
-php coriander make:controller ForumDemo
-php coriander make:controller ForumDemo --api
-```
-
-The first command creates `src/Controllers/ForumDemoController.php`. The second command creates `src/ApiControllers/ForumDemoController.php`.
-
-For this checkpoint, replace the generated web controller body with a tiny placeholder:
-
-```php
-<?php
-declare(strict_types=1);
-
-namespace Controllers;
-
-final class ForumDemoController
-{
-    public function index(): void
-    {
-        echo 'Forum demo';
-    }
-}
-```
-
-This placeholder proves that the route and controller can be connected before the feature becomes complex. The Controllers and API chapters replace the generated starter code with the real forum behavior.
-
-## Step: Create Module Folders
-
-Use modules for reusable app logic.
+## Prepare The App Structure
 
 ```structure
-src/Modules/ForumDemo/Auth
-src/Modules/ForumDemo/Data
-src/Modules/ForumDemo/Permissions
-src/Modules/ForumDemo/Writes
+src/
+  Routes/
+    forum-demo/
+    api/forum-demo/
+  Actions/
+    ForumActions.php
+    ForumApiActions.php
+  Middleware/
+    ForumDemoAdminMiddleware.php
+  Modules/ForumDemo/
+    Auth/
+    Data/
+    Permissions/
+    Writes/
+  Views/
+    _header.php
+    _footer.php
+    forum-demo.php
+    forum-demo/
+database/migrations/
+nodejs/src/forum-demo/
 ```
 
-These folders map directly to responsibilities:
+Create action and module classes as normal PHP files. There is no action/controller generator in 0.3.0. With the starter's `"App\\": "src/"` Composer mapping, `src/Actions/ForumActions.php` uses namespace `App\Actions`.
 
-- `Auth` knows who the visitor is.
-- `Data` reads users, categories, topics, and replies from SQLite.
-- `Permissions` decides what an account can do.
-- `Writes` contains the real SQLite write service and the public documentation demo protection.
+- `Routes`: one method file per URL/method, plus inherited middleware.
+- `Actions`: request coordination, response selection, and redirects.
+- `Auth`: current user from the session.
+- `Data`: SQLite reads.
+- `Permissions`: the shared ability matrix.
+- `Writes`: real local writes and the optional public-demo guard.
+- `Views`: HTML only; templates do not expose endpoints.
 
-## Step: Create View Folders
+Run `composer dump-autoload` if you changed Composer mappings.
 
-Create the view root:
+## Configure SQLite
 
-```structure
-public/public_views/forum-demo/
+```env
+DB_TYPE=sqlite
+DB_NAME=database/forum.sqlite
 ```
 
-The first page will be `public/public_views/forum-demo/index.php`.
+Ensure the `database` directory exists and is writable locally. The next chapter creates and seeds tables through a migration.
+
+Keep root security middleware from the starter. We will add an admin gate under the forum routes; do not disable CSRF to make future forms work.
 
 ## Checkpoint
 
-Add a temporary GET route for `/forum-demo`, open [/forum-demo](/forum-demo), and confirm the framework router owns the URL.
-
-## Common Mistakes
-
-- Creating one giant `ForumService` too early. Split by responsibility from the start.
-- Putting documentation demo logic in official framework modules. This is a custom project module, not a Coriander official module.
-- Editing `CorianderCore` to register the route. Use `public/routes.php` instead.
-
-## Next
-
-Continue with [SQLite Data Model](/guided-projects/forum/data-model).
+Your temporary GET /forum-demo responds and all new files are outside CorianderCore. Next, create the [SQLite Data Model](/guided-projects/forum/data-model). No login or persistence is expected yet.

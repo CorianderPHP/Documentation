@@ -1,6 +1,6 @@
 # Forum Permissions
 
-Permissions should live in one place. Do not scatter role checks across controllers, middleware, and views.
+Permissions should live in one place. Do not scatter role checks across request handlers, middleware, and views.
 
 ## Goal
 
@@ -26,7 +26,7 @@ user.manage
 admin.view
 ```
 
-This keeps the app flexible. If moderators are added later, you update the permission service, not every controller.
+This keeps the app flexible. If moderators are added later, you update the permission service, not every handler.
 
 ## Step: Implement `can`
 
@@ -34,7 +34,7 @@ This keeps the app flexible. If moderators are added later, you update the permi
 <?php
 declare(strict_types=1);
 
-namespace Modules\ForumDemo\Permissions;
+namespace App\Modules\ForumDemo\Permissions;
 
 final class DemoPermissionService
 {
@@ -52,7 +52,7 @@ final class DemoPermissionService
 }
 ```
 
-The controller, middleware, API, and views can all call the same rule.
+The handler, middleware, API, and views can all call the same rule.
 
 ## Step: Add A View Matrix
 
@@ -64,16 +64,19 @@ public function matrix(?array $user): array
     return [
         'topic.create' => $this->can($user, 'topic.create'),
         'reply.create' => $this->can($user, 'reply.create'),
+        'topic.lock' => $this->can($user, 'topic.lock'),
+        'reply.moderate' => $this->can($user, 'reply.moderate'),
+        'user.manage' => $this->can($user, 'user.manage'),
         'admin.view' => $this->can($user, 'admin.view'),
     ];
 }
 ```
 
-The controller passes this matrix into every forum view.
+The handler passes this matrix into every forum view.
 
-## Step: Use Permissions In Controllers
+## Step: Use Permissions In Write Services
 
-Write actions should check an ability before saving.
+Inside a write-service method, check an ability before saving and return a result array. The HTTP handler converts that result into a view, redirect, or JSON response; the array itself is not a valid route response.
 
 ```php
 if (!$this->permissions->can($user, 'topic.create')) {

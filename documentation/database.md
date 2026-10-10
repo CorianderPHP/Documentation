@@ -1,6 +1,8 @@
 # Database Module Guide
 
-The database layer centralizes connection handling through `DatabaseHandler` instances registered in a service container and exposes helper methods via `SQLManager`.
+The database layer centralizes PDO connections through `DatabaseHandler` and exposes query helpers through `SQLManager`. A handler is created lazily on the first SQL call; no service-container registration is needed in 0.3.0.
+
+For tests or a custom connection lifecycle, inject a handler with `SQLManager::setDatabaseHandler($handler)` before querying. Keep the connection configured in app-owned environment/config files, not in view templates.
 
 ## Creating Configuration via CLI
 

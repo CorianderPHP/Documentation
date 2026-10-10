@@ -1,38 +1,42 @@
-# Sitemap Guide
+# Sitemap
 
-CorianderPHP can generate `sitemap.xml` to improve SEO.
+A sitemap lists public URLs for search engines. In 0.3.0, routes and templates do not automatically add URLs; metadata-file scanning is removed.
 
-## Generating the Sitemap Script
+## Create A Sitemap Route
 
-Create the `public/sitemap.php` helper via CLI:
+You can use:
 
 ```bash
 php coriander make:sitemap
 ```
 
-The generated script rebuilds `sitemap.xml` when missing or outdated and serves it on the `/sitemap.xml` route.
-
-## Adding Pages
-
-Static views include a `metadata.php` file where you can control sitemap settings:
+Or create `src/Routes/sitemap.xml.get.php`:
 
 ```php
 <?php
-$addViewInSitemap = true;   // include this page
-$sitemapPriority  = 0.6;    // priority between 0.0 and 1.0
+declare(strict_types=1);
+
+use CorianderCore\Core\Sitemap\SitemapHandler;
+use Nyholm\Psr7\Response;
+use Psr\Http\Message\ServerRequestInterface;
+
+return static function (ServerRequestInterface $request) {
+    $sitemap = new SitemapHandler();
+    $sitemap->addDynamicPage('https://example.com/', 1.0);
+    $sitemap->addDynamicPage('https://example.com/about', 0.5);
+
+    return new Response(
+        200,
+        ['Content-Type' => 'application/xml; charset=utf-8'],
+        $sitemap->toXml()
+    );
+};
 ```
 
-Dynamic URLs can be added programmatically:
+Replace `https://example.com` with your public site URL. Although the method is named `addDynamicPage()`, it accepts fixed URLs too. Add public article URLs from a repository when needed.
 
-```php
-$handler = new \CorianderCore\Core\Sitemap\SitemapHandler();
-$handler->addDynamicPage(PROJECT_URL . '/blog/post-1', 0.8, '2024-05-01');
-$handler->generateSitemap();
-```
+## Inclusion Rules
 
-## Best Practices
+Do not include login, admin, draft, or private pages. A route being reachable does not imply it belongs in the sitemap. Use an accurate last-modified date when passing the optional third argument.
 
-- Rebuild the sitemap after adding or removing views or dynamic content.
-- Serve the sitemap at the site root to help search engines discover it quickly.
-- Use descriptive priorities and last-modified dates to hint search engines about page importance.
-
+`generateSitemap()` can instead write a static `public/sitemap.xml` file. Choose either a generated static file or a route for that path, not competing sources.

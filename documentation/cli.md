@@ -1,234 +1,107 @@
 # CLI Guide
 
-CorianderPHP provides a command-line interface accessible via `php coriander` for scaffolding, maintenance, and framework updates.
-
-## Usage
-
-Invoke commands from the project root:
-
-```bash
-php coriander <command> [arguments]
-```
-
-Examples:
-
-- `php coriander`
-- `php coriander help`
-- `php coriander help make`
-- `php coriander make:view Home`
-- `php coriander make:controller Dashboard`
-- `php coriander make:controller Users --api`
-- `php coriander make:route admin`
-- `php coriander make:migration CreateUsersTable`
-- `php coriander migrate:status`
-- `php coriander cache controllers`
-- `php coriander nodejs run build-ts`
-- `php coriander nodejs run build-prod`
-- `php coriander version`
-- `php coriander update --dry-run`
-
-## Getting Help
-
-Run the CLI without a command to see a short command overview:
+Run commands from the project root:
 
 ```bash
 php coriander
-```
-
-Run detailed help when you need descriptions and examples:
-
-```bash
 php coriander help
 ```
 
-Use focused help for a command family:
+The first shows an overview. Detailed help includes command descriptions and examples:
 
 ```bash
 php coriander help make
 php coriander help nodejs
 php coriander help migrate
-```
-
-Help aliases are also supported:
-
-```bash
+php coriander help routes
 php coriander --help
 php coriander -h
 php coriander make --help
 php coriander nodejs --help
 ```
 
-## Command Reference
-
-### `help`
-
-Show CLI help. Pass a command name for focused help:
+## Create Routes And Views
 
 ```bash
-php coriander help
-php coriander help make
-php coriander help nodejs
-php coriander help migrate
+php coriander make:route about
+php coriander make:route "articles/[id].post"
+php coriander make:view articles/show
 ```
 
-### `version`
+The route generator defaults to GET and creates a method file under `src/Routes`. Files are discovered automatically; no registration follows. The view generator creates a PHP template under `src/Views`.
 
-Print the locally installed framework version from `CorianderCore/VERSION`.
+Generators are optional. They reject invalid/private names and route conflicts before writing files. Invalid syntax returns 2; conflicts or invalid existing definitions return 1.
+
+The controller generator and manual route registration were removed in 0.3.0. Write small route handlers or ordinary app-owned action classes instead.
+
+## Inspect Routes
 
 ```bash
-php coriander version
+php coriander routes:list
 ```
 
-### `update`
+Shows discovered URLs, methods, relative files, HEAD fallbacks, and inherited middleware. It uses current files even when production has a cached route map. It does not execute handlers/middleware or change the cache.
 
-Checks GitHub for the newest framework release (fallback to latest tag) and updates framework-managed files.
-
-```bash
-php coriander update
-```
-
-Behavior:
-
-- Shows current and latest version before applying updates.
-- Asks for confirmation in interactive mode.
-- Updates only managed framework paths (`CorianderCore` and `coriander`).
-- Uses Git to detect edits, renamed or deleted tracked files, and untracked files in managed paths; skips those changes unless `--force` is used. Safe local-change detection requires a Git checkout.
-- Creates `.bak` backups before overwriting managed files.
-- Automatically rolls back applied files if an update operation fails mid-way.
-- Runs post-update tasks (`composer dump-autoload`).
-- Prints a summary of planned/applied/skipped changes.
-- Retries transient GitHub API failures and reports rate-limit errors clearly.
-- Validates `--backup-dir` as a safe relative path (no absolute paths or `..` traversal segments).
-- Enforces updater policy guard (environment, optional auth token, optional rate limit).
-
-The updater does not migrate app-owned `.htaccess`, `public/index.php`, `public/routes.php`, or templates. Review the release notes and [Upgrade Guide](/documentation/upgrades) before deploying changed routing, bootstrap, or security behavior. If your deployment has no Git checkout, update in a reviewed Git branch and deploy the tested result.
-
-#### Flags
-
-- `--yes`: skip confirmation and apply update directly.
-- `--dry-run`: preview the update plan without writing files.
-- `--force`: overwrite files detected as locally modified.
-- `--clear-cache`: run `php coriander cache clear` after update.
-- `--pre-release`: allow updating to the latest GitHub pre-release. Stable releases are preferred by default; if no stable release exists, the updater falls back to the latest pre-release and prints a warning.
-- `--backup-dir=backups/custom`: override backup output directory for this run (must stay inside project).
-- `--auth-token=<token>`: required only when `CORIANDER_UPDATER_AUTH_TOKEN` is configured.
-
-Updater environment variables:
-
-- `CORIANDER_UPDATER_ENABLED` (`1`/`0`, default `1`)
-- `CORIANDER_UPDATER_ALLOW_PRODUCTION` (`1` to allow in `APP_ENV=production`, default deny)
-- `CORIANDER_UPDATER_AUTH_TOKEN` (shared token for guarded environments)
-- `CORIANDER_UPDATER_MAX_ATTEMPTS_PER_HOUR` (default `5`)
-- `CORIANDER_UPDATER_RATE_LIMIT_FILE` (optional custom state file)
-- `CORIANDER_UPDATE_ALLOWED_REPOS` (repo allowlist, comma separated)
-
-Examples:
+## Database And Migrations
 
 ```bash
-php coriander update --yes
-php coriander update --dry-run
-php coriander update --yes --force
-php coriander update --yes --clear-cache
-php coriander update --yes --pre-release
-php coriander update --yes --backup-dir=backups/custom
-php coriander update --yes --auth-token=your-token
-```
-
-### `make:migration`
-
-Create a timestamped migration file under `database/migrations`.
-
-```bash
+php coriander make:database
 php coriander make:migration CreateUsersTable
-```
-
-### `make:controller`
-
-Create a web controller under `src/Controllers`:
-
-```bash
-php coriander make:controller Dashboard
-```
-
-Create an API controller under `src/ApiControllers`:
-
-```bash
-php coriander make:controller Users --api
-```
-
-The CLI appends `Controller` automatically when needed. `php coriander make:controller Blog` creates `BlogController.php`.
-
-### `make:route`
-
-Create an app-owned route file under `src/Routes`.
-
-```bash
-php coriander make:route admin
-php coriander make:route admin/users
-```
-
-Use this when `public/routes.php` becomes too large for a single small-project route list. The generated file returns a closure that receives the router and can be included from `public/routes.php`.
-
-### `migrate`
-
-Apply pending migrations tracked in the `migrations` table.
-
-```bash
-php coriander migrate
-```
-
-Flags:
-
-- `--dry-run`: show pending migrations without applying them.
-- `--allow-changed`: allow running when an already-applied migration file checksum changed (local/dev only).
-
-### `migrate:status`
-
-Show migration status (`applied` or `pending`) and batch numbers.
-
-```bash
 php coriander migrate:status
-```
-
-### `migrate:rollback`
-
-Rollback latest migration batch (or multiple batches).
-
-```bash
-php coriander migrate:rollback
+php coriander migrate --dry-run
+php coriander migrate
+php coriander migrate:rollback --dry-run
 php coriander migrate:rollback --step=2
 ```
 
-Flags:
+`make:database` prompts for connection configuration. Migration files live in `database/migrations`; applied migrations are tracked by the framework.
 
-- `--step=N`: rollback N latest batches (default: `1`).
-- `--dry-run`: preview rollback targets without changing the database.
+Do not edit an applied migration in production. The local/development-only `--allow-changed` migration option is not a production repair strategy. See [Database](/documentation/database).
 
-### `nodejs`
-
-Run npm scripts from the project `nodejs/` directory without leaving the project root.
+## Frontend Tooling
 
 ```bash
-php coriander nodejs install
+php coriander nodejs run install
+php coriander nodejs ci
+php coriander nodejs run build-ts
 php coriander nodejs run build-prod
 ```
 
-The production build command runs TypeScript compilation, minified JavaScript
-bundling, and minified TailwindCSS generation.
+The wrapper runs Node commands in `nodejs` and propagates failures to scripts/CI. Available scripts depend on your `nodejs/package.json`; the released starter provides the build scripts above.
 
-## Error Handling
+## Cache And Sitemap
 
-- Commands print diagnostic messages prefixed with `[Error]` or `[Warning]` when something goes wrong.
-- Commands return `0` on success and non-zero on command errors, allowing usage in scripts and CI.
-- Execution failures return `1`.
-- Invalid usage or bad arguments return `2`.
-- Unknown commands or subcommands return `3`.
-- Commands that wrap external processes, such as `nodejs`, propagate the external process exit code when possible.
+```bash
+php coriander cache clear
+php coriander make:sitemap
+```
 
-## Best Practices
+Route maps refresh automatically in production. There is no `cache controllers` step. See [Route Cache](/documentation/cache) and [Sitemap](/documentation/sitemap).
 
-- Run the CLI from the project root so generated files resolve to correct paths.
-- Inspect output carefully; many commands provide hints for missing dependencies or misconfigurations.
-- Rebuild caches (`php coriander cache controllers`) after adding controllers or clearing the `cache/` directory.
-- Use `php coriander update --dry-run` before production updates.
-- In shared/production environments, do not edit applied migration files.
+## Framework Updates
+
+```bash
+php coriander version
+php coriander update --dry-run
+php coriander update --yes
+```
+
+The updater manages `CorianderCore` and `coriander`, not your routes, templates, Composer mappings, or bootstrap. Read the [Upgrade Guide](/documentation/upgrades) when a release changes these app-owned contracts.
+
+Useful update options:
+
+- `--dry-run`: inspect the plan without writing.
+- `--yes`: skip interactive confirmation.
+- `--clear-cache`: clear caches after updating.
+- `--pre-release`: allow a prerelease; stable releases remain preferred.
+- `--backup-dir=backups/custom`: safe relative backup location.
+- `--auth-token=...`: satisfy an updater policy token when configured.
+- `--force`: overwrite Git-detected local changes; use only after reviewing them.
+
+The updater creates backups, rolls back failed writes, runs `composer dump-autoload`, and reports skipped/updated files. Git protection needs an available Git checkout; do not treat it as a replacement for version control and backups.
+
+Production updates are denied by default unless `CORIANDER_UPDATER_ALLOW_PRODUCTION=1` permits them. Other policy controls include `CORIANDER_UPDATER_ENABLED`, `CORIANDER_UPDATER_AUTH_TOKEN`, and `CORIANDER_UPDATER_MAX_ATTEMPTS_PER_HOUR`.
+
+## Exit Codes
+
+Success returns 0. Execution failures normally return 1, invalid usage 2, and unknown commands/subcommands 3. External-process wrappers propagate the external exit code when available. Check both output and exit status in automation.

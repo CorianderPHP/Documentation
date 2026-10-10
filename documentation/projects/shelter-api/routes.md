@@ -1,73 +1,108 @@
 # REST Routes
 
-The route file should describe the HTTP surface and delegate work to controllers. Keep database queries and validation out of the route file.
+Use noun-based URLs and HTTP methods to express operations. CorianderPHP 0.3.0 discovers the following method files automatically.
 
-CorianderPHP uses explicit routing by default. These definitions are required even though the controllers live in `src/ApiControllers`; the folder alone does not expose endpoints. The controller returns a PSR-7 JSON response with the intended status, not a plain array.
+## Endpoint Files
+
+Relative to `src/Routes/api/shelter/`:
+
+| File | Request | Action |
+| --- | --- | --- |
+| `animals/index.get.php` | GET /api/shelter/animals | index |
+| `animals/index.post.php` | POST /api/shelter/animals | store |
+| `animals/[id].get.php` | GET /api/shelter/animals/1 | show |
+| `animals/[id].patch.php` | PATCH /api/shelter/animals/1 | update |
+| `animals/[id].delete.php` | DELETE /api/shelter/animals/1 | destroy |
+| `species.get.php` | GET /api/shelter/species | species |
+| `shelters.get.php` | GET /api/shelter/shelters | shelters |
 
 You are here in the flow:
 
 ```workflow
-HTTP request|The client calls an `/api/shelter/...` URL.
-Route file|`src/Routes/api/shelter.php` matches the path and HTTP method.
-Controller method|The route delegates to the matching API controller action.
+Request|The client sends a method and /api/shelter URL.
+Method file|Discovery selects the matching .get, .post, .patch, or .delete file.
+Action|The returned callable delegates to ShelterAnimalActions or ShelterLookupActions.
+Service and repository|Validation and SQL produce data or a domain error.
+JSON response|The action returns a PSR response, not a printed array.
 ```
 
-## Route file
+## Collection GET And POST
 
-You created `src/Routes/api/shelter.php` in the project structure step. Now replace its content with the API routes:
+Create `animals/index.get.php`:
 
 ```php
 <?php
-declare(strict_types=1);
-
-use ApiControllers\ShelterAnimalController;
-use ApiControllers\ShelterLookupController;
-use CorianderCore\Core\Router\Router;
+use App\Actions\ShelterAnimalActions;
 use Psr\Http\Message\ServerRequestInterface;
 
-return static function (Router $router): void {
-    $router->get('/api/shelter/animals', static fn (ServerRequestInterface $request) => (new ShelterAnimalController())->index($request));
-    $router->get('/api/shelter/animals/{id:[0-9]+}', static fn (ServerRequestInterface $request) => (new ShelterAnimalController())->show($request));
-    $router->post('/api/shelter/animals', static fn (ServerRequestInterface $request) => (new ShelterAnimalController())->store($request));
-    $router->patch('/api/shelter/animals/{id:[0-9]+}', static fn (ServerRequestInterface $request) => (new ShelterAnimalController())->update($request));
-    $router->delete('/api/shelter/animals/{id:[0-9]+}', static fn (ServerRequestInterface $request) => (new ShelterAnimalController())->destroy($request));
+return static fn (ServerRequestInterface $request) =>
+    (new ShelterAnimalActions())->index($request);
+```
 
-    $router->get('/api/shelter/species', static fn () => (new ShelterLookupController())->species());
-    $router->get('/api/shelter/shelters', static fn () => (new ShelterLookupController())->shelters());
+Create `animals/index.post.php` with the same imports, returning `(new ShelterAnimalActions())->store($request)` from its callable. Keep one method per file; there is no route registration closure.
+
+The [handler chapter](/guided-projects/shelter-api/handlers) supplies these methods.
+
+## Detail, Update, And Delete
+
+Create `animals/[id].get.php`:
+
+```php
+<?php
+use App\Actions\ShelterAnimalActions;
+use CorianderCore\Core\Http\Responses;
+use Psr\Http\Message\ServerRequestInterface;
+
+return static function (ServerRequestInterface $request) {
+    $id = (string) $request->getAttribute('id');
+    if (!ctype_digit($id) || (int) $id < 1) {
+        return Responses::json([
+            'error' => ['code' => 'not_found', 'message' => 'Invalid animal id.'],
+        ], 404);
+    }
+    return (new ShelterAnimalActions())->show($request);
 };
 ```
 
-## Route responsibilities
+For `[id].patch.php` and `[id].delete.php`, use the same guard and imports, but return `update($request)` and `destroy($request)` respectively.
 
-- Use nouns in paths: `animals`, `species`, and `shelters`.
-- Use HTTP methods for actions: `GET`, `POST`, `PATCH`, and `DELETE`.
-- Use path parameters for identifiers.
-- Use query parameters for filters.
-- Return PSR-7 responses from controllers.
+`[id]` does not have a regex constraint. Validate it before casting: otherwise "1wrong" could accidentally select record 1. To reuse this guard across many routes, move detail files into `[id]/` and declare shared `_middleware.php` there.
 
-GET routes also accept HEAD requests through fallback. Keep their actions read-only and pass the request method to `ResponseEmitter::emit()` in the app entry point so HEAD sends no JSON body. POST, PATCH, and DELETE remain separate write routes.
+## Lookup Files
 
-## Example requests
+Create `species.get.php`:
+
+```php
+<?php
+use App\Actions\ShelterLookupActions;
+use Psr\Http\Message\ServerRequestInterface;
+
+return static fn (ServerRequestInterface $request) =>
+    (new ShelterLookupActions())->species();
+```
+
+Create `shelters.get.php` the same way, delegating to `shelters()`.
+
+## Matching And Protection
+
+Root middleware is inherited automatically. Keep the narrowly scoped stateless CSRF exception described in [setup](/guided-projects/shelter-api/setup); do not disable all protection.
+
+GET supplies HEAD fallback. The front controller's emitter suppresses the body for HEAD. A method without a file returns 405/Allow, not another action. Static named paths win over dynamic matches.
+
+Before deployment, secure writes with authentication/authorization; these tutorial routes are not a production access policy.
+
+## Checkpoint
+
+Run `php coriander routes:list` and verify every endpoint. After actions/migrations are complete, request:
 
 ```http
 GET /api/shelter/animals?species=cat&status=available
-GET /api/shelter/animals?search=milo
 GET /api/shelter/animals/1
 POST /api/shelter/animals
 PATCH /api/shelter/animals/1
 DELETE /api/shelter/animals/1
 ```
 
-## Common mistake
+Check valid and missing ids, invalid ids, and an unsupported PUT. If a path is 404, check its filename; do not add a public/routes.php include.
 
-Do not build one route like `/api/shelter/animals/action/delete`. That makes permissions, tests, documentation, and client code harder to reason about. Let the method express the action.
-
-## Checkpoint
-
-Run a GET request:
-
-```http
-GET /api/shelter/animals?species=cat
-```
-
-If the route returns 404, check that `src/Routes/api/shelter.php` is included from `public/routes.php`. If it returns JSON but the data is wrong, move to the controller, service, or repository chapter.
+Continue with [API Handlers](/guided-projects/shelter-api/handlers).

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Modules\Docs;
+namespace App\Modules\Docs;
 
 final class GuidedProjectRegistry
 {
@@ -49,7 +49,7 @@ final class GuidedProjectRegistry
                     'Foundation' => [
                         ['slug' => 'projects/forum/data-model', 'label' => 'SQLite Data Model'],
                         ['slug' => 'projects/forum/routes', 'label' => 'Routes'],
-                        ['slug' => 'projects/forum/controllers', 'label' => 'Controllers'],
+                        ['slug' => 'projects/forum/handlers', 'label' => 'Request Handlers'],
                         ['slug' => 'projects/forum/views', 'label' => 'Views'],
                     ],
                     'Access Control' => [
@@ -81,7 +81,7 @@ final class GuidedProjectRegistry
                 navTitle: 'Shelter API',
                 listEyebrow: 'REST API guided project',
                 listTitle: 'Shelter API',
-                listDescription: 'Build a complete JSON REST API for shelter animals: cats, dogs, bunnies, and birds. The guide covers SQLite schema scripts, route files, controllers, filtering, validation, errors, and the MySQL path.',
+                listDescription: 'Build a complete JSON REST API for shelter animals: cats, dogs, bunnies, and birds. The guide covers SQLite schema scripts, route files, request handlers, filtering, validation, errors, and the MySQL path.',
                 listTags: ['Intermediate', '25-40 min'],
                 eyebrow: 'REST API guided project',
                 baseSlug: 'projects/shelter-api',
@@ -104,7 +104,7 @@ final class GuidedProjectRegistry
                     'API Foundation' => [
                         ['slug' => 'projects/shelter-api/data-model', 'label' => 'Shelter Data Model'],
                         ['slug' => 'projects/shelter-api/routes', 'label' => 'REST Routes'],
-                        ['slug' => 'projects/shelter-api/controllers', 'label' => 'API Controllers'],
+                        ['slug' => 'projects/shelter-api/handlers', 'label' => 'API Handlers'],
                     ],
                     'Production Behavior' => [
                         ['slug' => 'projects/shelter-api/filtering-validation', 'label' => 'Filtering And Validation'],

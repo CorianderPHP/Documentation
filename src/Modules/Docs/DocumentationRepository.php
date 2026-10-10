@@ -1,10 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace Modules\Docs;
+namespace App\Modules\Docs;
 
 final class DocumentationRepository
 {
+    private const INTRODUCTION_ORDER = [
+        'index', 'installation', 'cli', 'concepts', 'routing', 'handlers',
+        'middleware', 'views', 'static-views', 'dynamic-views', 'database',
+    ];
+
     public function __construct(
         private readonly string $documentationPath = PROJECT_ROOT . '/documentation',
         private readonly MarkdownRenderer $renderer = new MarkdownRenderer(),
@@ -47,6 +52,9 @@ final class DocumentationRepository
             $groups[$page->section] ??= [];
             $groups[$page->section][] = $page;
         }
+
+        $order = array_flip(self::INTRODUCTION_ORDER);
+        usort($groups['Start Here'], static fn(DocumentationPage $left, DocumentationPage $right): int => $order[$left->slug] <=> $order[$right->slug]);
 
         return array_filter($groups, static fn(array $pages): bool => $pages !== []);
     }
@@ -168,7 +176,7 @@ final class DocumentationRepository
             return 'Project: ' . $project->navTitle;
         }
 
-        if (in_array($slug, ['index', 'installation', 'concepts', 'cli', 'routing', 'controllers', 'middleware', 'views', 'static-views', 'dynamic-views', 'database'], true)) {
+        if (in_array($slug, self::INTRODUCTION_ORDER, true)) {
             return 'Start Here';
         }
 

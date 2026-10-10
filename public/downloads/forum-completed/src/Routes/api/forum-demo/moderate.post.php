@@ -1,0 +1,4 @@
+<?php
+declare(strict_types=1);
+
+return static fn ($request) => (new \App\Actions\ForumApiActions())->post_moderate($request);

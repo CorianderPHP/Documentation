@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Modules\ForumDemo\Data;
+namespace App\Modules\ForumDemo\Data;
 
 final class DemoForumRepository
 {
@@ -12,7 +12,7 @@ final class DemoForumRepository
     {
         return [
             ['id' => 1, 'name' => 'Getting Started', 'description' => 'Install the framework and understand the project layout.', 'visibility' => 'public'],
-            ['id' => 2, 'name' => 'Controllers and Routes', 'description' => 'Questions about mapping URLs to controllers and route files.', 'visibility' => 'public'],
+            ['id' => 2, 'name' => 'Handlers and Routes', 'description' => 'Questions about mapping URLs to method files and request handlers.', 'visibility' => 'public'],
             ['id' => 3, 'name' => 'Moderation Queue', 'description' => 'Admin and moderator-only review workflow.', 'visibility' => 'staff'],
         ];
     }
@@ -34,22 +34,22 @@ final class DemoForumRepository
                 'locked' => false,
                 'status' => 'Open',
                 'excerpt' => 'I generated a view, but I am not sure which files I should edit first.',
-                'body' => 'I ran `php coriander make:view Dashboard` and now I see a view folder with `index.php` and `metadata.php`. Should the page content live directly in the view, or should I create a controller first and pass data into it?',
+                'body' => 'I ran `php coriander make:view dashboard` and now I have `src/Views/dashboard.php`. Should I return `Responses::view()` from a route, or create an action class first when the page needs data?',
                 'created_at' => '2026-07-10 09:12',
                 'updated_at' => '2026-07-10 09:41',
             ],
             [
                 'id' => 2,
                 'category_id' => 2,
-                'category' => 'Controllers and Routes',
+                'category' => 'Handlers and Routes',
                 'title' => 'When should I use src/Routes?',
                 'author' => 'Mira Admin',
                 'role' => 'admin',
                 'replies' => 1,
                 'locked' => false,
                 'status' => 'Open',
-                'excerpt' => 'Use route files when public/routes.php becomes too dense or feature areas need middleware.',
-                'body' => 'For a small project, keeping routes in `public/routes.php` is fine. For a forum, admin area, billing area, or any feature with grouped middleware, I would move those URLs into an app-owned route file under `src/Routes`.',
+                'excerpt' => 'Method files under src/Routes define URLs; directory middleware protects related endpoints.',
+                'body' => 'Create a method file under `src/Routes` for each endpoint, such as `forum-demo/topics/index.get.php`. CorianderPHP discovers it automatically. Put `_middleware.php` in a directory when all its child endpoints need shared protection.',
                 'created_at' => '2026-07-10 10:03',
                 'updated_at' => '2026-07-10 10:24',
             ],
@@ -91,9 +91,9 @@ final class DemoForumRepository
     public function repliesForTopic(int $topicId): array
     {
         $replies = [
-            ['id' => 1, 'topic_id' => 1, 'author' => 'Mira Admin', 'role' => 'admin', 'status' => 'Visible', 'created_at' => '2026-07-10 09:29', 'body' => 'Use the view for display markup and metadata. Add a controller once the page needs prepared data, redirects, permissions, or form handling.'],
+            ['id' => 1, 'topic_id' => 1, 'author' => 'Mira Admin', 'role' => 'admin', 'status' => 'Visible', 'created_at' => '2026-07-10 09:29', 'body' => 'Keep display markup in the private view. Return Responses::view() from a method file, passing title and prepared data. Extract an action class when request coordination grows.'],
             ['id' => 2, 'topic_id' => 1, 'author' => 'Sam Member', 'role' => 'member', 'status' => 'Visible', 'created_at' => '2026-07-10 09:41', 'body' => 'That makes sense. I will keep the first static page simple and move reusable behavior into modules when the feature grows.'],
-            ['id' => 3, 'topic_id' => 2, 'author' => 'Nora Moderator', 'role' => 'moderator', 'status' => 'Visible', 'created_at' => '2026-07-10 10:24', 'body' => 'Route groups are useful for admin sections because middleware can be attached once. That also makes the route file easier to scan.'],
+            ['id' => 3, 'topic_id' => 2, 'author' => 'Nora Moderator', 'role' => 'moderator', 'status' => 'Visible', 'created_at' => '2026-07-10 10:24', 'body' => 'An admin directory can declare its permission middleware once in _middleware.php. All child method files inherit it, along with root CSRF protection.'],
             ['id' => 4, 'topic_id' => 3, 'author' => 'Mira Admin', 'role' => 'admin', 'status' => 'Needs review', 'created_at' => '2026-07-10 11:20', 'body' => 'This reply is intentionally marked for review so the admin UI can show a hide-reply action without saving public visitor content.'],
         ];
 

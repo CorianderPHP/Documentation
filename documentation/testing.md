@@ -18,7 +18,7 @@ Start with the behavior that would hurt if it broke:
 Modules are the easiest app code to test because they should not depend on HTTP rendering.
 
 ```php
-use Modules\Blog\BlogValidator;
+use App\Modules\Blog\BlogValidator;
 use PHPUnit\Framework\TestCase;
 
 final class BlogValidatorTest extends TestCase
@@ -42,19 +42,19 @@ Smoke tests check that important public routes still respond after framework upd
 ```php
 public function testDocumentationRouteResponds(): void
 {
-    $_SERVER['REQUEST_METHOD'] = 'GET';
-    $_SERVER['REQUEST_URI'] = '/documentation';
+    $request = new \Nyholm\Psr7\ServerRequest('GET', '/documentation');
+    $response = (new \CorianderCore\Core\Router\Router())->handle($request);
 
-    ob_start();
-    require PROJECT_ROOT . '/public/index.php';
-    $output = ob_get_clean();
-
-    self::assertIsString($output);
-    self::assertStringContainsString('Documentation', $output);
+    self::assertSame(200, $response->getStatusCode());
+    self::assertStringContainsString('Documentation', (string) $response->getBody());
 }
 ```
 
 Prefer focused route smoke tests over browser-heavy tests for basic coverage.
+
+Bootstrap the test's environment, configuration, and autoloaders first. Use an isolated test database and session storage, never your production database. The router test exercises middleware and handlers, not the front controller's parsing or HTTP emission; add an HTTP check for those boundaries.
+
+For JSON integration requests, use `RequestFactory::fromGlobals()` or set `withParsedBody($payload)` on a constructed PSR request. Cookie-authenticated writes need a valid `csrf_token` body field; do not disable root middleware in a permission test.
 
 ## Repository Tests
 
@@ -78,7 +78,7 @@ public function testAdminCanEditAnyPost(): void
 }
 ```
 
-Test permission rules once in the permission class, then keep controller tests lighter.
+Test permission rules once in the permission class, then keep handler tests lighter.
 
 ## Documentation App Checks
 

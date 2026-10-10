@@ -1,15 +1,15 @@
 # Forum Write Service
 
-The read repositories load forum data. Write behavior belongs in a separate service so validation, permissions, and SQL updates do not spread across controllers.
+The read repositories load forum data. Write behavior belongs in a separate service so validation, permissions, and SQL updates do not spread across request handlers.
 
 You are here in the flow:
 
 ```workflow
-POST route|Receives the form submission and calls the controller action.
-Controller|Reads parsed form data and current user, then delegates the write.
+POST route|Receives the form submission and calls the handler action.
+Handler|Reads parsed form data and current user, then delegates the write.
 ForumWriteService|Checks permission, validates input, and runs the SQL write.
 Result|Returns one result array for web views and API responses.
-Redirect|The controller stores the result as flash and redirects to a GET page.
+Redirect|The handler stores the result as flash and redirects to a GET page.
 View|The GET page renders the flash message once.
 ```
 
@@ -29,10 +29,10 @@ src/Modules/ForumDemo/Writes/ForumWriteService.php
 <?php
 declare(strict_types=1);
 
-namespace Modules\ForumDemo\Writes;
+namespace App\Modules\ForumDemo\Writes;
 
 use CorianderCore\Core\Database\SQLManager;
-use Modules\ForumDemo\Permissions\DemoPermissionService;
+use App\Modules\ForumDemo\Permissions\DemoPermissionService;
 
 final class ForumWriteService
 {
@@ -42,7 +42,7 @@ final class ForumWriteService
 }
 ```
 
-The service depends on permissions, not on the controller. That keeps the same rules available to web forms and API endpoints.
+The service depends on permissions, not on the handler. That keeps the same rules available to web forms and API endpoints.
 
 The write service is the first place in the project where input, permissions, and persistence meet. Keep it narrow: it should not know about HTML templates, redirects, or sessions.
 
@@ -63,7 +63,7 @@ private function result(bool $ok, int $status, string $message, string $action):
 }
 ```
 
-Views and API controllers can display this without knowing which SQL statement ran.
+Views and API request handlers can display this without knowing which SQL statement ran.
 
 ## Step: Validate Permission And Input
 
@@ -83,7 +83,7 @@ private function text(array $payload, string $key): string
 }
 ```
 
-The controller should not inspect roles or normalize form fields.
+The handler should not inspect roles or normalize form fields.
 
 ## Step: Create Topics
 
@@ -153,7 +153,7 @@ public function createReply(?array $user, int $topicId, array $payload): array
 }
 ```
 
-The service does not redirect. It returns a result; the controller stores that result as a flash message and redirects to a GET page.
+The service does not redirect. It returns a result; the handler stores that result as a flash message and redirects to a GET page.
 
 Before inserting a reply in a production version, also check whether the topic is locked. The demo keeps the example small, but a complete forum should reject replies for locked topics inside the write service, not only by hiding the form in the view.
 
@@ -284,7 +284,7 @@ public function run(?array $user, string $ability, array $payload): array
 }
 ```
 
-Web controllers can call the explicit method names. API controllers can use `run()` when they map routes to ability names.
+Web request handlers can call the explicit method names. API request handlers can use `run()` when they map routes to ability names.
 
 ## Checkpoint
 
@@ -292,7 +292,7 @@ With `FORUM_DEMO_READ_ONLY` disabled, log in as the member account and create a 
 
 ## Common Mistakes
 
-- Writing directly from controllers.
+- Writing directly from request handlers.
 - Checking roles in multiple places instead of calling `DemoPermissionService`.
 - Using string interpolation in SQL instead of bound `sqlScript()` parameters.
 

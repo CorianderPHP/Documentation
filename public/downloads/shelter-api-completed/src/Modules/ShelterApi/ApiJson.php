@@ -1,27 +1,24 @@
 <?php
 declare(strict_types=1);
 
-namespace Modules\ShelterApi;
+namespace App\Modules\ShelterApi;
 
-use Nyholm\Psr7\Response;
+use CorianderCore\Core\Http\Responses;
+use Psr\Http\Message\ResponseInterface;
 
 /*
  * Response helper:
- * every API controller returns JSON through this class so success and error
+ * every API action returns JSON through this class so success and error
  * responses stay predictable for clients and tests.
  */
 final class ApiJson
 {
-    public static function response(array $payload, int $status = 200): Response
+    public static function response(array $payload, int $status = 200): ResponseInterface
     {
-        return new Response(
-            $status,
-            ['Content-Type' => 'application/json; charset=utf-8'],
-            json_encode($payload, JSON_THROW_ON_ERROR)
-        );
+        return Responses::json($payload, $status);
     }
 
-    public static function error(string $code, string $message, int $status, array $fields = []): Response
+    public static function error(string $code, string $message, int $status, array $fields = []): ResponseInterface
     {
         $error = ['code' => $code, 'message' => $message];
         if ($fields !== []) {

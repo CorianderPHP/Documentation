@@ -18,10 +18,7 @@ final class RouteSmokeTest extends TestCase
         $_SESSION = [];
 
         $router = new Router();
-        $notFound = static fn() => new Response(404, [], 'Not found');
-        require PROJECT_ROOT . '/public/routes.php';
-
-        $response = $router->dispatch(new ServerRequest('GET', $path));
+        $response = $router->handle(new ServerRequest('GET', $path));
 
         self::assertSame(200, $response->getStatusCode(), $path);
         self::assertNotSame('', (string) $response->getBody());
@@ -48,10 +45,7 @@ final class RouteSmokeTest extends TestCase
         $_SESSION = [];
 
         $router = new Router();
-        $notFound = static fn() => new Response(404, [], 'Not found');
-        require PROJECT_ROOT . '/public/routes.php';
-
-        $response = $router->dispatch(new ServerRequest('GET', '/docs'));
+        $response = $router->handle(new ServerRequest('GET', '/docs'));
 
         self::assertSame(302, $response->getStatusCode());
         self::assertSame(['/documentation'], $response->getHeader('Location'));
@@ -64,10 +58,7 @@ final class RouteSmokeTest extends TestCase
         $_SESSION = [];
 
         $router = new Router();
-        $notFound = static fn() => new Response(404, [], 'Not found');
-        require PROJECT_ROOT . '/public/routes.php';
-
-        $response = $router->dispatch((new ServerRequest('GET', '/api/documentation/search?q=controller&scope=reference'))->withQueryParams(['q' => 'controller', 'scope' => 'reference']));
+        $response = $router->handle((new ServerRequest('GET', '/api/documentation/search?q=controller&scope=reference'))->withQueryParams(['q' => 'controller', 'scope' => 'reference']));
 
         self::assertSame(200, $response->getStatusCode());
         self::assertStringContainsString('"ok":true', (string) $response->getBody());
@@ -81,22 +72,15 @@ final class RouteSmokeTest extends TestCase
     {
         $_SESSION = [];
         $router = new Router();
-        $notFound = static fn() => new Response(404, [], 'Not found');
-        $router->setNotFound($notFound);
-        require PROJECT_ROOT . '/public/routes.php';
-
-        self::assertSame(302, $router->dispatch(new ServerRequest('GET', '/forum-demo/admin'))->getStatusCode());
-        self::assertSame(404, $router->dispatch(new ServerRequest('GET', '/forum-demo/adminUsers'))->getStatusCode());
-        self::assertSame(404, $router->dispatch(new ServerRequest('GET', '/notfound'))->getStatusCode());
+        self::assertSame(302, $router->handle(new ServerRequest('GET', '/forum-demo/admin'))->getStatusCode());
+        self::assertSame(404, $router->handle(new ServerRequest('GET', '/forum-demo/adminUsers'))->getStatusCode());
+        self::assertSame(404, $router->handle(new ServerRequest('GET', '/notfound'))->getStatusCode());
     }
 
     public function testHeadFallsBackToRegisteredGetRoutesAndEmitterSuppressesBody(): void
     {
         $router = new Router();
-        $notFound = static fn() => new Response(404, [], 'Not found');
-        require PROJECT_ROOT . '/public/routes.php';
-
-        $response = $router->dispatch(new ServerRequest('HEAD', '/documentation'));
+        $response = $router->handle(new ServerRequest('HEAD', '/documentation'));
         self::assertSame(200, $response->getStatusCode());
         ob_start();
         \CorianderCore\Core\Http\ResponseEmitter::emit($response, 'HEAD');

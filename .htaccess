@@ -5,6 +5,7 @@ RewriteRule (^|/)\. - [F,L]
 RewriteRule ^(?:CorianderCore|src|config|vendor|nodejs|database|backups|cache|logs|resources|scripts|tests)(?:/|$) - [F,L,NC]
 RewriteRule ^public/(?:public_views(?:/|$)|routes\.php$) - [F,L,NC]
 RewriteRule ^public/downloads/[^/]+/ - [F,L,NC]
+RewriteRule ^(?!public/index\.php$|index\.php$).*\.php(?:/|$) - [F,L,NC]
 RewriteRule \.(?:bak(?:\.\d+)?|log|sqlite(?:3)?|db)$ - [F,L,NC]
 RewriteRule ^(?:coriander|composer\.(?:json|lock|phar)|phpunit\.xml|AGENTS\.md)$ - [F,L,NC]
 
@@ -20,6 +21,9 @@ DirectorySlash Off
 # Support asset URLs with or without the public prefix.
 RewriteCond %{DOCUMENT_ROOT}/public/assets/$1 -f
 RewriteRule ^assets/(.+)$ public/assets/$1 [QSA,L]
+
+RewriteCond %{DOCUMENT_ROOT}/public/downloads/$1 -f
+RewriteRule ^downloads/([^/]+\.zip)$ public/downloads/$1 [QSA,L]
 
 # Route app-owned pretty URLs that collide with real project directories.
 RewriteRule ^documentation(?:/.*)?$ public/index.php [QSA,L]

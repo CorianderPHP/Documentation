@@ -1,6 +1,6 @@
 # Forum Views
 
-Views live under `public/public_views`. The demo uses server-rendered templates so the app works before JavaScript loads.
+Views live under `src/Views`. The demo uses server-rendered templates so the app works before JavaScript loads.
 
 ## Goal
 
@@ -9,12 +9,12 @@ Create forum templates that render prepared data and show controls based on perm
 ## Files Created
 
 ```structure
-public/public_views/forum-demo/index.php
-public/public_views/forum-demo/login/index.php
-public/public_views/forum-demo/topics/index.php
-public/public_views/forum-demo/topic/index.php
-public/public_views/forum-demo/admin/index.php
-public/public_views/forum-demo/admin-users/index.php
+src/Views/forum-demo.php
+src/Views/forum-demo/login.php
+src/Views/forum-demo/topics.php
+src/Views/forum-demo/topic.php
+src/Views/forum-demo/admin.php
+src/Views/forum-demo/admin-users.php
 ```
 
 ## Step: Render The Forum Landing Page
@@ -24,9 +24,9 @@ The landing page receives `$topics`, `$currentUser`, and `$permissions`. Keep it
 You are here in the flow:
 
 ```workflow
-Controller|`ForumDemoController::index()` prepares the landing page data.
+Handler|`ForumActions::index()` prepares the landing page data.
 Render call|`$this->render('forum-demo', ['topics' => ...])` chooses the view name.
-View file|`public/public_views/forum-demo/index.php` receives `$topics`, `$currentUser`, and `$permissions`.
+View file|`src/Views/forum-demo.php` receives `$topics`, `$currentUser`, and `$permissions`.
 ```
 
 ```html
@@ -34,24 +34,24 @@ View file|`public/public_views/forum-demo/index.php` receives `$topics`, `$curre
 
 <?php foreach ($topics as $topic): ?>
     <a href="/forum-demo/topics/<?= (int) $topic['id'] ?>">
-        <?= htmlspecialchars($topic['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+        <?= $topic['title'] ?>
     </a>
 <?php endforeach; ?>
 ```
 
-The view does not decide where topics come from. It only renders what the controller prepared.
+The view does not decide where topics come from. It only renders what the handler prepared.
 
 ## Step: Render The Topic List
 
 ```html
 <?php foreach ($topics as $topic): ?>
     <a href="/forum-demo/topics/<?= (int) $topic['id'] ?>">
-        <?= htmlspecialchars($topic['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+        <?= $topic['title'] ?>
     </a>
 <?php endforeach; ?>
 ```
 
-Always escape public strings. The local project stores user-created content in SQLite, so escaping is required from the beginning.
+The framework renderer recursively HTML-escapes string values in the passed arrays. Output these prepared values directly; escaping them again would display entities such as `&amp;` to readers. Objects and JavaScript/CSS contexts still need explicit handling. The template must always be rendered through the framework, never directly included from a public URL.
 
 Use a forum-style row layout for the topic index: title and preview first, then updated time, reply count, and status. This is easier to scan than large repeated cards.
 
@@ -63,8 +63,8 @@ The topic detail page should show the original post before any replies.
 
 ```html
 <article>
-    <h1><?= htmlspecialchars($topic['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h1>
-    <p><?= htmlspecialchars($topic['body'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
+    <h1><?= $topic['title'] ?></h1>
+    <p><?= $topic['body'] ?></p>
 </article>
 ```
 
@@ -78,6 +78,11 @@ The topic creation form should only appear when the user can create topics.
 <?php if ($permissions['topic.create'] ?? false): ?>
     <form method="POST" action="/forum-demo/topics">
         <?= \CorianderCore\Core\Security\Csrf::input() ?>
+        <select name="category_id">
+            <?php foreach ($categories as $category): ?>
+                <option value="<?= (int) $category['id'] ?>"><?= $category['name'] ?></option>
+            <?php endforeach; ?>
+        </select>
         <input name="title" placeholder="Topic title">
         <textarea name="body" placeholder="What do you want to ask?"></textarea>
         <button>Create topic</button>
@@ -87,7 +92,7 @@ The topic creation form should only appear when the user can create topics.
 <?php endif; ?>
 ```
 
-Hiding a form is UX, not security. The controller and write service still enforce permissions.
+Hiding a form is UX, not security. The handler and write service still enforce permissions.
 
 The same rule applies to admin buttons. If the view hides "Lock topic" from members, that is only to reduce noise. The admin route group and write service must still reject the action server-side.
 
@@ -108,7 +113,7 @@ Admin users should see moderation forms near the content they can moderate.
 
 Use the same pattern for reply moderation with `/forum-demo/admin/replies`. Include both `return_to=topic` and `topic_id` when the form appears on a topic page.
 
-Moderation POST routes are action endpoints, not pages users should land on. The hidden `return_to` field tells the controller which GET page should receive the flash message after the action:
+Moderation POST routes are action endpoints, not pages users should land on. The hidden `return_to` field tells the handler which GET page should receive the flash message after the action:
 
 - `return_to=topic` keeps the admin on the topic detail page.
 - `return_to=admin` keeps the admin on the moderation queue.
@@ -121,7 +126,7 @@ When a write succeeds, show the result message returned by the write service. In
 
 ```html
 <?php if (($flash['ok'] ?? false) === true): ?>
-    <p><?= htmlspecialchars($flash['message'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
+    <p><?= $flash['message'] ?></p>
 <?php endif; ?>
 ```
 
@@ -130,6 +135,8 @@ Use the same flash shape for topic, reply, and admin actions.
 Keep flash rendering close to the page heading so users notice the result without losing their place in the forum content.
 
 ## Step: Keep JavaScript Optional
+
+Create shared `_header.php`/`_footer.php` under `src/Views`, as described in [Static View Guide](/documentation/static-views). They receive the same title and shared data as the forum template. Keep a header/footer pair that produces valid HTML; nearest ancestor layouts do not stack.
 
 TypeScript can improve interactions, but the core demo should work as server-rendered HTML. Add TypeScript for small enhancements only.
 
@@ -142,7 +149,7 @@ public/assets/js/forum-demo/index.js
 
 Open [/forum-demo/topics](/forum-demo/topics) as a guest, member, and admin. The content should stay readable, while forms and admin links adapt to the user.
 
-If a variable is undefined in a view, do not create it inside the template. Go back to the controller render call and pass the missing data explicitly.
+If a variable is undefined in a view, do not create it inside the template. Go back to the handler render call and pass the missing data explicitly.
 
 ## Common Mistakes
 

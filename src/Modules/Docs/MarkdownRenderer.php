@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Modules\Docs;
+namespace App\Modules\Docs;
 
 final class MarkdownRenderer
 {
@@ -323,7 +323,10 @@ final class MarkdownRenderer
     private static function inline(string $value): string
     {
         $escaped = self::escape($value);
-        $escaped = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a class="font-semibold text-link-blue underline decoration-link-blue/35 decoration-2 underline-offset-4 hover:decoration-link-blue dark:text-link-blue-dark dark:decoration-link-blue-dark/45 dark:hover:decoration-link-blue-dark" href="$2">$1</a>', $escaped) ?? $escaped;
+        $escaped = preg_replace_callback('/\[([^\]]+)\]\(([^)]+)\)/', static function (array $match): string {
+            $url = \CorianderCore\Core\Support\PublicUrl::toPublicUrl($match[2]);
+            return '<a class="font-semibold text-link-blue underline decoration-link-blue/35 decoration-2 underline-offset-4 hover:decoration-link-blue dark:text-link-blue-dark dark:decoration-link-blue-dark/45 dark:hover:decoration-link-blue-dark" href="' . $url . '">' . $match[1] . '</a>';
+        }, $escaped) ?? $escaped;
         $escaped = preg_replace('/`([^`]+)`/', '<code class="rounded bg-dark-green/10 px-1.5 py-0.5 text-sm text-dark-green dark:bg-mint/10 dark:text-mint">$1</code>', $escaped) ?? $escaped;
         $escaped = preg_replace('/\*\*([^*]+)\*\*/', '<strong>$1</strong>', $escaped) ?? $escaped;
         return $escaped;
