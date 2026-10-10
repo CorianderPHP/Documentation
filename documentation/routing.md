@@ -1,12 +1,22 @@
 # Routing Module Guide
 
-CorianderPHP's routing system maps incoming HTTP requests to callbacks, controllers, or views. By default, controller names and the built-in router handle most paths automatically.
+CorianderPHP's routing system maps incoming HTTP requests to callbacks, controllers, or views. Since v0.2.3.3, routing is explicit by default: a controller method or view folder is not reachable until you register its URL.
 
 Custom route definitions start in `public/routes.php`. For small projects such as SPAs, marketing websites, brochure websites, and simple landing pages, keeping routes in this single file is usually the clearest option.
 
 For larger applications, split route groups into app-owned files under `src/Routes/` and include them from `public/routes.php`.
 
 ## Small Project Routes
+
+Register a homepage in `public/routes.php`, including `/` itself:
+
+```php
+use CorianderCore\Core\Router\ViewRenderer;
+
+$router->get('/', static fn () => (new ViewRenderer())->render('home'));
+```
+
+This renders `public/public_views/home/index.php`. Use the same pattern for [static views](/documentation/static-views), or delegate to a [controller](/documentation/controllers) when a page needs prepared data.
 
 Custom routes are defined in `public/routes.php`. The front controller bootstraps the router and passes an instance to this file, so you can add routes directly:
 
@@ -111,8 +121,60 @@ $router->get('/profile', fn (ServerRequest $r) =>
 ### Response Handling
 
 - Route callbacks and controller actions can return a `ResponseInterface`; status code, headers, and body are preserved.
-- API controller actions may return arrays, which are automatically encoded as JSON responses.
-- If an API action returns text output that is not valid JSON, it is wrapped as `{"data":"..."}` and returned as JSON.
+- Explicit API routes must return a JSON response, not a plain array. Set both the HTTP status and `Content-Type`.
+- Text emitted by a view is captured as the response body.
+
+```php
+use Nyholm\Psr7\Response;
+
+$router->get('/api/health', static fn () => new Response(
+    200,
+    ['Content-Type' => 'application/json; charset=utf-8'],
+    json_encode(['ok' => true], JSON_THROW_ON_ERROR)
+));
+```
+
+An API controller is an ordinary PHP class called by your route. Its folder and method names do not register endpoints.
+
+## GET And HEAD
+
+A registered GET route also handles HEAD unless you register a dedicated HEAD route with `$router->add('HEAD', ...)`. HEAD fallback retains route parameters and middleware. Keep GET actions read-only because HEAD can execute the same callback.
+
+In `public/index.php`, pass the request method to the emitter so HEAD responses contain headers but no body:
+
+```php
+$request = RequestFactory::fromGlobals();
+$response = $router->dispatch($request);
+ResponseEmitter::emit($response, $request->getMethod());
+```
+
+Import `CorianderCore\Core\Http\RequestFactory` and `CorianderCore\Core\Http\ResponseEmitter`. See the [upgrade checklist](/documentation/upgrades) when migrating an existing entry point.
+
+## Legacy Automatic Routing
+
+Older apps can opt in when constructing the router:
+
+```php
+use CorianderCore\Core\Router\Router;
+
+$router = new Router(automaticRouting: true);
+```
+
+This re-enables controller, API, and view discovery. Prefer explicit routes for new apps: a convention-generated alias may reach an action outside the middleware protecting its registered route. In legacy API discovery only, returned arrays are encoded as JSON automatically.
+
+Automatic web actions are method-restricted: read actions accept GET/HEAD, `store` accepts POST, `update` accepts POST/PUT/PATCH, and `delete`/`destroy` accept POST/DELETE. A custom action can declare its allowed methods:
+
+```php
+use CorianderCore\Core\Router\HttpMethods;
+
+#[HttpMethods('POST')]
+public function publish(): Response
+{
+    return new Response(200, [], 'Published');
+}
+```
+
+The attribute applies to legacy discovery; explicit routes declare their method through `get()`, `post()`, or `add()`.
 
 ## Error Handling
 
@@ -135,4 +197,4 @@ $router->post('/user', function(ServerRequest $request) {
 - Keep `public/routes.php` for small custom route lists and for including route files from `src/Routes/`.
 - Leverage PSR-15 middleware for cross-cutting concerns such as authentication or CSRF protection on mutating methods (`POST`, `PUT`, `PATCH`, `DELETE`).
 - Use URL parameters instead of query strings for cleaner, cache-friendly routes.
-- Avoid defining routes unless necessary; controllers are mapped automatically.
+- Register every public URL explicitly, including `/` and API endpoints. Attach authorization middleware to all protected entry points.

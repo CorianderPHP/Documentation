@@ -42,7 +42,7 @@ Controllers should stay thin. They read the request, call app-owned modules or r
 ```workflow
 Controller reference|Read [Controllers](/documentation/controllers).
 View rendering|Read [Dynamic View Guide](/documentation/dynamic-views) if the controller returns HTML.
-Custom URL|Read [Routing](/documentation/routing) if you need custom URLs.
+Route registration|Use [Routing](/documentation/routing) to register the action's URL. A generated controller is not exposed automatically.
 ```
 
 For API endpoints, generate an API controller:

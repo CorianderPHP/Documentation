@@ -1,5 +1,14 @@
 RewriteEngine On
 
+# This directory's rewrite rules replace the parent rules on Apache.
+# Protect templates and extracted packages for both document-root layouts.
+RewriteRule (^|/)\. - [F,L]
+RewriteRule ^public_views(?:/|$) - [F,L,NC]
+RewriteRule ^(?:routes|routes\.snippet|sitemap)\.php$ - [F,L,NC]
+RewriteRule ^downloads/[^/]+/ - [F,L,NC]
+RewriteRule \.(?:bak(?:\.\d+)?|log|sqlite(?:3)?|db)$ - [F,L,NC]
+DirectoryIndex index.php
+
 # Disable directory listing for security.
 Options -Indexes
 

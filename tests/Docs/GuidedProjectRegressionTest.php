@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Tests\Docs;
 
 use CorianderCore\Core\Router\Router;
+use CorianderCore\Core\Bootstrap\SessionBootstrap;
+use CorianderCore\Core\Security\Csrf;
 use Nyholm\Psr7\Response;
 use Nyholm\Psr7\ServerRequest;
 use Nyholm\Psr7\Stream;
@@ -15,6 +17,7 @@ final class GuidedProjectRegressionTest extends TestCase
 {
     protected function setUp(): void
     {
+        SessionBootstrap::start();
         $_GET = [];
         $_POST = [];
         $_SESSION = [];
@@ -35,6 +38,7 @@ final class GuidedProjectRegressionTest extends TestCase
 
         $memberTopics = $this->dispatch('GET', '/forum-demo/topics');
         self::assertSame(200, $memberTopics->getStatusCode());
+        self::assertSame(2, $_SESSION['forum_demo_user_id'] ?? null, 'Rendering a CSRF form must preserve the logged-in member.');
 
         $memberWrite = $this->dispatch('POST', '/forum-demo/topics', [
             'category_id' => '1',
@@ -121,6 +125,39 @@ final class GuidedProjectRegressionTest extends TestCase
         self::assertFalse($deletedPayload['meta']['persisted'] ?? true);
     }
 
+    public function testForumApiRequiresCsrfAndEnforcesPermissionsWithoutSavingContent(): void
+    {
+        $missingToken = $this->dispatchJson('POST', '/api/forum-demo/topic', ['title' => 'API topic']);
+        self::assertSame(403, $missingToken->getStatusCode());
+        self::assertSame('Invalid CSRF token.', $this->json($missingToken)['message']);
+
+        $token = Csrf::token();
+        $invalidJsonObject = $this->dispatchJson('POST', '/api/forum-demo/topic', [], ['X-CSRF-Token' => $token]);
+        self::assertSame(400, $invalidJsonObject->getStatusCode());
+        self::assertSame('Send a JSON object.', $this->json($invalidJsonObject)['message']);
+
+        $guest = $this->dispatchJson('POST', '/api/forum-demo/topic', ['title' => 'API topic'], ['X-CSRF-Token' => $token]);
+        self::assertSame(403, $guest->getStatusCode());
+        self::assertFalse($this->json($guest)['ok']);
+
+        $this->dispatch('POST', '/forum-demo/login', ['quick_role' => 'member']);
+        $created = $this->dispatchJson('POST', '/api/forum-demo/topic', ['title' => 'API topic'], ['X-CSRF-Token' => $token]);
+        self::assertSame(200, $created->getStatusCode());
+        self::assertTrue($this->json($created)['demo']);
+        self::assertStringNotContainsString('API topic', (string) $this->dispatch('GET', '/forum-demo/topics')->getBody());
+
+        $denied = $this->dispatchJson('POST', '/api/forum-demo/moderate', ['body' => 'Moderation'], ['X-CSRF-Token' => $token]);
+        self::assertSame(403, $denied->getStatusCode());
+        $this->dispatch('POST', '/forum-demo/login', ['quick_role' => 'admin']);
+        $allowed = $this->dispatchJson('POST', '/api/forum-demo/moderate', ['body' => 'Moderation'], ['X-CSRF-Token' => $token]);
+        self::assertSame(200, $allowed->getStatusCode());
+
+        $invalid = $this->dispatchJson('POST', '/api/forum-demo/reply', ['body' => ''], ['X-CSRF-Token' => $token]);
+        self::assertSame(422, $invalid->getStatusCode());
+        $reply = $this->dispatchJson('POST', '/api/forum-demo/reply', ['body' => 'Valid reply'], ['X-CSRF-Token' => $token]);
+        self::assertSame(200, $reply->getStatusCode());
+    }
+
     public function testGuidedProjectDownloadPackagesContainRunnableProjectFiles(): void
     {
         $this->assertZipContains('public/downloads/forum-completed.zip', [
@@ -205,7 +242,7 @@ final class GuidedProjectRegressionTest extends TestCase
     /**
      * @param array<string,mixed> $payload
      */
-    private function dispatchJson(string $method, string $uri, array $payload): ResponseInterface
+    private function dispatchJson(string $method, string $uri, array $payload, array $headers = []): ResponseInterface
     {
         $path = parse_url($uri, PHP_URL_PATH);
         $path = is_string($path) ? $path : $uri;
@@ -227,6 +264,10 @@ final class GuidedProjectRegressionTest extends TestCase
             ->withQueryParams($query)
             ->withHeader('Content-Type', 'application/json')
             ->withBody(Stream::create(json_encode($payload, JSON_THROW_ON_ERROR)));
+
+        foreach ($headers as $name => $value) {
+            $request = $request->withHeader($name, $value);
+        }
 
         return $router->dispatch($request);
     }

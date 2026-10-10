@@ -88,6 +88,8 @@ During development, use the NodeJS command documented in [NodeJS Integration](/d
 
 ## Next Steps
 
+The current starter registers its homepage explicitly in `public/routes.php`. For each new page, register its route too: creating a controller or view folder alone does not make a URL reachable. Follow [Static View Guide](/documentation/static-views) for a fixed page or [Dynamic View Guide](/documentation/dynamic-views) for controller-prepared data.
+
 After installation, create your first route, controller, and view:
 
 - [Routing](/documentation/routing)

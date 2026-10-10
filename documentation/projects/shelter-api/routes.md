@@ -2,6 +2,8 @@
 
 The route file should describe the HTTP surface and delegate work to controllers. Keep database queries and validation out of the route file.
 
+CorianderPHP uses explicit routing by default. These definitions are required even though the controllers live in `src/ApiControllers`; the folder alone does not expose endpoints. The controller returns a PSR-7 JSON response with the intended status, not a plain array.
+
 You are here in the flow:
 
 ```workflow
@@ -42,6 +44,8 @@ return static function (Router $router): void {
 - Use path parameters for identifiers.
 - Use query parameters for filters.
 - Return PSR-7 responses from controllers.
+
+GET routes also accept HEAD requests through fallback. Keep their actions read-only and pass the request method to `ResponseEmitter::emit()` in the app entry point so HEAD sends no JSON body. POST, PATCH, and DELETE remain separate write routes.
 
 ## Example requests
 

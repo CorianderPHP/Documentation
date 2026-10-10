@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use Controllers\ForumDemoController;
+use ApiControllers\ForumDemoController as ForumDemoApiController;
 use CorianderCore\Core\Router\Router;
 use Middleware\ForumDemoAdminMiddleware;
 use Nyholm\Psr7\Response;
@@ -14,6 +15,9 @@ use Psr\Http\Message\ServerRequestInterface;
  * enforce request flow, and render views or redirects.
  */
 return static function (Router $router): void {
+    $router->post('api/forum-demo/topic', static fn (ServerRequestInterface $request) => (new ForumDemoApiController())->post_topic($request));
+    $router->post('api/forum-demo/reply', static fn (ServerRequestInterface $request) => (new ForumDemoApiController())->post_reply($request));
+    $router->post('api/forum-demo/moderate', static fn (ServerRequestInterface $request) => (new ForumDemoApiController())->post_moderate($request));
     $router->get('forum-demo', static fn (ServerRequestInterface $request) => (new ForumDemoController())->index($request));
     $router->get('forum-demo/login', static fn () => (new ForumDemoController())->login());
     $router->post('forum-demo/login', static fn (ServerRequestInterface $request) => (new ForumDemoController())->authenticate($request));

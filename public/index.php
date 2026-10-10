@@ -20,16 +20,11 @@ function corianderCreateNotFoundHandler(): callable
     return static function (): Response {
         $notFoundView = 'notfound';
 
-        $metaDataFile = PROJECT_ROOT . '/public/public_views/' . $notFoundView . '/metadata.php';
-
-        if (file_exists($metaDataFile)) {
-            include $metaDataFile;
-        }
-
         ob_start();
-        require_once PROJECT_ROOT . '/public/public_views/header.php';
-        require_once PROJECT_ROOT . '/public/public_views/' . $notFoundView . '/index.php';
-        require_once PROJECT_ROOT . '/public/public_views/footer.php';
+        $__corianderRequestedView = $notFoundView;
+        require PROJECT_ROOT . '/public/public_views/header.php';
+        require PROJECT_ROOT . '/public/public_views/' . $notFoundView . '/index.php';
+        require PROJECT_ROOT . '/public/public_views/footer.php';
 
         return new Response(404, [], (string) ob_get_clean());
     };
@@ -81,7 +76,9 @@ try {
         require $routesFile;
     }
 
-    ResponseEmitter::emit($router->dispatch(RequestFactory::fromGlobals()));
+    $request = RequestFactory::fromGlobals();
+    $response = $router->dispatch($request);
+    ResponseEmitter::emit($response, $request->getMethod());
 } catch (Throwable $exception) {
     try {
         (new Logger())->error('Unhandled application exception.', ['exception' => $exception]);
@@ -94,6 +91,8 @@ try {
         header('Content-Type: text/plain; charset=utf-8');
     }
 
-    echo 'Internal Server Error';
+    if (strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'HEAD') {
+        echo 'Internal Server Error';
+    }
 }
 

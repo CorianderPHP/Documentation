@@ -5,16 +5,19 @@ namespace ApiControllers;
 
 use Modules\Docs\DocumentationRepository;
 use Modules\Docs\DocumentationSearch;
+use Nyholm\Psr7\Response;
+use Psr\Http\Message\ServerRequestInterface;
 
 class DocumentationController
 {
-    public function get_search(): array
+    public function get_search(ServerRequestInterface $request): Response
     {
-        $query = is_string($_GET['q'] ?? null) ? trim($_GET['q']) : '';
-        $scope = is_string($_GET['scope'] ?? null) ? trim($_GET['scope']) : 'all';
+        $params = $request->getQueryParams();
+        $query = is_string($params['q'] ?? null) ? trim($params['q']) : '';
+        $scope = is_string($params['scope'] ?? null) ? trim($params['scope']) : 'all';
         $search = new DocumentationSearch(new DocumentationRepository());
 
-        return [
+        $payload = [
             'ok' => true,
             'query' => $query,
             'scope' => $scope,
@@ -25,5 +28,6 @@ class DocumentationController
                 'excerpt' => $result['excerpt'],
             ], $search->search($query, $scope)),
         ];
+        return new Response(200, ['Content-Type' => 'application/json; charset=utf-8'], json_encode($payload, JSON_THROW_ON_ERROR));
     }
 }

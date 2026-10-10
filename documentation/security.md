@@ -4,6 +4,9 @@ This page summarizes framework-level security behavior and recommended usage pat
 
 ## Routing and View Path Safety
 
+- Routing is explicit by default. Register protected actions inside their middleware group; a controller's other public methods are not automatic URLs.
+- Avoid enabling `automaticRouting` for a protected app without auditing convention-generated aliases. An alias can bypass middleware attached only to an explicit route.
+
 - View rendering accepts only normalized relative paths under `public/public_views`.
 - Rejected inputs include:
   - dot segments (`.` and `..`)
@@ -17,6 +20,8 @@ This page summarizes framework-level security behavior and recommended usage pat
 - CSRF middleware validates mutating web methods: `POST`, `PUT`, `PATCH`, `DELETE`.
 - Use `\CorianderCore\Core\Security\Csrf::input()` in forms.
 - For non-API JSON requests, include the token in the JSON body as `csrf_token`.
+
+The default CSRF middleware skips `/api/*`, and API requests do not start a session automatically. A stateless API can use token-based authentication. An API that uses a browser login cookie must explicitly start the session and validate CSRF tokens, as shown in the [forum API guide](/guided-projects/forum/api).
 
 ## Proxy and TLS Detection
 

@@ -6,6 +6,20 @@ This is not a full CorianderPHP project and it does not include the framework. T
 
 The hosted public demo protects visitor writes, but the guide explains where local SQLite persistence belongs when you build the project yourself.
 
+## Install Into An Existing App
+
+Use CorianderPHP v0.2.3.3 or later. Install the framework's Composer and Node dependencies, then copy this package's app-owned folders into that project. In `public/routes.php`, include the route file:
+
+```php
+(require PROJECT_ROOT . '/src/Routes/forum-demo.php')($router);
+```
+
+Routing is explicit: copying controllers or views does not register URLs. Keep the framework's session bootstrap, CSRF middleware, and request-aware response emitter in `public/index.php`. Build the copied frontend sources with `php coriander nodejs run build-prod`, then open `/forum-demo`.
+
+The JSON forum API shares the demo login session. POST requests need a valid `X-CSRF-Token` header from `Csrf::token()` or the page's hidden CSRF input. The controller explicitly resumes the session and validates that token; API URLs do not get these checks automatically.
+
+This reference package retains read-only demo writes. Follow the included data-model and write-service chapters to build the real SQLite version; do not assume this download stores submitted topics.
+
 ## Included Areas
 
 - `src/Routes/forum-demo.php`
