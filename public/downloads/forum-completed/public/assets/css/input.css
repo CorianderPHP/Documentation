@@ -1,0 +1,232 @@
+@import "../../../nodejs/node_modules/tailwindcss";
+@config "../../../nodejs/tailwind.config.js";
+
+@font-face {
+    font-family: "Poppins";
+    src:
+        url("../fonts/Poppins.woff2") format("woff2"),
+        url("../fonts/Poppins.ttf") format("ttf");
+}
+
+@font-face {
+    font-family: "ConcertOne";
+    src:
+        url("../fonts/ConcertOne.woff2") format("woff2"),
+        url("../fonts/ConcertOne.ttf") format("ttf");
+}
+
+@layer components {
+    .forum-demo-theme {
+        color: #2d2414;
+        background: #fffaf0;
+        border-inline: 1px solid rgba(161, 95, 0, 0.08);
+    }
+
+    .forum-demo-theme [class~="text-dark-green"] {
+        color: #7a4a00 !important;
+    }
+
+    .forum-demo-theme [class~="bg-dark-green"] {
+        background-color: #9a5b00 !important;
+    }
+
+    .forum-demo-theme [class~="bg-dark-green/5"] {
+        background-color: rgba(154, 91, 0, 0.05) !important;
+    }
+
+    .forum-demo-theme [class~="bg-dark-green/10"] {
+        background-color: rgba(154, 91, 0, 0.09) !important;
+    }
+
+    .forum-demo-theme [class*="border-dark-green"] {
+        border-color: rgba(154, 91, 0, 0.2) !important;
+    }
+
+    .forum-demo-theme [class*="divide-dark-green"] > :not(:last-child) {
+        border-color: rgba(154, 91, 0, 0.14) !important;
+    }
+
+    .forum-demo-theme [class*="focus:border-dark-green"]:focus {
+        border-color: #9a5b00 !important;
+    }
+
+    .dark .forum-demo-theme {
+        color: #fff4ce;
+        background: #201909;
+        border-inline-color: rgba(255, 211, 106, 0.1);
+    }
+
+    .dark .forum-demo-theme [class~="dark:text-mint"],
+    .dark .forum-demo-theme [class~="text-dark-green"] {
+        color: #f2c866 !important;
+    }
+
+    .dark .forum-demo-theme [class~="dark:bg-mint"],
+    .dark .forum-demo-theme [class~="bg-dark-green"] {
+        background-color: #f2c866 !important;
+        color: #241700 !important;
+    }
+
+    .dark .forum-demo-theme [class~="dark:bg-mint/10"],
+    .dark .forum-demo-theme [class~="bg-dark-green/10"] {
+        background-color: rgba(242, 200, 102, 0.12) !important;
+        color: #f2c866 !important;
+    }
+
+    .dark .forum-demo-theme [class*="border-mint"],
+    .dark .forum-demo-theme [class*="border-dark-green"] {
+        border-color: rgba(242, 200, 102, 0.24) !important;
+    }
+
+    html,
+    .scrollbar {
+        scrollbar-width: auto;
+        scrollbar-color: rgba(15, 107, 79, 0.48) rgba(15, 107, 79, 0.08);
+    }
+
+    html::-webkit-scrollbar,
+    .scrollbar::-webkit-scrollbar {
+        width: 0.85rem;
+    }
+
+    .y-slider {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(15, 107, 79, 0.48) rgba(15, 107, 79, 0.08);
+    }
+
+    .y-slider::-webkit-scrollbar {
+        width: 0.55rem;
+    }
+
+    html::-webkit-scrollbar-track,
+    .scrollbar::-webkit-scrollbar-track,
+    .y-slider::-webkit-scrollbar-track {
+        background: rgba(15, 107, 79, 0.08);
+        border-radius: 999px;
+    }
+
+    html::-webkit-scrollbar-thumb,
+    .scrollbar::-webkit-scrollbar-thumb,
+    .y-slider::-webkit-scrollbar-thumb {
+        background: rgba(15, 107, 79, 0.48);
+        border-radius: 999px;
+    }
+
+    html::-webkit-scrollbar-thumb:hover,
+    .scrollbar::-webkit-scrollbar-thumb:hover,
+    .y-slider::-webkit-scrollbar-thumb:hover {
+        background: rgba(15, 107, 79, 0.68);
+    }
+
+    .dark,
+    .dark .scrollbar {
+        scrollbar-color: rgba(143, 227, 180, 0.56) rgba(143, 227, 180, 0.1);
+    }
+
+    .dark .y-slider {
+        scrollbar-color: rgba(143, 227, 180, 0.56) rgba(143, 227, 180, 0.1);
+    }
+
+    .dark::-webkit-scrollbar-track,
+    .dark .scrollbar::-webkit-scrollbar-track,
+    .dark .y-slider::-webkit-scrollbar-track {
+        background: rgba(143, 227, 180, 0.1);
+    }
+
+    .dark::-webkit-scrollbar-thumb,
+    .dark .scrollbar::-webkit-scrollbar-thumb,
+    .dark .y-slider::-webkit-scrollbar-thumb {
+        background: rgba(143, 227, 180, 0.56);
+    }
+
+    .dark::-webkit-scrollbar-thumb:hover,
+    .dark .scrollbar::-webkit-scrollbar-thumb:hover,
+    .dark .y-slider::-webkit-scrollbar-thumb:hover {
+        background: rgba(143, 227, 180, 0.76);
+    }
+
+    .workflow {
+        margin-top: 1.25rem;
+        display: grid;
+        gap: 0;
+    }
+
+    .workflow-step {
+        position: relative;
+        display: grid;
+        grid-template-columns: 2.25rem minmax(0, 1fr);
+        gap: 0.875rem;
+        padding-block: 0;
+    }
+
+    .workflow-step::before {
+        content: "";
+        position: absolute;
+        left: 1.075rem;
+        top: 2.35rem;
+        bottom: 0;
+        width: 2px;
+        border-radius: 999px;
+        background: rgba(15, 107, 79, 0.18);
+    }
+
+    .workflow-step:not(:last-child) .workflow-content {
+        border-bottom: 1px solid rgba(15, 107, 79, 0.12);
+    }
+
+    .workflow-marker {
+        z-index: 1;
+        display: grid;
+        width: 2.25rem;
+        height: 2.25rem;
+        place-items: center;
+        border: 1px solid rgba(15, 107, 79, 0.24);
+        border-radius: 999px;
+        background: #f6faf7;
+        color: #0f6b4f;
+        font-size: 0.875rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-top: 0.35rem;
+    }
+
+    .workflow-content {
+        min-width: 0;
+        padding: 0.75rem 0 0.9rem;
+    }
+
+    .workflow-title {
+        font-weight: 700;
+        color: #0f6b4f;
+    }
+
+    .workflow-description {
+        margin-top: 0.25rem;
+        color: rgba(17, 24, 39, 0.72);
+        font-size: 0.925rem;
+        line-height: 1.65;
+    }
+
+    .dark .workflow-step::before {
+        background: rgba(143, 227, 180, 0.24);
+    }
+
+    .dark .workflow-step:not(:last-child) .workflow-content {
+        border-bottom-color: rgba(143, 227, 180, 0.16);
+    }
+
+    .dark .workflow-marker {
+        border-color: rgba(143, 227, 180, 0.34);
+        background: #111827;
+        color: #8fe3b4;
+    }
+
+    .dark .workflow-title {
+        color: #8fe3b4;
+    }
+
+    .dark .workflow-description {
+        color: rgba(255, 255, 255, 0.72);
+    }
+
+}

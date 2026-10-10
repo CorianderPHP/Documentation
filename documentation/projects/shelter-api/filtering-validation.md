@@ -1,67 +1,33 @@
 # Filtering And Validation
 
-Filtering belongs close to the repository. Validation belongs before writes reach the repository. Keep both reusable so the controllers stay small.
-
-You are here in the flow:
+The service coordinates allowed operations; the validator checks input before the repository writes. These are the exact implementations used in the completed SQLite API.
 
 ```workflow
-Controller|Sends query parameters or JSON body data to `AnimalService`.
-AnimalService|Chooses validation for writes or filtering for reads.
-AnimalValidator|Validates create and update input before writes reach SQL.
-AnimalRepository|Builds allowed filtered read queries with bound parameters.
+Action|Passes query parameters or parsed body into AnimalService.
+Service|Chooses a read/write workflow and checks related records.
+Validator|Checks create fields or the provided fields of a partial update.
+Repository|Runs parameterized SQL and returns stored records.
+Action|Formats data or catches a domain exception.
 ```
 
-## Supported filters
+## Supported Filters
 
-The list endpoint accepts these query parameters:
+Use species, status, shelter_id, min_age_months, max_age_months, or search in the collection query. The repository restricts SQL fragments to known filters and binds values; never insert visitor-provided column names into SQL.
 
-- `species`: one of `cat`, `dog`, `bunny`, `bird`.
-- `status`: one of `available`, `reserved`, `adopted`.
-- `shelter_id`: numeric shelter identifier.
-- `min_age_months`: minimum age.
-- `max_age_months`: maximum age.
-- `search`: case-insensitive text search on name and description.
+## Animal Validator
 
-## Repository method
-
-The repository can build a parameterized query from allowed filters:
+Create `src/Modules/ShelterApi/AnimalValidator.php` with the following contents:
 
 ```php
-public function list(array $filters): array
-{
-    $sql = 'SELECT animals.*, species.slug AS species, shelters.name AS shelter_name
-        FROM animals
-        JOIN species ON species.id = animals.species_id
-        JOIN shelters ON shelters.id = animals.shelter_id
-        WHERE animals.archived_at IS NULL';
-    $params = [];
+<?php
+declare(strict_types=1);
 
-    if (($filters['species'] ?? '') !== '') {
-        $sql .= ' AND species.slug = :species';
-        $params['species'] = (string) $filters['species'];
-    }
+namespace App\Modules\ShelterApi;
 
-    if (($filters['status'] ?? '') !== '') {
-        $sql .= ' AND animals.status = :status';
-        $params['status'] = (string) $filters['status'];
-    }
-
-    if (($filters['search'] ?? '') !== '') {
-        $sql .= ' AND (LOWER(animals.name) LIKE :search OR LOWER(animals.description) LIKE :search)';
-        $params['search'] = '%' . strtolower((string) $filters['search']) . '%';
-    }
-
-    $sql .= ' ORDER BY animals.created_at DESC';
-
-    return $this->database->fetchAll($sql, $params);
-}
-```
-
-## Validation object
-
-Create one validator with explicit rules:
-
-```php
+/*
+ * Validation belongs before repository writes. Keeping accepted species,
+ * statuses, and field messages here lets store() and update() share rules.
+ */
 final class AnimalValidator
 {
     private const SPECIES = ['cat', 'dog', 'bunny', 'bird'];
@@ -69,52 +35,121 @@ final class AnimalValidator
 
     public function validateCreate(array $input): array
     {
+        $data = [
+            'name' => trim((string) ($input['name'] ?? '')),
+            'species' => (string) ($input['species'] ?? ''),
+            'shelter_id' => (int) ($input['shelter_id'] ?? 0),
+            'age_months' => (int) ($input['age_months'] ?? 0),
+            'status' => (string) ($input['status'] ?? 'available'),
+            'description' => trim((string) ($input['description'] ?? '')),
+        ];
         $errors = [];
 
-        if (trim((string) ($input['name'] ?? '')) === '') {
+        if ($data['name'] === '') {
             $errors['name'][] = 'Name is required.';
         }
 
-        if (!in_array((string) ($input['species'] ?? ''), self::SPECIES, true)) {
+        if (!in_array($data['species'], self::SPECIES, true)) {
             $errors['species'][] = 'Species must be cat, dog, bunny, or bird.';
         }
 
-        if (!in_array((string) ($input['status'] ?? 'available'), self::STATUSES, true)) {
-            $errors['status'][] = 'Status must be available, reserved, or adopted.';
+        if ($data['shelter_id'] < 1) {
+            $errors['shelter_id'][] = 'Shelter is required.';
         }
 
-        if ((int) ($input['age_months'] ?? 0) < 0) {
+        if ($data['age_months'] < 0) {
             $errors['age_months'][] = 'Age cannot be negative.';
         }
 
-        return $errors;
+        if (!in_array($data['status'], self::STATUSES, true)) {
+            $errors['status'][] = 'Status must be available, reserved, or adopted.';
+        }
+
+        if ($errors !== []) {
+            throw new ValidationException($errors);
+        }
+
+        return $data;
     }
 }
 ```
 
-## Validation response
+## Animal Service
 
-Invalid input should return HTTP `422`:
+Create `src/Modules/ShelterApi/AnimalService.php` with the following contents:
 
-```json
+```php
+<?php
+declare(strict_types=1);
+
+namespace App\Modules\ShelterApi;
+
+/*
+ * Application workflow layer:
+ * controllers call this service. It validates writes, handles not-found rules,
+ * and delegates persistence to AnimalRepository.
+ */
+final class AnimalService
 {
-  "error": {
-    "code": "validation_failed",
-    "message": "The request body is invalid.",
-    "fields": {
-      "species": ["Species must be cat, dog, bunny, or bird."]
+    public function __construct(
+        private readonly AnimalRepository $animals = new AnimalRepository(),
+        private readonly AnimalValidator $validator = new AnimalValidator(),
+    ) {
     }
-  }
+
+    public function list(array $filters): array
+    {
+        return $this->animals->list($filters);
+    }
+
+    public function find(int $id): array
+    {
+        $animal = $this->animals->find($id);
+        if ($animal === null) {
+            throw new NotFoundException('Animal not found.');
+        }
+
+        return $animal;
+    }
+
+    public function create(array $input): array
+    {
+        $data = $this->validator->validateCreate($input);
+        $id = $this->animals->create($data);
+        return $this->find($id);
+    }
+
+    public function update(int $id, array $input): array
+    {
+        $current = $this->find($id);
+        $data = $this->validator->validateCreate(array_merge($current, $input));
+        $this->animals->update($id, $data);
+        return $this->find($id);
+    }
+
+    public function archive(int $id): void
+    {
+        $this->find($id);
+        $this->animals->archive($id);
+    }
+
+    public function species(): array
+    {
+        return $this->animals->species();
+    }
+
+    public function shelters(): array
+    {
+        return $this->animals->shelters();
+    }
 }
 ```
 
-## DRY rule
+## PATCH And Validation Errors
 
-Use the same validator from `store()` and `update()`. For update routes, allow partial input but validate any field that is present.
+POST requires the create fields. PATCH is partial: this service merges submitted fields with the current record, then validates the complete result. Omitted values are preserved. An empty PATCH currently leaves values unchanged; add an explicit rejection if your API contract requires a change.
 
-## Checkpoint
-
-Send an invalid create request:
+The validator checks accepted species/status values and required input. Actions turn ValidationException into 422 using ApiJson::error(). Missing or archived records produce NotFoundException and 404. Before deploying, also validate referenced shelter/species rows, field types/lengths, and writable-field allowlists rather than relying only on database constraints.
 
 ```http
 POST /api/shelter/animals
@@ -123,4 +158,8 @@ Content-Type: application/json
 {"species":"dragon"}
 ```
 
-You should receive `422` with an `error.fields.species` entry. If validation succeeds unexpectedly, check that the controller calls the service and that the service calls `AnimalValidator`.
+Expect 422 and field errors. Then create a valid animal, PATCH only its status, and verify the name/species are unchanged. DELETE archives the record; subsequent GET should return 404 while the database row remains.
+
+Use the same validator/service from every endpoint. Do not duplicate field rules in routes and actions.
+
+Continue with [Errors And Versioning](/guided-projects/shelter-api/errors).

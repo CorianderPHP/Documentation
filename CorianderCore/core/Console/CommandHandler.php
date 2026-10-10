@@ -1,24 +1,14 @@
 <?php
 declare(strict_types=1);
 
-/*
- * CommandHandler orchestrates CLI command execution by mapping command names
- * to handler classes and delegating argument processing to each command.
- */
-
 namespace CorianderCore\Core\Console;
 
 /**
- * Routes console commands to their corresponding handler classes and manages execution.
- *
- * Maintains the registry of available commands, dispatches subcommands, and
- * provides help output when requested or when an unknown command is encountered.
+ * Dispatches CLI commands, preserves exit codes and provides focused help.
  */
 class CommandHandler
 {
     /**
-     * Available commands and their corresponding handler classes.
-     *
      * @var array<string, class-string>
      */
     protected array $commands = [
@@ -27,6 +17,7 @@ class CommandHandler
         'make' => \CorianderCore\Core\Console\Commands\Make::class,
         'benchmark' => \CorianderCore\Core\Console\Commands\Benchmark::class,
         'cache' => \CorianderCore\Core\Console\Commands\Cache::class,
+        'routes' => \CorianderCore\Core\Console\Commands\Routes::class,
         'version' => \CorianderCore\Core\Console\Commands\Version::class,
         'update' => \CorianderCore\Core\Console\Commands\Update::class,
         'migrate' => \CorianderCore\Core\Console\Commands\Migrate::class,
@@ -52,20 +43,17 @@ class CommandHandler
             'examples' => ['php coriander version'],
         ],
         'make' => [
-            'description' => 'Generate project files such as views, controllers, routes, databases, sitemaps, and migrations.',
+            'description' => 'Generate project files such as views, routes, databases, sitemaps, and migrations.',
             'usage' => [
                 'php coriander make:view <name>',
-                'php coriander make:controller <name> [api]',
-                'php coriander make:route <name>',
+                'php coriander make:route <path>[.<method>]',
                 'php coriander make:migration <name>',
                 'php coriander make:database',
                 'php coriander make:sitemap',
             ],
             'examples' => [
                 'php coriander make:view Home',
-                'php coriander make:controller Dashboard',
-                'php coriander make:controller Users api',
-                'php coriander make:route admin/users',
+                'php coriander make:route "users/[id].post"',
                 'php coriander make:migration CreateUsersTable',
             ],
         ],
@@ -95,12 +83,16 @@ class CommandHandler
             ],
         ],
         'cache' => [
-            'description' => 'Build or clear framework caches.',
+            'description' => 'Clear the automatically rebuilt route cache.',
             'usage' => [
-                'php coriander cache controllers',
                 'php coriander cache clear',
             ],
-            'examples' => ['php coriander cache controllers', 'php coriander cache clear'],
+            'examples' => ['php coriander cache clear'],
+        ],
+        'routes' => [
+            'description' => 'List discovered methods, paths, handlers and inherited middleware files.',
+            'usage' => ['php coriander routes:list'],
+            'examples' => ['php coriander routes:list'],
         ],
         'benchmark' => [
             'description' => 'Run framework benchmark helpers.',
@@ -119,12 +111,8 @@ class CommandHandler
     ];
 
     /**
-     * Handles the execution of the given command.
-     *
-     * @param string $command The command name to execute
-     * @param array $args The arguments passed to the command
+     * @param list<string> $args
      * @throws \Exception If the command does not exist or the command class lacks an 'execute' method.
-     * @return int Process exit code.
      */
     public function handle(string $command, array $args): int
     {
@@ -187,11 +175,6 @@ class CommandHandler
         return $this->normalizeExitCode($result);
     }
 
-    /**
-     * Lists all available commands, including 'help'.
-     *
-     * @return void
-     */
     protected function listCommands(): void
     {
         ConsoleOutput::print('CorianderPHP CLI');
@@ -229,7 +212,7 @@ class CommandHandler
 
         ConsoleOutput::print('');
         ConsoleOutput::print('Common examples:');
-        ConsoleOutput::print('  php coriander make:controller Dashboard');
+        ConsoleOutput::print('  php coriander make:route "users/[id].get"');
         ConsoleOutput::print('  php coriander make:route admin/users');
         ConsoleOutput::print('  php coriander migrate:status');
         ConsoleOutput::print('  php coriander nodejs run build-prod');

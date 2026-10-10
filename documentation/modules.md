@@ -18,7 +18,7 @@ Then create `src/Modules/ImageDataExtractor/Extractor.php`:
 <?php
 declare(strict_types=1);
 
-namespace Modules\ImageDataExtractor;
+namespace App\Modules\ImageDataExtractor;
 
 final class Extractor
 {
@@ -29,15 +29,15 @@ final class Extractor
 }
 ```
 
-Use it from controllers, route files, or middleware:
+Use it from request handlers, route files, or middleware:
 
 ```php
-use Modules\ImageDataExtractor\Extractor;
+use App\Modules\ImageDataExtractor\Extractor;
 
 $metadata = (new Extractor())->extract($path);
 ```
 
-The framework autoloader maps `Modules\` to `src/Modules/`.
+The starter's Composer mapping `"App\\": "src/"` makes this class autoloadable. Run `composer dump-autoload` after changing mappings in `composer.json`. Custom modules are ordinary PHP classes, not automatically exposed HTTP endpoints.
 
 ## Framework Modules
 

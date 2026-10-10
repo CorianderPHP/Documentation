@@ -5,10 +5,10 @@ The local guided project writes to SQLite. The official documentation site is di
 You are here in the flow:
 
 ```workflow
-Controller action|Receives the same form payload used by a local project.
+Handler action|Receives the same form payload used by a local project.
 PublicDemoWriteGuard|Checks whether the hosted documentation demo is read-only.
 Demo mode|Returns a validated fake success or permission error without saving visitor text.
-Local mode|Returns `null`, so the controller continues into `ForumWriteService`.
+Local mode|Returns `null`, so the handler continues into `ForumWriteService`.
 ```
 
 ## Goal
@@ -37,9 +37,9 @@ Local learners should leave this disabled so topic and reply creation writes to 
 <?php
 declare(strict_types=1);
 
-namespace Modules\ForumDemo\Writes;
+namespace App\Modules\ForumDemo\Writes;
 
-use Modules\ForumDemo\Permissions\DemoPermissionService;
+use App\Modules\ForumDemo\Permissions\DemoPermissionService;
 
 final class PublicDemoWriteGuard
 {
@@ -102,6 +102,8 @@ private function isReadOnlyDemo(): bool
 
 private function hasEnoughInput(array $payload): bool
 {
+    // Infrastructure fields must not turn an empty form into a fake success.
+    unset($payload['csrf_token'], $payload['return_to']);
     foreach ($payload as $value) {
         if (is_string($value) && trim($value) !== '') {
             return true;
@@ -127,7 +129,7 @@ public function storeTopic(ServerRequestInterface $request): Response
 }
 ```
 
-The controller remains explicit: public demo protection is checked first, then real persistence handles normal local behavior. The response still redirects to a GET page so refresh and back navigation do not resubmit the form.
+The handler remains explicit: public demo protection is checked first, then real persistence handles normal local behavior. The response still redirects to a GET page so refresh and back navigation do not resubmit the form.
 
 ## Checkpoint
 

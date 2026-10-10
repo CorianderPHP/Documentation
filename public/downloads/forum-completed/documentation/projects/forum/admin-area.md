@@ -1,28 +1,20 @@
 # Admin Middleware
 
-The admin area demonstrates route-group middleware and role-based access.
+Protect every method under /forum-demo/admin with inherited directory middleware. Hiding a link is not authorization.
 
-## Goal
+## Create The Gate
 
-Protect `/forum-demo/admin` and its child routes with one middleware declaration.
-
-## File Created
-
-```structure
-src/Middleware/ForumDemoAdminMiddleware.php
-```
-
-## Step: Create The Middleware
+Create `src/Middleware/ForumDemoAdminMiddleware.php`:
 
 ```php
 <?php
 declare(strict_types=1);
 
-namespace Middleware;
+namespace App\Middleware;
 
-use Modules\ForumDemo\Auth\DemoAuth;
-use Modules\ForumDemo\Permissions\DemoPermissionService;
-use Nyholm\Psr7\Response;
+use App\Modules\ForumDemo\Auth\DemoAuth;
+use App\Modules\ForumDemo\Permissions\DemoPermissionService;
+use CorianderCore\Core\Http\Responses;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -30,105 +22,63 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 final class ForumDemoAdminMiddleware implements MiddlewareInterface
 {
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
-    {
+    public function process(
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler
+    ): ResponseInterface {
         $user = (new DemoAuth())->currentUser();
         if (!(new DemoPermissionService())->can($user, 'admin.view')) {
-            return new Response(302, ['Location' => '/forum-demo/login'], '');
+            return Responses::redirect('/forum-demo/login', 302);
         }
-
         return $handler->handle($request);
     }
 }
 ```
 
-The middleware asks for `admin.view`. It does not care whether the rule currently means admin-only or something more complex later.
+DemoAuth starts the session before reading login state. The permission service owns the role rule; middleware only asks for the ability.
 
-## Step: Attach Middleware To The Route Group
+## Attach It Once
 
-```php
-$router->group('forum-demo/admin', [new ForumDemoAdminMiddleware()], static function (Router $admin): void {
-    $admin->get('', static fn () => (new ForumDemoController())->admin());
-    $admin->get('users', static fn () => (new ForumDemoController())->adminUsers());
-    $admin->post('users', static fn (ServerRequestInterface $request) =>
-        (new ForumDemoController())->updateUserRole($request)
-    );
-});
-```
-
-All routes inside the group inherit the same protection.
-
-## Step: Keep Admin Controllers Simple
+Create `src/Routes/forum-demo/admin/_middleware.php`:
 
 ```php
-public function adminUsers(): void
-{
-    $this->render('forum-demo/admin-users', [
-        'users' => $this->users->all(),
-        'flash' => null,
-    ]);
-}
+<?php
+use App\Middleware\ForumDemoAdminMiddleware;
+
+return [new ForumDemoAdminMiddleware()];
 ```
 
-The controller action does not repeat the admin check because the route group already handled it.
+This protects admin/index.get.php, users.get.php, users.post.php, topics.post.php, and replies.post.php. Root CSRF, request limits, and security headers still apply. A child list cannot remove them.
 
-## Step: Add Moderation Actions
-
-Admin routes should cover more than user roles. Add topic and reply moderation actions so permissions are visible in the live demo.
+Create `src/Routes/forum-demo/admin/index.get.php`:
 
 ```php
-public function moderateTopic(ServerRequestInterface $request): Response
-{
-    $payload = (array) $request->getParsedBody();
-    $user = $this->auth->currentUser();
+<?php
+use App\Actions\ForumActions;
+use Psr\Http\Message\ServerRequestInterface;
 
-    $demoResult = $this->demoWriteGuard->protect($user, 'topic.lock', 'moderate topic', $payload);
-    $result = $demoResult ?? $this->writeService->moderateTopic($user, $payload);
-
-    if (($payload['return_to'] ?? '') === 'topic') {
-        return $this->flashAndRedirect($result, '/forum-demo/topics/' . (int) ($payload['topic_id'] ?? 0));
-    }
-
-    return $this->flashAndRedirect($result, '/forum-demo/admin');
-}
+return static fn (ServerRequestInterface $request) =>
+    (new ForumActions())->admin();
 ```
 
-Use the same shape for reply moderation with the `reply.moderate` ability. The important part is that admin actions are server-side routes, not just hidden buttons in a view.
+For the other files, use the same callable pattern with the methods in [Forum Routes](/guided-projects/forum/routes). Pass the request into writes.
 
-The action route should not force one destination. A lock button shown on the topic page should keep the admin on that topic; the same lock action shown in the moderation queue should keep the admin on the queue. Pass `return_to=topic` or `return_to=admin` from the form and redirect to the matching GET page with the write result in a one-time flash message.
+## Individual Abilities Still Matter
 
-Add a small redirect helper and consume the flash in the GET actions. This follows Post/Redirect/Get and prevents the browser from asking users to resubmit moderation forms when they refresh or go back.
+Directory middleware gates the admin area. The write service separately checks `topic.lock`, `reply.moderate`, and `user.manage`, because the same service is also used from API handlers.
 
-```php
-private function flashAndRedirect(array $flash, string $location): Response
-{
-    $_SESSION['forum_demo_flash'] = $flash;
-    return new Response(302, ['Location' => $location], '');
-}
+The [handler chapter](/guided-projects/forum/handlers) defines moderation/role actions and the shared flash helpers. Do not paste a second copy of those methods into the class.
 
-private function consumeFlash(): ?array
-{
-    $flash = $_SESSION['forum_demo_flash'] ?? null;
-    unset($_SESSION['forum_demo_flash']);
-
-    return is_array($flash) ? $flash : null;
-}
-```
+Forms send a known context such as `return_to=topic` or `return_to=admin`. The action chooses a fixed GET destination and returns a 303 redirect after the result is stored in the session. Do not redirect directly to an arbitrary submitted URL.
 
 ## Checkpoint
 
-Open [/forum-demo/admin](/forum-demo/admin) as guest, member, and admin.
+- Guest or member GET /forum-demo/admin: redirect to login.
+- Admin GET: render the moderation page.
+- Member with a valid CSRF token POST to an admin endpoint: still denied.
+- Admin without a token: CSRF denial before any write.
+- Admin moderation from a topic page: redirect back to that topic with one flash.
 
-- Guest should go to login.
-- Member should not enter the admin area.
-- Admin should see admin content.
-
-## Common Mistakes
-
-- Protecting links but not routes.
-- Repeating admin checks inside every admin action.
-- Returning a public 200 page for forbidden admin requests.
-
-## Next
+The hosted demo validates but never saves visitor moderation. Your local write service persists it.
 
 Continue with [Write Service](/guided-projects/forum/write-service).

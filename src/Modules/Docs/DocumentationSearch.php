@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Modules\Docs;
+namespace App\Modules\Docs;
 
 final class DocumentationSearch
 {

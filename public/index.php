@@ -1,98 +1,37 @@
 <?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/../config/config.php';
+require_once PROJECT_ROOT . '/CorianderCore/autoload.php';
 
 use CorianderCore\Core\Bootstrap\SessionBootstrap;
 use CorianderCore\Core\Bootstrap\TimezoneBootstrap;
-use CorianderCore\Core\Container\Container;
-use CorianderCore\Core\Database\DatabaseHandler;
+use CorianderCore\Core\Http\ErrorResponse;
 use CorianderCore\Core\Http\RequestFactory;
 use CorianderCore\Core\Http\ResponseEmitter;
 use CorianderCore\Core\Http\TrustedProxy;
-use CorianderCore\Core\Logging\Logger;
 use CorianderCore\Core\Router\Router;
-use CorianderCore\Core\Security\ApiRequestLimitsMiddleware;
-use CorianderCore\Core\Security\CsrfMiddleware;
-use CorianderCore\Core\Security\SecurityHeadersMiddleware;
-use Nyholm\Psr7\Response;
+use CorianderCore\Core\Router\SafePath;
 
-
-function corianderCreateNotFoundHandler(): callable
-{
-    return static function (): Response {
-        $notFoundView = 'notfound';
-
-        ob_start();
-        $__corianderRequestedView = $notFoundView;
-        require PROJECT_ROOT . '/public/public_views/header.php';
-        require PROJECT_ROOT . '/public/public_views/' . $notFoundView . '/index.php';
-        require PROJECT_ROOT . '/public/public_views/footer.php';
-
-        return new Response(404, [], (string) ob_get_clean());
-    };
+// Only public assets/download archives bypass the development router.
+if (PHP_SAPI === 'cli-server') {
+    $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+    if (is_string($path) && preg_match('~^/(?:public/)?(assets/[^?]+\.(?:css|js|png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf)|downloads/[^/]+\.zip)$~i', $path, $match)) {
+        try {
+            SafePath::resolveFile(__DIR__, $match[1]);
+            return false;
+        } catch (RuntimeException) {
+        }
+    }
 }
-require_once __DIR__ . '/../config/config.php';
-
-if (file_exists(PROJECT_ROOT . '/CorianderCore/autoload.php')) {
-    require_once PROJECT_ROOT . '/CorianderCore/autoload.php';
-}
-
-if (file_exists(PROJECT_ROOT . '/vendor/autoload.php')) {
-    require_once PROJECT_ROOT . '/vendor/autoload.php';
-}
-
-$secure = TrustedProxy::isSecureRequest($_SERVER);
-SessionBootstrap::configure($secure);
-SessionBootstrap::startForRequest($_SERVER);
-
-$appTimezone = getenv('APP_TIMEZONE');
-TimezoneBootstrap::applyFromEnvironment(is_string($appTimezone) ? $appTimezone : null);
 
 try {
-    $container = new Container();
-    $container->set(Logger::class, fn() => new Logger());
-    $container->set(DatabaseHandler::class, fn(Container $c) => new DatabaseHandler($c->get(Logger::class)));
-    $container->set(Router::class, fn() => new Router());
-
-    $router = $container->get(Router::class);
-    $router->addMiddleware(new SecurityHeadersMiddleware([
-        'Content-Security-Policy' => "default-src 'self'; script-src 'self' https://analytics.corianderphp.com; connect-src 'self' https://analytics.corianderphp.com; base-uri 'self'; frame-ancestors 'none'; object-src 'none'",
-        'X-Content-Type-Options' => 'nosniff',
-        'X-Frame-Options' => 'DENY',
-        'Referrer-Policy' => 'strict-origin-when-cross-origin',
-        'Permissions-Policy' => 'geolocation=(), microphone=(), camera=()',
-        'Cross-Origin-Opener-Policy' => 'same-origin',
-        'Cross-Origin-Resource-Policy' => 'same-origin',
-    ]));
-    $router->addMiddleware(new ApiRequestLimitsMiddleware(
-        defined('API_MAX_BODY_BYTES') ? (int) API_MAX_BODY_BYTES : null,
-        defined('API_TIMEOUT_SECONDS') ? (int) API_TIMEOUT_SECONDS : null
-    ));
-    $router->addMiddleware(new CsrfMiddleware());
-
-    $notFound = corianderCreateNotFoundHandler();
-    $router->setNotFound($notFound);
-
-    $routesFile = __DIR__ . '/routes.php';
-    if (file_exists($routesFile)) {
-        require $routesFile;
-    }
-
+    SessionBootstrap::configure(TrustedProxy::isSecureRequest($_SERVER));
+    $timezone = getenv('APP_TIMEZONE');
+    TimezoneBootstrap::applyFromEnvironment(is_string($timezone) ? $timezone : null);
     $request = RequestFactory::fromGlobals();
-    $response = $router->dispatch($request);
-    ResponseEmitter::emit($response, $request->getMethod());
+    $response = (new Router())->handle($request);
 } catch (Throwable $exception) {
-    try {
-        (new Logger())->error('Unhandled application exception.', ['exception' => $exception]);
-    } catch (Throwable) {
-        // Avoid cascading failures while handling an already-failed request.
-    }
-
-    if (!headers_sent()) {
-        http_response_code(500);
-        header('Content-Type: text/plain; charset=utf-8');
-    }
-
-    if (strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'HEAD') {
-        echo 'Internal Server Error';
-    }
+    $response = ErrorResponse::fromException($exception);
 }
-
+ResponseEmitter::emit($response, $_SERVER['REQUEST_METHOD'] ?? 'GET');

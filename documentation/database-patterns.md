@@ -10,7 +10,7 @@ Use `SQLManager` helpers when the query is simple.
 
 Use `sqlScript()` when the query needs joins, grouping, ordering, limits, ranges, write statements, or SQL that should remain readable.
 
-Use repositories when the same data access appears in more than one controller.
+Use repositories when the same data access appears in more than one handler.
 
 ## Migrations Own Schema
 
@@ -21,7 +21,7 @@ php coriander make:migration create_posts_table
 php coriander migrate
 ```
 
-Do not create tables from controllers. Controllers handle requests. Migrations describe database structure.
+Do not create tables from request handlers. Request Handlers handle requests. Migrations describe database structure.
 
 ## Simple Helpers
 
@@ -104,7 +104,7 @@ public function find(int $id): ?array
 Keep SQL in a repository:
 
 ```php
-namespace Modules\Blog;
+namespace App\Modules\Blog;
 
 use CorianderCore\Core\Database\SQLManager;
 
@@ -138,7 +138,7 @@ final class BlogRepository
 }
 ```
 
-Controllers should call `BlogRepository`, not build SQL.
+Request Handlers should call `BlogRepository`, not build SQL.
 
 ## SQLite And MySQL
 
@@ -167,7 +167,7 @@ If a framework helper does not express the workflow clearly, use PDO through the
 ## Common Mistakes
 
 - Writing SQL directly in views.
-- Mixing validation, permissions, and SQL inside one controller method.
+- Mixing validation, permissions, and SQL inside one handler method.
 - Editing old migrations after they ran in shared environments.
 - Using raw condition strings when equality helper methods would work.
 - Returning mixed `sqlScript()` shapes directly to views.

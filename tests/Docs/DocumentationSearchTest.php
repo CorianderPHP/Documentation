@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Tests\Docs;
 
-use Modules\Docs\DocumentationRepository;
-use Modules\Docs\DocumentationSearch;
+use App\Modules\Docs\DocumentationRepository;
+use App\Modules\Docs\DocumentationSearch;
 use PHPUnit\Framework\TestCase;
 
 final class DocumentationSearchTest extends TestCase
@@ -63,7 +63,7 @@ final class DocumentationSearchTest extends TestCase
 
     public function testSearchFindsStaticViewDocumentation(): void
     {
-        $results = (new DocumentationSearch(new DocumentationRepository()))->search('static view metadata sitemap about', 'reference');
+        $results = (new DocumentationSearch(new DocumentationRepository()))->search('static view about template', 'reference');
 
         self::assertNotEmpty($results);
         self::assertSame('static-views', $results[0]['page']->slug);

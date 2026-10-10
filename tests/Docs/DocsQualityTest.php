@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Tests\Docs;
 
-use Modules\Docs\GuidedProjectRegistry;
+use App\Modules\Docs\GuidedProjectRegistry;
 use PHPUnit\Framework\TestCase;
 
 final class DocsQualityTest extends TestCase
@@ -91,12 +91,12 @@ final class DocsQualityTest extends TestCase
 
     public function testAnalyticsHostIsAllowedByContentSecurityPolicy(): void
     {
-        $header = (string) file_get_contents(PROJECT_ROOT . '/public/public_views/header.php');
-        $frontController = (string) file_get_contents(PROJECT_ROOT . '/public/index.php');
+        $header = (string) file_get_contents(PROJECT_ROOT . '/src/Views/_header.php');
+        $policy = (string) file_get_contents(PROJECT_ROOT . '/src/Routes/_middleware.php');
 
         self::assertStringContainsString('https://analytics.corianderphp.com/script.js', $header);
-        self::assertStringContainsString("script-src 'self' https://analytics.corianderphp.com", $frontController);
-        self::assertStringContainsString("connect-src 'self' https://analytics.corianderphp.com", $frontController);
+        self::assertStringContainsString("script-src 'self' https://analytics.corianderphp.com", $policy);
+        self::assertStringContainsString("connect-src 'self' https://analytics.corianderphp.com", $policy);
     }
 
     public function testCodeFenceLanguagesAreSupportedByHighlighter(): void
@@ -149,7 +149,7 @@ final class DocsQualityTest extends TestCase
     {
         $scanRoots = [
             PROJECT_ROOT . '/documentation',
-            PROJECT_ROOT . '/public/public_views',
+            PROJECT_ROOT . '/src/Views',
         ];
 
         foreach ($scanRoots as $root) {
@@ -203,12 +203,11 @@ final class DocsQualityTest extends TestCase
         self::assertStringContainsString('Static View Guide](/documentation/static-views)', $overview);
         self::assertStringContainsString('Dynamic View Guide](/documentation/dynamic-views)', $overview);
         self::assertStringContainsString('Assets And Images](/documentation/assets)', $overview);
-        self::assertStringContainsString('public/public_views/about/index.php', $static);
-        self::assertStringContainsString('$addViewInSitemap = true', $static);
-        self::assertStringContainsString('ViewRenderer', $dynamic);
-        self::assertStringContainsString("\$this->view->render('articles/show'", $dynamic);
-        self::assertStringContainsString('public/public_views/articles/show/index.php', $dynamic);
-        self::assertStringContainsString("\$router->get('/articles/{id}'", $dynamic);
+        self::assertStringContainsString('src/Views/about.php', $static);
+        self::assertStringContainsString('src/Routes/about.get.php', $static);
+        self::assertStringContainsString("Responses::view('articles/show'", $dynamic);
+        self::assertStringContainsString('src/Views/articles/show.php', $dynamic);
+        self::assertStringContainsString('src/Routes/articles/[id].get.php', $dynamic);
         self::assertStringContainsString('$request->getAttribute(\'id\')', $dynamic);
     }
 
@@ -220,26 +219,26 @@ final class DocsQualityTest extends TestCase
         $shelterRoutes = (string) file_get_contents(PROJECT_ROOT . '/documentation/projects/shelter-api/routes.md');
 
         self::assertStringContainsString('```workflow', $forumIndex);
-        self::assertStringContainsString('Route|Maps the URL to a controller action.', $forumIndex);
+        self::assertStringContainsString('Route|Maps the URL to a handler action.', $forumIndex);
         self::assertStringContainsString('You are here in the flow', $forumRoutes);
         self::assertStringContainsString('```workflow', $shelterIndex);
         self::assertStringContainsString('Repository|Runs SQL and returns storage data.', $shelterIndex);
-        self::assertStringContainsString('Route file|`src/Routes/api/shelter.php` matches the path and HTTP method.', $shelterRoutes);
+        self::assertStringContainsString('Method file|Discovery selects', $shelterRoutes);
     }
 
     public function testGuidedProjectDownloadSourcesContainLearnerOrientationComments(): void
     {
-        $forumController = (string) file_get_contents(PROJECT_ROOT . '/src/Controllers/ForumDemoController.php');
-        $forumView = (string) file_get_contents(PROJECT_ROOT . '/public/public_views/forum-demo/topic/index.php');
-        $shelterController = (string) file_get_contents(PROJECT_ROOT . '/resources/downloads/shelter-api-completed/src/ApiControllers/ShelterAnimalController.php');
+        $forumController = (string) file_get_contents(PROJECT_ROOT . '/src/Actions/ForumActions.php');
+        $forumView = (string) file_get_contents(PROJECT_ROOT . '/src/Views/forum-demo/topic.php');
+        $shelterController = (string) file_get_contents(PROJECT_ROOT . '/resources/downloads/shelter-api-completed/src/Actions/ShelterAnimalActions.php');
         $shelterRepository = (string) file_get_contents(PROJECT_ROOT . '/resources/downloads/shelter-api-completed/src/Modules/ShelterApi/AnimalRepository.php');
-        $downloadGenerator = (string) file_get_contents(PROJECT_ROOT . '/scripts/generate-downloads.php');
+        $downloadReadme = (string) file_get_contents(PROJECT_ROOT . '/resources/downloads/forum-completed/README.md');
 
         self::assertStringContainsString('routes call these public methods', $forumController);
-        self::assertStringContainsString('Rendered by ForumDemoController::showTopic()', $forumView);
+        self::assertStringContainsString('Rendered by ForumActions::showTopic()', $forumView);
         self::assertStringContainsString('Route entrypoint for /api/shelter/animals', $shelterController);
         self::assertStringContainsString('Persistence layer', $shelterRepository);
-        self::assertStringContainsString('Route|Maps URLs to controller actions.', $downloadGenerator);
+        self::assertStringContainsString('Method file|Maps the URL and HTTP method to an action.', $downloadReadme);
     }
 
     /**
@@ -248,6 +247,36 @@ final class DocsQualityTest extends TestCase
     private function markdownFiles(): array
     {
         return array_values(array_filter($this->files(PROJECT_ROOT . '/documentation'), static fn(string $file): bool => str_ends_with($file, '.md')));
+    }
+
+    public function testShelterCodeExamplesMatchRunnableDownloadSources(): void
+    {
+        $sections = [
+            'data-model' => ['database/migrations/20260711000000_create_shelter_api_tables.php', 'src/Modules/ShelterApi/AnimalRepository.php'],
+            'handlers' => ['src/Actions/ShelterAnimalActions.php', 'src/Actions/ShelterLookupActions.php', 'src/Modules/ShelterApi/ApiJson.php', 'src/Modules/ShelterApi/NotFoundException.php', 'src/Modules/ShelterApi/ValidationException.php'],
+            'filtering-validation' => ['src/Modules/ShelterApi/AnimalService.php', 'src/Modules/ShelterApi/AnimalValidator.php'],
+        ];
+        foreach ($sections as $chapter => $sources) {
+            $markdown = str_replace("\r\n", "\n", (string) file_get_contents(PROJECT_ROOT . '/documentation/projects/shelter-api/' . $chapter . '.md'));
+            foreach ($sources as $source) {
+                $code = trim(str_replace("\r\n", "\n", (string) file_get_contents(PROJECT_ROOT . '/resources/downloads/shelter-api-completed/' . $source)));
+                self::assertStringContainsString("```php\n" . $code . "\n```", $markdown, $chapter . ' differs from runnable ' . $source);
+            }
+        }
+    }
+
+    public function testPublishedCodeUsesCurrentFrameworkContracts(): void
+    {
+        foreach ($this->markdownFiles() as $file) {
+            preg_match_all('/^```(?:php|html|bash|shell)\s*\R([\s\S]*?)^```/m', (string) file_get_contents($file), $blocks);
+            foreach ($blocks[1] as $code) {
+                self::assertDoesNotMatchRegularExpression('/\$router->(?:get|post|patch|delete|group|dispatch|addMiddleware)\s*\(|\$this->view->render\s*\(|make:(?:controller|handler)\b|namespace (?:Controllers|ApiControllers);/', $code, 'Removed 0.2.x API in ' . $file);
+                preg_match_all('/\bCorianderCore\\\\(?:Core|Modules)\\\\[A-Za-z0-9_\\\\]+/', $code, $classes);
+                foreach (array_unique($classes[0]) as $class) {
+                    self::assertTrue(class_exists($class) || interface_exists($class) || trait_exists($class), 'Unknown framework class ' . $class . ' in ' . $file);
+                }
+            }
+        }
     }
 
     /**

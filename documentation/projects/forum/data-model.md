@@ -44,7 +44,7 @@ Read this as ownership and lookup flow:
 - Moderation events point at the affected topic or reply.
 - User roles are stored on users, but permission decisions still belong in `DemoPermissionService`.
 
-This keeps the schema normal enough to migrate to MySQL later without changing controller or view structure.
+This keeps the schema normal enough to migrate to MySQL later without changing handler or view structure.
 
 ## Step: Configure SQLite
 
@@ -162,16 +162,16 @@ Create enough content to render the first screens:
 ```sql
 INSERT INTO categories (name, description) VALUES
 ('Getting Started', 'First project questions.'),
-('Controllers and Routes', 'Request flow discussions.');
+('Request Handlers and Routes', 'Request flow discussions.');
 
 INSERT INTO topics (category_id, user_id, title, body) VALUES
 (1, 2, 'How do I create my first view?', 'I want to understand where templates live.'),
 (2, 1, 'Where should route files live?', 'How do I keep feature routes organized?');
 
 INSERT INTO replies (topic_id, user_id, body) VALUES
-(1, 1, 'Create the view under public/public_views and render it from a controller.'),
-(1, 2, 'Keep the template simple and pass prepared data from the controller.'),
-(2, 1, 'Use an app-owned route file under src/Routes and include it from public/routes.php.');
+(1, 1, 'Create the view under src/Views and render it from a handler.'),
+(1, 2, 'Keep the template simple and pass prepared data from the handler.'),
+(2, 1, 'Use method files under src/Routes; CorianderPHP discovers them automatically.');
 ```
 
 ## Step: Create UserRepository
@@ -182,7 +182,7 @@ Create `src/Modules/ForumDemo/Data/UserRepository.php`.
 <?php
 declare(strict_types=1);
 
-namespace Modules\ForumDemo\Data;
+namespace App\Modules\ForumDemo\Data;
 
 use CorianderCore\Core\Database\SQLManager;
 
@@ -225,7 +225,7 @@ final class UserRepository
 }
 ```
 
-If your framework version exposes a different `SQLManager` method name, keep the repository interface and adapt only the SQL calls inside this class. Controllers should not care how rows are loaded.
+This guide uses CorianderPHP 0.3.0's `SQLManager::sqlScript()`. A SELECT returns an empty array, one associative row, or a list for multiple rows. Normalize that result in the repository, as shown here. Keep this boundary so handlers do not depend on the database driver.
 
 ## Step: Create ForumRepository
 
@@ -235,7 +235,7 @@ Create `src/Modules/ForumDemo/Data/ForumRepository.php`.
 <?php
 declare(strict_types=1);
 
-namespace Modules\ForumDemo\Data;
+namespace App\Modules\ForumDemo\Data;
 
 use CorianderCore\Core\Database\SQLManager;
 
@@ -298,7 +298,7 @@ final class ForumRepository
 }
 ```
 
-Keep all SQL in repositories or write services. That keeps controllers DRY and gives the project one place to change when persistence changes.
+Keep all SQL in repositories or write services. That keeps request handlers DRY and gives the project one place to change when persistence changes.
 
 `SQLManager::sqlScript()` returns one associative row when exactly one row matches and a list of rows when multiple rows match. The private `rows()` helper normalizes list queries so templates always receive an array of rows.
 
@@ -325,7 +325,7 @@ Run the migration, open [/forum-demo](/forum-demo), and confirm the page reads c
 ## Common Mistakes
 
 - Putting SQL directly inside templates.
-- Letting controllers know which database driver is used.
+- Letting request handlers know which database driver is used.
 - Building the public-site safety behavior before the real local database works.
 
 ## Next

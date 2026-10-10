@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace Middleware;
+namespace App\Middleware;
 
-use Modules\ForumDemo\Auth\DemoAuth;
-use Modules\ForumDemo\Permissions\DemoPermissionService;
+use App\Modules\ForumDemo\Auth\DemoAuth;
+use App\Modules\ForumDemo\Permissions\DemoPermissionService;
 use Nyholm\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

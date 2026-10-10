@@ -1,237 +1,148 @@
 # Forum Routes
 
-Routes are the public contract of the feature. The forum has enough URLs that it should use `src/Routes/forum-demo.php` instead of putting everything directly in `public/routes.php`.
+In 0.3.0, the folder/filename defines each URL and method. The forum's web handlers belong under `src/Routes/forum-demo`; its JSON handlers belong under `src/Routes/api/forum-demo`.
 
-## Goal
-
-Create public read routes, session routes, member write routes, and admin moderation routes.
-
-## File Edited
-
-```structure
-src/Routes/forum-demo.php
-```
+Remove the temporary `src/Routes/forum-demo.get.php` from setup before creating `forum-demo/index.get.php`.
 
 ## Route Map
 
-```txt
-GET  /forum-demo
-GET  /forum-demo/topics
-POST /forum-demo/topics
-GET  /forum-demo/topics/{id}
-GET  /forum-demo/topics/{id}/replies
-POST /forum-demo/topics/{id}/replies
+Paths below are relative to `src/Routes/forum-demo/`.
 
-GET  /forum-demo/login
-POST /forum-demo/login
-POST /forum-demo/logout
+| File | URL and method | ForumActions method |
+| --- | --- | --- |
+| `index.get.php` | GET /forum-demo | index |
+| `topics/index.get.php` | GET /forum-demo/topics | topics |
+| `topics/index.post.php` | POST /forum-demo/topics | storeTopic |
+| `topics/[id]/index.get.php` | GET /forum-demo/topics/1 | showTopic |
+| `topics/[id]/replies.post.php` | POST /forum-demo/topics/1/replies | storeReply |
+| `topics/[id]/replies.get.php` | GET reply URL | Redirect to topic |
+| `login.get.php` | GET /forum-demo/login | login |
+| `login.post.php` | POST /forum-demo/login | authenticate |
+| `logout.post.php` | POST /forum-demo/logout | logout |
+| `admin/index.get.php` | GET /forum-demo/admin | admin |
+| `admin/users.get.php` | GET /forum-demo/admin/users | adminUsers |
+| `admin/users.post.php` | POST /forum-demo/admin/users | updateUserRole |
+| `admin/topics.post.php` | POST /forum-demo/admin/topics | moderateTopic |
+| `admin/replies.post.php` | POST /forum-demo/admin/replies | moderateReply |
 
-GET  /forum-demo/admin
-GET  /forum-demo/admin/users
-POST /forum-demo/admin/users
-POST /forum-demo/admin/topics
-POST /forum-demo/admin/replies
-```
+Guests can read. Members can submit topics/replies. Admins can manage roles and moderation. The write service checks each ability; filenames do not provide authorization.
 
-This map shows the permission model before any controller code exists:
+## Connect Read Handlers
 
-- Guests can read the forum and log in.
-- Members can create topics and replies.
-- Admins can manage users, topics, and replies.
-
-## Step: Import The Classes
-
-Open the generated `src/Routes/forum-demo.php` file from the setup chapter. Replace the starter route with the controller, router, middleware, response, and request imports you need for the real forum routes.
+Create `src/Routes/forum-demo/index.get.php`:
 
 ```php
 <?php
-declare(strict_types=1);
-
-use Controllers\ForumDemoController;
-use CorianderCore\Core\Router\Router;
-use Middleware\ForumDemoAdminMiddleware;
-use Nyholm\Psr7\Response;
+use App\Actions\ForumActions;
 use Psr\Http\Message\ServerRequestInterface;
+
+return static fn (ServerRequestInterface $request) =>
+    (new ForumActions())->index($request);
 ```
 
-The route file returns a closure so `public/routes.php` can include it cleanly.
+Create `topics/index.get.php` with the same imports and:
 
-## Step: Add Public Read Routes
+```php
+return static fn (ServerRequestInterface $request) =>
+    (new ForumActions())->topics();
+```
 
-Public read routes do not need login. Guests can open the forum landing page, topic list, and topic detail.
+Create `topics/[id]/index.get.php` with the same imports and:
+
+```php
+return static fn (ServerRequestInterface $request) =>
+    (new ForumActions())->showTopic((string) $request->getAttribute('id'));
+```
+
+These become usable after the [handler chapter](/guided-projects/forum/handlers) defines the class. Always return the response from the action.
 
 You are here in the flow:
 
 ```workflow
-Request|`GET /forum-demo/topics/1`
-Route|`forum-demo/topics/{id}` matches because `1` satisfies the numeric constraint.
-Controller|`ForumDemoController::showTopic()` receives the route id.
-Repository|`ForumRepository` loads the topic and its replies.
-View|`ViewRenderer` renders `public/public_views/forum-demo/topic/index.php`.
+Request|GET /forum-demo/topics/1 selects topics/[id]/index.get.php.
+Middleware|Validates the matched id before the handler.
+Action|ForumActions::showTopic() asks the repository for the topic and replies.
+Response|Renders src/Views/forum-demo/topic.php with prepared data.
 ```
+
+## Validate The Dynamic Id
+
+`[id]` matches any segment. The old regex route constraint is not available. Add `src/Routes/forum-demo/topics/[id]/_middleware.php`:
 
 ```php
-return static function (Router $router): void {
-    $router->get('forum-demo', static fn () => (new ForumDemoController())->index());
+<?php
+use CorianderCore\Core\Http\Responses;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-    $router->get('forum-demo/topics', static fn () => (new ForumDemoController())->topics());
-
-    $router->get('forum-demo/topics/{id:[0-9]+}', static fn (ServerRequestInterface $request) =>
-        (new ForumDemoController())->showTopic((string) $request->getAttribute('id'))
-    );
-};
+return [new class implements MiddlewareInterface {
+    public function process(
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler
+    ): ResponseInterface {
+        $id = (string) $request->getAttribute('id');
+        return ctype_digit($id) && (int) $id > 0
+            ? $handler->handle($request)
+            : Responses::html('Topic not found.', 404);
+    }
+}];
 ```
 
-The `{id:[0-9]+}` constraint matters. It keeps `/forum-demo/topics/create` or other future named routes from being mistaken for a numeric topic detail route.
+All detail/reply handlers in that directory inherit it. Reusable middleware may instead live in `App\Middleware`.
 
-## Step: Understand The Request Flow
+## Connect Form Writes
 
-Before adding write routes, separate URLs into two groups:
-
-- Read URLs return pages and are safe to refresh.
-- Write URLs receive form submissions and should redirect after work is done.
-
-For this project, a reply submission follows this path:
-
-```workflow
-POST route|`POST /forum-demo/topics/1/replies` calls `ForumDemoController::storeReply()`.
-Write layer|`PublicDemoWriteGuard` handles hosted demo safety, or `ForumWriteService` writes locally.
-Flash|The controller stores the result message in session.
-Redirect|The response redirects to `/forum-demo/topics/1`.
-GET page|The topic page renders again and consumes the flash message once.
-```
-
-This pattern is called Post/Redirect/Get. It prevents browser warnings like "confirm form resubmission" when a user refreshes or presses Back.
-
-## Step: Add Authentication Routes
-
-The demo uses fixed accounts and session state.
+Create `topics/index.post.php` with the ForumActions/request imports:
 
 ```php
-$router->get('forum-demo/login', static fn () => (new ForumDemoController())->login());
-
-$router->post('forum-demo/login', static fn (ServerRequestInterface $request) =>
-    (new ForumDemoController())->authenticate($request)
-);
-
-$router->post('forum-demo/logout', static fn () => (new ForumDemoController())->logout());
+return static fn (ServerRequestInterface $request) =>
+    (new ForumActions())->storeTopic($request);
 ```
 
-Use `POST` for login and logout because both change session state. These web forms should include framework CSRF tokens.
-
-## Step: Add Member Write Routes
-
-These web routes are protected by the framework CSRF middleware. Permission checks still happen in the write service.
+Create `topics/[id]/replies.post.php`:
 
 ```php
-$router->post('forum-demo/topics', static fn (ServerRequestInterface $request) =>
-    (new ForumDemoController())->storeTopic($request)
-);
-
-$router->post('forum-demo/topics/{id:[0-9]+}/replies', static fn (ServerRequestInterface $request) =>
-    (new ForumDemoController())->storeReply($request, (string) $request->getAttribute('id'))
-);
+return static fn (ServerRequestInterface $request) =>
+    (new ForumActions())->storeReply($request, (string) $request->getAttribute('id'));
 ```
 
-The topic write route creates an original post. The reply route creates secondary discussion under an existing topic.
+Each action validates through a service, stores a flash, and redirects to a GET page. It must not leave the browser on a submission URL.
 
-Add a small GET redirect for the reply URL as a fallback:
+Create `topics/[id]/replies.get.php`:
 
 ```php
-$router->get('forum-demo/topics/{id:[0-9]+}/replies', static fn (ServerRequestInterface $request) =>
-    new Response(302, ['Location' => '/forum-demo/topics/' . (string) $request->getAttribute('id')], '')
-);
+<?php
+use CorianderCore\Core\Http\Responses;
+use Psr\Http\Message\ServerRequestInterface;
+
+return static fn (ServerRequestInterface $request) =>
+    Responses::redirect('/forum-demo/topics/' . $request->getAttribute('id'), 302);
 ```
 
-Users should never stay on a form-submit URL. If the browser revisits `/forum-demo/topics/1/replies`, send it back to `/forum-demo/topics/1`.
+This fallback handles bookmarks/back navigation to the reply URL without resubmitting a form.
 
-Do not put validation in the route closure. The route only selects the controller method and passes route attributes. The controller can load the topic, and the write service can validate the submitted content.
+## Authentication And Admin Files
 
-## Step: Add Admin Route Group
-
-Group admin routes so authorization middleware is declared once.
+For `login.get.php`, `login.post.php`, and `logout.post.php`, use the same action/request imports and return these calls respectively:
 
 ```php
-$router->group('forum-demo/admin', [new ForumDemoAdminMiddleware()], static function (Router $admin): void {
-    $admin->get('', static fn () => (new ForumDemoController())->admin());
-    $admin->get('users', static fn () => (new ForumDemoController())->adminUsers());
-});
+(new ForumActions())->login();
+(new ForumActions())->authenticate($request);
+(new ForumActions())->logout();
 ```
 
-Every route in this group requires `admin.view` through `ForumDemoAdminMiddleware`.
+Each call is the **returned expression inside its own callable**, not three statements in one file.
 
-## Step: Add Admin Moderation Writes
+Apply the same pattern to admin files using the methods in the route-map table. Add `admin/_middleware.php` returning `[new ForumDemoAdminMiddleware()]` once the [admin chapter](/guided-projects/forum/admin-area) defines it. It protects every method below that directory, including write routes, while inheriting root CSRF.
 
-Admin writes are separate from member writes because they change moderation state instead of discussion content.
-
-```php
-$router->group('forum-demo/admin', [new ForumDemoAdminMiddleware()], static function (Router $admin): void {
-    $admin->get('', static fn () => (new ForumDemoController())->admin());
-    $admin->get('users', static fn () => (new ForumDemoController())->adminUsers());
-
-    $admin->post('users', static fn (ServerRequestInterface $request) =>
-        (new ForumDemoController())->updateUserRole($request)
-    );
-
-    $admin->post('topics', static fn (ServerRequestInterface $request) =>
-        (new ForumDemoController())->moderateTopic($request)
-    );
-
-    $admin->post('replies', static fn (ServerRequestInterface $request) =>
-        (new ForumDemoController())->moderateReply($request)
-    );
-});
-```
-
-These routes map to actions like:
-
-- update a user role
-- lock or unlock a topic
-- hide a topic
-- hide a reply
-
-Treat these POST URLs as action routes, not destination pages. A topic lock can be submitted from the topic detail page or from the moderation queue. The form should send a small context field such as `return_to=topic` or `return_to=admin`, and the controller should redirect to the matching GET page with a flash result.
-
-The public documentation demo validates these actions but does not persist visitor changes. A local SQLite build should persist them through `ForumWriteService`.
-
-The admin route group protects access to the URLs. The write service still checks abilities like `topic.lock`, `reply.moderate`, and `user.manage`. That duplication is intentional: middleware protects whole screens, while the write service protects individual actions.
-
-## Step: Keep Route Responsibilities Small
-
-Routes should not:
-
-- query the database
-- inspect roles
-- validate form fields
-- render templates directly
-
-Routes should:
-
-- choose the controller action
-- pass the request when the action needs form data or route attributes
-- group middleware around related URLs
+The [API chapter](/guided-projects/forum/api) adds the three separate JSON method files.
 
 ## Checkpoint
 
-Open these URLs:
+Run `php coriander routes:list`. Check paths/methods and inherited middleware before testing action behavior. GET supplies HEAD fallback. Unknown paths return 404; unsupported methods return 405/Allow.
 
-- [/forum-demo](/forum-demo)
-- [/forum-demo/topics](/forum-demo/topics)
-- [/forum-demo/topics/1](/forum-demo/topics/1)
-- [/forum-demo/admin](/forum-demo/admin)
-- [/forum-demo/admin/users](/forum-demo/admin/users)
+After implementing handlers/auth, verify guest reads, member writes, admin denial, and redirect-after-write. A 404 is not fixed by including a route file in public/routes.php; that mechanism was removed.
 
-The admin URLs should redirect guests and members to login. The admin account should enter the protected area.
-
-If a page returns 404, first check the route string and route order. If a page loads but has missing variables, move to the controller chapter because the route matched but the controller did not prepare the expected view data.
-
-## Common Mistakes
-
-- Registering generic topic routes before more specific named topic routes.
-- Forgetting `ServerRequestInterface` when a route needs request attributes or form data.
-- Putting permission checks in the route closure instead of middleware or services.
-- Assuming a controller folder exposes URLs automatically. Register the API routes explicitly too; the [API chapter](/guided-projects/forum/api) provides the route definitions.
-
-## Next
-
-Continue with [Controllers](/guided-projects/forum/controllers).
+Continue with [Request Handlers](/guided-projects/forum/handlers).

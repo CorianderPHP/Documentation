@@ -7,8 +7,8 @@ It is a CorianderPHP application that consumes the framework. It is intentionall
 ## Repository Layout
 
 - `documentation/` - Markdown documentation and guided project content.
-- `src/` - Website controllers, routes, modules, middleware, API controllers, and demo logic.
-- `public/public_views/` - Website views rendered by the framework.
+- `src/` - Discovered method routes, request action classes, modules, middleware, and demo logic.
+- `src/Views/` - Private PHP templates with inherited `_header.php`/`_footer.php` layouts.
 - `public/assets/` - Built CSS, JavaScript, fonts, and images.
 - `nodejs/src/` - TypeScript source for interactions, demos, and code highlighting.
 - `resources/downloads/` - Source files for generated downloadable project packages.
@@ -26,7 +26,7 @@ Use app-owned folders for documentation website behavior:
 
 - `src`
 - `documentation`
-- `public/public_views`
+- `src/Views`
 - `nodejs/src`
 - `resources`
 - `scripts`
@@ -136,7 +136,7 @@ To add a guided project:
 The shared guided project layout is:
 
 ```text
-public/public_views/examples/project.php
+src/Views/examples/project.php
 ```
 
 ## Downloads

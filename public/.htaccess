@@ -6,6 +6,7 @@ RewriteRule (^|/)\. - [F,L]
 RewriteRule ^public_views(?:/|$) - [F,L,NC]
 RewriteRule ^(?:routes|routes\.snippet|sitemap)\.php$ - [F,L,NC]
 RewriteRule ^downloads/[^/]+/ - [F,L,NC]
+RewriteRule ^(?!index\.php$).*\.php(?:/|$) - [F,L,NC]
 RewriteRule \.(?:bak(?:\.\d+)?|log|sqlite(?:3)?|db)$ - [F,L,NC]
 DirectoryIndex index.php
 

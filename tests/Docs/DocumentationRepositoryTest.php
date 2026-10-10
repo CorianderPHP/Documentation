@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Tests\Docs;
 
-use Modules\Docs\DocumentationRepository;
+use App\Modules\Docs\DocumentationRepository;
 use PHPUnit\Framework\TestCase;
 
 final class DocumentationRepositoryTest extends TestCase
@@ -35,6 +35,10 @@ final class DocumentationRepositoryTest extends TestCase
         self::assertContains('installation', array_map(static fn($page): string => $page->slug, $groups['Start Here']));
         self::assertContains('static-views', array_map(static fn($page): string => $page->slug, $groups['Start Here']));
         self::assertContains('dynamic-views', array_map(static fn($page): string => $page->slug, $groups['Start Here']));
+        self::assertSame(
+            ['installation', 'cli', 'concepts', 'routing', 'handlers', 'middleware', 'views', 'static-views', 'dynamic-views', 'database'],
+            array_map(static fn($page): string => $page->slug, $repository->grouped('reference')['Start Here']),
+        );
     }
 
     public function testGuidedProjectScopesResolveFromRegistry(): void

@@ -1,196 +1,100 @@
 # Upgrade Guide
 
-CorianderPHP is designed so framework updates can replace framework-owned files without deleting app behavior.
+The framework updater replaces managed core files, not application code. Documentation, routes, templates, middleware policy, Composer mappings, and `public/index.php` need a separate compatibility review.
 
-## What The Framework Owns
+## Safe Update Routine
 
-Treat these as framework-managed:
-
-```structure
-CorianderCore/
-coriander
+```workflow
+Record the version|Run php coriander version and read that release's migration notes.
+Protect your work|Commit app changes and back up the database and environment configuration.
+Preview|Run php coriander update --dry-run and inspect skipped or changed files.
+Update on a branch|Run the updater, then migrate affected app-owned code.
+Validate|Build assets, run app tests, and exercise pages, authentication, writes, and errors.
+Deploy|Release only after the app and downloadable examples work on the same version.
 ```
 
-Do not add project behavior there.
+Keep `CorianderCore` and `coriander` untouched. Report core defects upstream instead of maintaining patches that the next update replaces.
 
-## What The App Owns
+## Upgrade From 0.2.x To 0.3.0
 
-Keep project behavior in:
+This is a breaking routing/view release. See the [0.3.0 release notes](https://github.com/CorianderPHP/CorianderPHP/releases/tag/v0.3.0). Do not deploy a core-only update into an app still using the old bootstrap.
 
-```structure
-src/
-public/public_views/
-documentation/
-database/
-nodejs/
-resources/
-scripts/
-tests/
+### Replace Route Registration
+
+Move each registered method into a method file:
+
+| Old definition | New file |
+| --- | --- |
+| GET / | `src/Routes/index.get.php` |
+| GET /articles/{id} | `src/Routes/articles/[id].get.php` |
+| POST /articles | `src/Routes/articles/index.post.php` |
+
+Each file returns a callable which returns a `ResponseInterface`. Remove `public/routes.php` includes, `$router->get/post/group()`, controller discovery, action attributes, and view fallback. Put regex/id constraints in handlers or middleware.
+
+```php
+<?php
+use CorianderCore\Core\Http\Responses;
+use Psr\Http\Message\ServerRequestInterface;
+
+return static fn (ServerRequestInterface $request) =>
+    Responses::view('home', ['title' => 'Home']);
 ```
 
-These folders should contain your routes, controllers, modules, views, documentation, assets, migrations, and tests.
+### Replace The Bootstrap
 
-## Update Flow
+Use the 0.3.0 starter as a reference for your app-owned `public/index.php`. Preserve environment/timezone/cookie configuration. Build a request with `RequestFactory::fromGlobals()`, call `Router::handle()`, catch failures with `ErrorResponse::fromException()`, and emit with the original method.
 
-Preview first:
+The old Container and `dispatch()` are removed. See [Request Lifecycle](/documentation/request-lifecycle) for the exact request-handling excerpt.
 
-```bash
-php coriander update --dry-run
-```
+### Move Views And Metadata
 
-Apply when ready:
+- `public/public_views/home/index.php` becomes `src/Views/home.php`.
+- `public/public_views/articles/show/index.php` becomes `src/Views/articles/show.php`.
+- Shared header/footer become `src/Views/_header.php` and `_footer.php`.
+- Pass title/description as view data instead of including `metadata.php`.
+- Return `Responses::view()` or `ViewRenderer::response()`; do not call removed `render()`.
 
-```bash
-php coriander update --yes --clear-cache
-```
+Review layouts for nearest-ancestor inheritance. Header/footer resolve independently, do not stack, and may be omitted. Use `layout: false` for fragments.
 
-Then run:
+String values passed in arrays are escaped by the renderer; remove duplicate HTML escaping of those values. Objects and executable contexts still need explicit handling.
+
+Sitemap metadata scanning is removed. Add public URLs through `SitemapHandler::addDynamicPage()` and return `toXml()`.
+
+### Move Middleware To Directories
+
+Root `src/Routes/_middleware.php` returns an array of PSR-15 middleware instances. Add admin gates in `src/Routes/admin/_middleware.php` and retain root security protections.
+
+There is no implicit CSRF exemption for `/api`. Cookie-authenticated APIs send `csrf_token` in parsed JSON/form bodies. Explicitly exempt only stateless prefixes that do not use browser login cookies.
+
+### Start Sessions Where Needed
+
+The bootstrap configures cookies but does not eagerly open a session. Call `SessionBootstrap::start()` before auth or flash reads/writes. CSRF helpers start sessions when needed. Test that logged-in users remain recognized.
+
+### Update Application Autoloading
+
+The starter uses `"App\\": "src/"`. Update imports/namespaces when adopting it, then run `composer dump-autoload`.
+
+Existing coordination classes can remain ordinary application classes; they are not automatically exposed as endpoints. `src/Actions` is a useful convention, not a required framework API.
+
+### Remove Old Cache Commands
+
+Route maps refresh automatically in production, normally on a 30-second interval. Remove controller-cache builds from deploy scripts. `php coriander routes:list` inspects current files independently of cache.
+
+### Review Hosting And Dependencies
+
+Prefer a web document root pointing at `public/`. Keep deny rules for private files if root hosting is unavoidable. Only the front controller should be directly executable as public PHP.
+
+Set `APP_ENV=production`/`APP_DEBUG=0` explicitly. Existing environments are not automatically rewritten. Reinstall frontend dependencies from the release's updated lockfile; 0.3.0 includes the patched `source-map-js` dependency.
+
+## Migration Checks
 
 ```bash
 composer dump-autoload
-composer generate-downloads
-composer test
+php coriander routes:list
 php coriander nodejs run build-prod
+composer test
 ```
 
-## What To Review
+Test GET/HEAD, missing paths, 405/Allow, layouts, form tokens, login/logout, admin permissions, parsed JSON, body limits, and actual repository writes. If distributing guided project downloads, regenerate and run them too.
 
-After an update, review:
-
-- changed files under `CorianderCore`
-- route smoke tests
-- database behavior
-- middleware behavior
-- environment variable changes
-- release notes from the framework repository
-
-If the update changes framework behavior, update the documentation website in the documentation repository, not inside the framework core.
-
-## Upgrade To v0.2.3.3
-
-This security release disables automatic routing by default. Updating only `CorianderCore` and `coriander` is not enough for an app that depended on controller or view discovery. Review the [release notes](https://github.com/CorianderPHP/CorianderPHP/releases/tag/v0.2.3.3), then apply these app-owned changes.
-
-### Register Every Public Route
-
-In `public/routes.php`, register the homepage and include each feature's route file:
-
-```php
-use CorianderCore\Core\Router\ViewRenderer;
-
-$router->get('/', static fn () => (new ViewRenderer())->render('home'));
-$router->get('home', static fn () => (new ViewRenderer())->render('home'));
-
-$featureRoutes = PROJECT_ROOT . '/src/Routes/feature.php';
-if (is_file($featureRoutes)) {
-    (require $featureRoutes)($router);
-}
-```
-
-Replace `feature.php` with your actual route file. Register API methods explicitly as well and return JSON PSR-7 responses instead of arrays. Place protected actions inside the appropriate middleware group. Do not re-enable automatic routing merely to remove 404s: convention-based aliases may bypass route-specific middleware. See [Routing](/documentation/routing) and the [forum API example](/guided-projects/forum/api).
-
-### Emit HEAD Responses Correctly
-
-Replace the dispatch/emission call in `public/index.php`:
-
-```php
-use CorianderCore\Core\Http\RequestFactory;
-use CorianderCore\Core\Http\ResponseEmitter;
-
-$request = RequestFactory::fromGlobals();
-$response = $router->dispatch($request);
-ResponseEmitter::emit($response, $request->getMethod());
-```
-
-If your exception handler writes its own error body, suppress it for HEAD too:
-
-```php
-if (strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'HEAD') {
-    echo 'Internal Server Error';
-}
-```
-
-GET routes now support HEAD fallback, including their parameters and middleware. Keep GET handlers free of state-changing operations.
-
-### Keep Rendering Repeatable
-
-Change `require_once` to `require` for shared headers, footers, view templates, and selected metadata in app-owned rendering code. Set the requested view in a custom not-found handler before loading the header:
-
-```php
-$__corianderRequestedView = 'notfound';
-require PROJECT_ROOT . '/public/public_views/header.php';
-require PROJECT_ROOT . '/public/public_views/notfound/index.php';
-require PROJECT_ROOT . '/public/public_views/footer.php';
-```
-
-Keep `require_once` for configuration and autoloaders. Rendering files must run again to display the current page's data and metadata.
-
-### Protect Files At The Web Server
-
-For Apache with the project root exposed, place these rules immediately after `RewriteEngine On`, before assets and application rewrites:
-
-```txt
-RewriteRule (^|/)\. - [F,L]
-RewriteRule ^(?:CorianderCore|src|config|vendor|nodejs|database|backups|cache|logs|resources|scripts|tests)(?:/|$) - [F,L,NC]
-RewriteRule ^public/(?:public_views(?:/|$)|routes\.php$) - [F,L,NC]
-RewriteRule \.(?:bak(?:\.\d+)?|log|sqlite(?:3)?|db)$ - [F,L,NC]
-RewriteRule ^(?:coriander|composer\.(?:json|lock|phar)|phpunit\.xml|AGENTS\.md)$ - [F,L,NC]
-```
-
-Adapt private directories to your app and preserve your host's certificate-validation configuration. On nginx, configure equivalent access restrictions; nginx does not read `.htaccess`. Verify that `.env`, private PHP files, and database files are denied while CSS, JavaScript, and intended download archives remain accessible.
-
-If `public/.htaccess` declares its own rewrite rules, protect its private paths there too. Apache can replace parent rewrite rules in that directory. These rules are relative to `public/`, so they also work when `public/` is the document root:
-
-```txt
-RewriteEngine On
-RewriteRule (^|/)\. - [F,L]
-RewriteRule ^public_views(?:/|$) - [F,L,NC]
-RewriteRule ^(?:routes|routes\.snippet|sitemap)\.php$ - [F,L,NC]
-RewriteRule ^downloads/[^/]+/ - [F,L,NC]
-RewriteRule \.(?:bak(?:\.\d+)?|log|sqlite(?:3)?|db)$ - [F,L,NC]
-DirectoryIndex index.php
-```
-
-Keep your existing non-file rewrite to `index.php` after these protections. The download rule permits ZIP files but denies the unpacked source directories; omit it if your app has no such directories.
-
-### Check Updater And Migration Permissions
-
-The updater uses Git status to protect locally edited, renamed, deleted, and untracked managed files. Run it in a Git checkout. Prefer updating and testing in a branch, then deploying the reviewed files, rather than forcing an update on a non-Git production upload.
-
-SQLite migrations create a persistent `.coriander-migrations.lock` file beside the database. Make that directory writable by the deployment user; do not delete the lock file while a migration may be running. SQLite migration changes and history are transactional; MySQL DDL can commit implicitly. See [Database](/documentation/database).
-
-### Verify The Migrated App
-
-Test the homepage, every documented API URL, admin access as a guest/member/admin, and repeated rendering with different data. Check HEAD responses and denied direct-file requests. Regenerate guided-project downloads after changing their source files so downloaded examples match the running app.
-
-## Documentation Repository Automation
-
-For this documentation website, framework update pull requests should:
-
-```workflow
-Framework files|Update framework-managed files from the release.
-Release notes|Include the framework release notes in the PR description.
-Downloads|Regenerate completed project downloads.
-Tests|Run documentation and demo tests.
-Frontend build|Rebuild TypeScript and Tailwind assets.
-```
-
-That keeps documentation and demos aligned with the framework without manually checking every small release.
-
-## When An Update Breaks App Code
-
-Do not patch `CorianderCore` locally as a permanent fix.
-
-Instead:
-
-```workflow
-Focused test|Confirm the break with the smallest test that proves it.
-App-owned fix|Update app-owned code when the framework behavior is correct.
-Framework issue|Open a framework issue when the framework behavior is wrong.
-Documentation note|Add documentation notes when the change affects users.
-```
-
-## Rollback
-
-Use Git first. Framework updates should be reviewed in a branch or pull request.
-
-If the framework updater created backups and rollback support is available for your version, use the documented rollback command for that release. Still prefer Git for project-level rollback because it includes app-owned files and generated artifacts.
+The [0.2.3.3 security release notes](https://github.com/CorianderPHP/CorianderPHP/releases/tag/v0.2.3.3) describe the previous router model; use this page's 0.3.0 steps for current applications.

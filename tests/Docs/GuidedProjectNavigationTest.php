@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace Tests\Docs;
 
-use Modules\Docs\DocumentationRepository;
-use Modules\Docs\GuidedProjectNavigation;
-use Modules\Docs\GuidedProjectRegistry;
+use App\Modules\Docs\DocumentationRepository;
+use App\Modules\Docs\GuidedProjectNavigation;
+use App\Modules\Docs\GuidedProjectRegistry;
 use PHPUnit\Framework\TestCase;
 
 final class GuidedProjectNavigationTest extends TestCase
@@ -34,6 +34,6 @@ final class GuidedProjectNavigationTest extends TestCase
         $adjacent = (new GuidedProjectNavigation($project))->adjacent($pages, 'projects/shelter-api/routes');
 
         self::assertSame('/guided-projects/shelter-api/data-model', $adjacent['previous']['path'] ?? null);
-        self::assertSame('/guided-projects/shelter-api/controllers', $adjacent['next']['path'] ?? null);
+        self::assertSame('/guided-projects/shelter-api/handlers', $adjacent['next']['path'] ?? null);
     }
 }

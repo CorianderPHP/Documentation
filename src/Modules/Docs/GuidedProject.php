@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Modules\Docs;
+namespace App\Modules\Docs;
 
 final class GuidedProject
 {
@@ -64,6 +64,11 @@ final class GuidedProject
     public function searchPath(): string
     {
         return $this->basePath . '/search';
+    }
+
+    public function downloadUrl(): string
+    {
+        return \CorianderCore\Core\Support\PublicUrl::toPublicUrl($this->downloadPath);
     }
 
     public function slugBelongsToProject(string $slug): bool

@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Modules\ForumDemo\Writes;
+namespace App\Modules\ForumDemo\Writes;
 
-use Modules\ForumDemo\Permissions\DemoPermissionService;
+use App\Modules\ForumDemo\Permissions\DemoPermissionService;
 
 /*
  * Hosted documentation safety layer:

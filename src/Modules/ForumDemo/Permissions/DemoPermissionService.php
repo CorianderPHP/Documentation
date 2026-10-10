@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Modules\ForumDemo\Permissions;
+namespace App\Modules\ForumDemo\Permissions;
 
 /*
  * One permission service feeds controllers, middleware, write guards, and views.

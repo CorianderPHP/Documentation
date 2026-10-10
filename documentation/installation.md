@@ -22,11 +22,10 @@ You normally do not need:
 .github/
 docs/
 AGENTS.md
-LICENSE
 readme.md
 ```
 
-If a release contains extra project-maintenance files, treat them the same way: useful for the framework repository, but not required for a new app. When you are unsure, remove only files you recognize as repository metadata.
+Remove only files you recognize as repository maintenance material. Keep required license notices when redistributing framework code; runtime requirements and license obligations are different things.
 
 ## Install PHP Dependencies
 
@@ -64,6 +63,16 @@ Copy-Item .env-example .env
 
 Update `.env` for your local URL, database, and public URL prefix.
 
+The 0.3.0 starter defaults to production with debug disabled. On a trusted local machine, explicitly use:
+
+```env
+APP_ENV=local
+APP_DEBUG=1
+PROJECT_URL=http://localhost:8080
+```
+
+Use `APP_ENV=production` and `APP_DEBUG=0` on a public server. Existing environment files are not rewritten by framework updates.
+
 If your server exposes the project root, keep:
 
 ```env
@@ -86,13 +95,21 @@ php coriander nodejs run build-prod
 
 During development, use the NodeJS command documented in [NodeJS Integration](/documentation/nodejs).
 
+To try the app locally with the public directory as document root:
+
+```bash
+php -S localhost:8080 -t public public/index.php
+```
+
+Use `PUBLIC_URL_PREFIX=` for this command. The PHP development server is not a production server.
+
 ## Next Steps
 
-The current starter registers its homepage explicitly in `public/routes.php`. For each new page, register its route too: creating a controller or view folder alone does not make a URL reachable. Follow [Static View Guide](/documentation/static-views) for a fixed page or [Dynamic View Guide](/documentation/dynamic-views) for controller-prepared data.
+The 0.3.0 starter discovers method files under `src/Routes`. `index.get.php` defines the homepage. A template alone does not create a URL. Follow [Static View Guide](/documentation/static-views) for a fixed page or [Dynamic View Guide](/documentation/dynamic-views) for prepared data.
 
-After installation, create your first route, controller, and view:
+After installation, create your first route and view:
 
 - [Routing](/documentation/routing)
-- [Controllers](/documentation/controllers)
+- [Request Handlers](/documentation/handlers)
 - [Views](/documentation/views)
 - [Recommended App Architecture](/documentation/app-architecture)

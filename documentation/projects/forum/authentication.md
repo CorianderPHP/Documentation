@@ -18,9 +18,10 @@ src/Modules/ForumDemo/Auth/DemoAuth.php
 <?php
 declare(strict_types=1);
 
-namespace Modules\ForumDemo\Auth;
+namespace App\Modules\ForumDemo\Auth;
 
-use Modules\ForumDemo\Data\UserRepository;
+use App\Modules\ForumDemo\Data\UserRepository;
+use CorianderCore\Core\Bootstrap\SessionBootstrap;
 
 final class DemoAuth
 {
@@ -39,12 +40,14 @@ The auth module depends on the user repository instead of duplicating account da
 ```php
 public function login(string $email, string $password): bool
 {
+    SessionBootstrap::start();
     $user = $this->users->findByEmail($email);
     if ($user === null || !password_verify($password, (string) $user['password_hash'])) {
         return false;
     }
 
-    $_SESSION[self::SESSION_KEY] = $user['id'];
+    session_regenerate_id(true);
+    $_SESSION[self::SESSION_KEY] = (int) $user['id'];
     return true;
 }
 ```
@@ -58,6 +61,7 @@ The demo can also provide buttons for "Use Admin" and "Use Member".
 ```php
 public function loginAs(string $role): bool
 {
+    SessionBootstrap::start();
     $user = $this->users->findByRole($role);
     if ($user === null) {
         return false;
@@ -75,17 +79,21 @@ This is useful for documentation because visitors can test roles quickly.
 ```php
 public function logout(): void
 {
+    SessionBootstrap::start();
     unset($_SESSION[self::SESSION_KEY]);
 }
 
 public function currentUser(): ?array
 {
+    SessionBootstrap::start();
     $id = $_SESSION[self::SESSION_KEY] ?? null;
     return is_int($id) ? $this->users->find($id) : null;
 }
 ```
 
-CorianderPHP starts sessions for web requests, so this module can rely on `$_SESSION` in the web demo.
+CorianderPHP 0.3.0 does not start sessions eagerly. Every method must start/resume the session before accessing `$_SESSION`; otherwise existing login state can appear missing. See [Sessions](/documentation/sessions).
+
+Quick role login is only for a protected educational demo. Never ship it as production authentication. The local project verifies seeded password hashes; the downloaded public-demo reference instead uses fixed in-memory accounts and does not provide production authentication.
 
 ## Step: Build The Login Form
 

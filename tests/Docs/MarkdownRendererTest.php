@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Tests\Docs;
 
-use Modules\Docs\MarkdownRenderer;
+use App\Modules\Docs\MarkdownRenderer;
 use PHPUnit\Framework\TestCase;
 
 final class MarkdownRendererTest extends TestCase
@@ -37,6 +37,20 @@ src/Modules/Example
 MD);
 
         self::assertStringContainsString('data-language="structure"', $result['html']);
+    }
+
+    public function testDownloadLinksRespectPublicUrlPrefix(): void
+    {
+        $previous = getenv('PUBLIC_URL_PREFIX');
+        try {
+            foreach (['' => '/downloads/forum-completed.zip', '/public' => '/public/downloads/forum-completed.zip'] as $prefix => $expected) {
+                putenv('PUBLIC_URL_PREFIX=' . $prefix);
+                $rendered = (new MarkdownRenderer())->render('[Download](/public/downloads/forum-completed.zip)');
+                self::assertStringContainsString('href="' . $expected . '"', $rendered['html']);
+            }
+        } finally {
+            putenv($previous === false ? 'PUBLIC_URL_PREFIX' : 'PUBLIC_URL_PREFIX=' . $previous);
+        }
     }
 
     public function testRendersWorkflowFencesAsStepBlocks(): void

@@ -1,103 +1,90 @@
 # Static View Guide
 
-A static view is a page rendered directly from `public/public_views` without a controller preparing data first. It is useful for home pages, about pages, contact pages, legal pages, and simple content pages.
+A static view is a fixed page that does not need a data lookup. In 0.3.0 it still has a route file: copying a template alone does not expose a URL.
 
-## Create The View
+## Goal
 
-Generate the view with the CLI:
+Create an `/about` page with a shared header and footer.
+
+## Create The Route And Template
+
+You can use the generators:
 
 ```bash
+php coriander make:route about
 php coriander make:view about
 ```
 
-This creates:
+Or create `src/Routes/about.get.php` and `src/Views/about.php` by hand. The generated view contains a section and heading, not a complete page layout.
 
-```structure
-public/
-  public_views/
-    about/
-      index.php
-      metadata.php
-```
-
-## Register The URL
-
-Add this to `public/routes.php`:
-
-```php
-use CorianderCore\Core\Router\ViewRenderer;
-
-$router->get('/about', static fn () => (new ViewRenderer())->render('about'));
-```
-
-Now `/about` renders `public/public_views/about/index.php`. Creating the folder alone does not expose a page: routing is explicit by default. Register `/` separately when the view is your homepage.
-
-## Request Flow
-
-```workflow
-Request|The browser opens `/about`.
-Route|The registered GET route calls `ViewRenderer::render('about')`.
-View folder|The renderer resolves `public/public_views/about`.
-Metadata|`metadata.php` provides the page title, description, and sitemap settings.
-Template|`index.php` renders the HTML content.
-```
-
-## Write The Template
-
-Edit `public/public_views/about/index.php`:
-
-```html
-<main class="mx-auto max-w-3xl px-4 py-10">
-    <h1>About our app</h1>
-
-    <p>
-        We build small tools for local communities.
-    </p>
-
-    <a href="/contact">Contact us</a>
-</main>
-```
-
-This file should contain presentation markup only. A static view is a good place for text, links, images, and sections that do not require PHP data.
-
-## Configure Metadata
-
-Edit `public/public_views/about/metadata.php`:
+Replace the route contents:
 
 ```php
 <?php
-$metadata = '
-    <title>About - My App</title>
-    <meta name="description" content="Learn more about My App." />
-';
+declare(strict_types=1);
 
-$addViewInSitemap = true;
-$sitemapPriority = 0.7;
+use CorianderCore\Core\Http\Responses;
+use Psr\Http\Message\ServerRequestInterface;
+
+return static fn (ServerRequestInterface $request) =>
+    Responses::view('about', [
+        'title' => 'About us',
+        'description' => 'Learn about our team.',
+    ]);
 ```
 
-Use `metadata.php` for page metadata and sitemap settings. Do not load database data from this file.
-
-The renderer evaluates shared templates and view files on each render. In your shared `header.php`, load the selected metadata with `require`, not `require_once`, so rendering a second page does not reuse or skip the previous page's metadata.
-
-## Add Static Assets
-
-Store public assets under `public/assets`, then reference them with absolute public paths:
+Edit `src/Views/about.php`:
 
 ```html
-<img src="/public/assets/img/team.jpg" alt="The team">
+<main>
+    <h1>About us</h1>
+    <p>We build practical tools for our community.</p>
+</main>
 ```
 
-If your app may run with a different `PUBLIC_URL_PREFIX`, use [Assets And Images](/documentation/assets) so the framework can resolve the public asset URL for you.
+The render name `about` maps to `src/Views/about.php`. For `pages/about`, the template is `src/Views/pages/about.php`.
 
-## When Static Is Enough
+## Add The Layout
 
-Keep the page static when:
+Create `src/Views/_header.php`:
 
-- the content is mostly fixed
-- the page does not need route parameters
-- the page does not submit a form
-- the page does not need user-specific permissions
-- the page does not read database rows
+```html
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><?= $title ?? 'My app' ?></title>
+    <meta name="description" content="<?= $description ?? '' ?>">
+</head>
+<body>
+```
 
-Move to a [dynamic view](/documentation/dynamic-views) when the page needs prepared data from a controller.
+Create `src/Views/_footer.php`:
 
+```html
+</body>
+</html>
+```
+
+The framework includes header, page, then footer. The route data is available to all three. There is no separate `metadata.php`; title/description are ordinary data.
+
+If the starter already has these layouts, update them instead of creating competing copies.
+
+## Check The Page
+
+```bash
+php coriander routes:list
+```
+
+Confirm GET/HEAD `/about` appears, then visit it. A 404 usually means the route filename/path is wrong. A missing-view error means the render name does not match the template path.
+
+The homepage uses `src/Routes/index.get.php`, even when its template is named `home.php`.
+
+## Assets And Sitemap
+
+Keep CSS, JavaScript, and images under `public/assets`. Use [PublicUrl or ImageHandler](/documentation/assets) instead of hard-coded deployment paths.
+
+For search engines, add the public URL through [SitemapHandler](/documentation/sitemap). Views are not scanned for sitemap metadata.
+
+Move to a [dynamic view](/documentation/dynamic-views) when request data must be prepared before rendering.
