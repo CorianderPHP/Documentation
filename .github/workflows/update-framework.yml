@@ -81,9 +81,7 @@ jobs:
             echo "## Automated Changes"
             echo
             echo "- Updated framework-managed files with \`php coriander update --yes\`."
-            echo "- Rebuilt frontend assets."
-            echo "- Regenerated guided project downloads."
-            echo "- Ran the documentation test suite."
+            echo "- Attempted frontend asset rebuild, guided project download generation, and documentation tests (results below)."
             echo
             echo "## Documentation Review Checklist"
             echo
@@ -119,6 +117,7 @@ jobs:
         run: npm ci
 
       - name: Update CorianderPHP framework
+        id: update
         shell: bash
         run: |
           args=(update --yes)
@@ -129,15 +128,52 @@ jobs:
           php coriander "${args[@]}"
 
       - name: Rebuild frontend assets
+        id: build
+        continue-on-error: true
         run: php coriander nodejs run build-prod
 
       - name: Regenerate project downloads
+        id: downloads
+        continue-on-error: true
         run: composer generate-downloads
 
       - name: Run documentation test suite
+        id: tests
+        continue-on-error: true
         run: composer test
 
+      - name: Add validation results to pull request description
+        id: validation
+        if: ${{ !cancelled() && steps.update.outcome == 'success' }}
+        shell: bash
+        env:
+          PR_BODY_PATH: ${{ steps.pr.outputs.body_path }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          DOWNLOADS_OUTCOME: ${{ steps.downloads.outcome }}
+          TESTS_OUTCOME: ${{ steps.tests.outcome }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          {
+            echo
+            echo "## Validation Results"
+            echo
+            echo "| Check | Result |"
+            echo "| --- | --- |"
+            printf '| Frontend build | %s |\n' "$BUILD_OUTCOME"
+            printf '| Guided project downloads | %s |\n' "$DOWNLOADS_OUTCOME"
+            printf '| Documentation tests | %s |\n' "$TESTS_OUTCOME"
+            echo
+            printf 'Full output and failure details: [workflow logs](%s).\n' "$RUN_URL"
+            echo
+            if [[ "$BUILD_OUTCOME" != "success" || "$DOWNLOADS_OUTCOME" != "success" || "$TESTS_OUTCOME" != "success" ]]; then
+              echo "This update is a draft because validation did not pass. Resolve the failures and pass the PR checks before merging."
+            else
+              echo "All update validation checks passed. Review the documentation impact before merging."
+            fi
+          } >> "$PR_BODY_PATH"
+
       - name: Create framework update pull request
+        if: ${{ !cancelled() && steps.update.outcome == 'success' && steps.validation.outcome == 'success' }}
         uses: peter-evans/create-pull-request@v8
         with:
           branch: ${{ steps.pr.outputs.branch }}
@@ -146,3 +182,10 @@ jobs:
           commit-message: "⬆️ Update CorianderPHP framework."
           body-path: ${{ steps.pr.outputs.body_path }}
           labels: dependencies, framework
+          draft: ${{ (steps.build.outcome != 'success' || steps.downloads.outcome != 'success' || steps.tests.outcome != 'success') && 'always-true' || 'false' }}
+
+      - name: Fail run when update validation did not pass
+        if: ${{ !cancelled() && steps.update.outcome == 'success' && (steps.build.outcome != 'success' || steps.downloads.outcome != 'success' || steps.tests.outcome != 'success') }}
+        run: |
+          echo "::error::Framework update validation failed. See the draft update PR and the build, download, and test logs."
+          exit 1
