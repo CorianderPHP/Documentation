@@ -24,7 +24,8 @@ class RouteDispatcher
         private WebControllerHandler $webHandler,
         private ApiControllerHandler $apiHandler,
         private ViewRenderer $viewRenderer,
-        private NotFoundHandler $notFoundHandler
+        private NotFoundHandler $notFoundHandler,
+        private bool $automaticRouting = false
     ) {}
 
     /**
@@ -40,22 +41,42 @@ class RouteDispatcher
     {
         $path = trim($request->getUri()->getPath(), '/');
         if ($path === '') {
-            $path = 'home';
+            $hasRootRoute = false;
+            foreach ($this->registry->getRoutes() as [, $pattern]) {
+                if (preg_match($pattern, '') === 1) {
+                    $hasRootRoute = true;
+                    break;
+                }
+            }
+            if (!$hasRootRoute) {
+                $path = 'home';
+            }
         }
 
         $method = strtoupper($request->getMethod());
         $allowedMethods = [];
+        $matchedRoute = null;
 
         foreach ($this->registry->getRoutes() as [$routeMethod, $pattern, $params, $callback, $middleware]) {
             if (!preg_match($pattern, $path, $matches)) {
                 continue;
             }
 
-            if ($routeMethod !== $method) {
-                $allowedMethods[] = $routeMethod;
-                continue;
+            $allowedMethods[] = $routeMethod;
+            if ($routeMethod === 'GET') {
+                $allowedMethods[] = 'HEAD';
             }
+            if ($routeMethod === $method) {
+                $matchedRoute = [$params, $callback, $middleware, $matches];
+                break;
+            }
+            if ($method === 'HEAD' && $routeMethod === 'GET' && $matchedRoute === null) {
+                $matchedRoute = [$params, $callback, $middleware, $matches];
+            }
+        }
 
+        if ($matchedRoute !== null) {
+            [$params, $callback, $middleware, $matches] = $matchedRoute;
             array_shift($matches);
             $requestWithAttributes = $request;
             foreach ($params as $i => $name) {
@@ -89,6 +110,10 @@ class RouteDispatcher
             $allowedMethods = array_values(array_unique($allowedMethods));
             sort($allowedMethods);
             return new Response(405, ['Allow' => implode(', ', $allowedMethods)], 'Method Not Allowed');
+        }
+
+        if (!$this->automaticRouting) {
+            return $this->notFoundHandler->handle($this->registry);
         }
 
         if (str_starts_with($path, 'api/')) {

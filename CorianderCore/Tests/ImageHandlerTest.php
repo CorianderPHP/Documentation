@@ -1,0 +1,347 @@
+<?php
+
+namespace CorianderCore\Tests;
+
+use PHPUnit\Framework\TestCase;
+use CorianderCore\Core\Image\ImageHandler;
+use CorianderCore\Core\Utils\DirectoryHandler;
+
+/**
+ * Class ImageHandlerTest
+ *
+ * This test class verifies the functionality of the ImageHandler class,
+ * including converting images to WebP format and rendering a <picture>
+ * element with WebP and original image sources.
+ *
+ * Requirements:
+ * - PHP GD extension must be enabled to run the tests.
+ * - The test will skip with a message if the GD extension is not available.
+ */
+class ImageHandlerTest extends TestCase
+{
+    /**
+     * @var string Path to the temporary directory for testing.
+     */
+    protected static $testPath;
+
+    // Directories and file paths for testing
+    private static $testImageDir;
+    private static $testImagePath;
+    private static $webpDir;
+    private static $testImageFullPath;
+    private static $testWebpFullPath;
+
+    /**
+     * setUpBeforeClass
+     *
+     * This method runs once before all tests in the class. It sets up the necessary
+     * directory paths and ensures the required files are created. If GD is not available,
+     * the test will be skipped.
+     */
+    public static function setUpBeforeClass(): void
+    {
+        // Define PROJECT_ROOT if it's not already defined
+        if (!defined('PROJECT_ROOT')) {
+            define('PROJECT_ROOT', dirname(__DIR__, 2));
+        }
+
+        // Set the path to the temporary test directory
+        self::$testPath = PROJECT_ROOT . "/CorianderCore/Tests/_tmp";
+    }
+
+
+    protected function setUp(): void
+    {
+        // Check if GD extension is enabled
+        if (!self::isGdEnabled()) {
+            self::markTestSkipped(
+                'The GD extension is not enabled. Please enable it in your php.ini file. Current php.ini: ' . php_ini_loaded_file()
+            );
+        }
+
+        self::$testImageDir = self::$testPath . '/assets/';
+        self::$testImagePath = '/CorianderCore/Tests/_tmp/assets/test_image.png';
+        self::$webpDir = 'webp/';
+        self::$testImageFullPath = self::$testImageDir . 'test_image.png';
+        self::$testWebpFullPath = self::$testImageDir . self::$webpDir . 'test_image_80.webp';
+
+        // Create test image directory if it doesn't exist
+        if (!is_dir(self::$testImageDir)) {
+            mkdir(self::$testImageDir, 0755, true);
+        }
+
+        // Create a test image if it doesn't exist
+        if (!file_exists(self::$testImageFullPath)) {
+            $image = imagecreatetruecolor(100, 100);
+            $backgroundColor = imagecolorallocate($image, 0, 0, 0); // Black background
+            imagefilledrectangle($image, 0, 0, 100, 100, $backgroundColor);
+            imagepng($image, self::$testImageFullPath);
+            imagedestroy($image);
+        }
+    }
+
+    /**
+     * tearDownAfterClass
+     *
+     * This method runs once after all tests in the class have completed.
+     * It cleans up the test environment by removing test files and directories.
+     */
+    public static function tearDownAfterClass(): void
+    {
+        // Cleanup: Remove test files and directories if they exist
+        if (is_dir(self::$testPath)) {
+            DirectoryHandler::deleteDirectory(self::$testPath); // Cleanup the temporary directory.
+        }
+
+        $publicImageTestPath = PROJECT_ROOT . '/public/assets/_tmp_image_handler';
+        if (is_dir($publicImageTestPath)) {
+            DirectoryHandler::deleteDirectory($publicImageTestPath);
+        }
+    }
+
+    protected function tearDown(): void
+    {
+        putenv('PUBLIC_URL_PREFIX');
+        unset($_ENV['PUBLIC_URL_PREFIX'], $_SERVER['PUBLIC_URL_PREFIX']);
+    }
+
+    /**
+     * isGdEnabled
+     *
+     * Checks if the GD extension is enabled.
+     *
+     * @return bool
+     */
+    private static function isGdEnabled(): bool
+    {
+        return function_exists('imagecreatetruecolor');
+    }
+
+    /**
+     * testConvertToWebP
+     *
+     * Tests the conversion of a PNG image to WebP format.
+     * Verifies that the WebP image file is created successfully.
+     */
+    public function testConvertToWebp()
+    {
+        // Test conversion to WebP format
+        ImageHandler::convertToWebP(self::$testImagePath, 80);
+
+        $this->assertFileExists(
+            self::$testImageDir . self::$webpDir . 'test_image_80.webp',
+            'WebP image file was not created successfully.'
+        );
+    }
+
+    /**
+     * testRender
+     *
+     * Tests the rendering of a <picture> element with WebP and original image sources.
+     * Verifies that the correct HTML structure is generated.
+     */
+    public function testRender()
+    {
+        // Test rendering the picture tag
+        $html = ImageHandler::render(self::$testImagePath, [
+            'alt' => 'Test Image',
+            'pictureClass' => 'picture-class',
+            'class' => 'img-class',
+            'quality' => 80,
+        ]);
+
+        $this->assertStringContainsString('<picture class="picture-class">', $html, 'Picture tag was not rendered correctly.');
+        $this->assertStringContainsString('<source srcset="/CorianderCore/Tests/_tmp/assets/webp/test_image_80.webp" type="image/webp"', $html, 'WebP source tag was not rendered correctly.');
+        $this->assertStringContainsString('<source srcset="/CorianderCore/Tests/_tmp/assets/test_image.png" type="image/png"', $html, 'Original source tag was not rendered correctly.');
+        $this->assertStringContainsString('<img alt="Test Image" width="100" height="100" class="img-class" src="/CorianderCore/Tests/_tmp/assets/test_image.png"', $html, 'Image tag was not rendered correctly.');
+    }
+
+    public function testRenderSupportsOptionalImageAttributes(): void
+    {
+        $html = ImageHandler::render(self::$testImagePath, [
+            'alt' => 'Test Image',
+            'class' => 'img-class',
+            'loading' => 'lazy',
+            'decoding' => 'async',
+            'draggable' => false,
+            'data-enabled' => true,
+            'invalid attribute' => 'ignored',
+            'onerror' => 'alert(1)',
+            'src' => '/unsafe.png',
+        ]);
+
+        $this->assertStringContainsString(' loading="lazy"', $html);
+        $this->assertStringContainsString(' decoding="async"', $html);
+        $this->assertStringContainsString(' data-enabled', $html);
+        $this->assertStringNotContainsString('draggable=', $html);
+        $this->assertStringNotContainsString('invalid attribute', $html);
+        $this->assertStringNotContainsString('onerror=', $html);
+        $this->assertStringNotContainsString('/unsafe.png', $html);
+    }
+
+    public function testRenderSupportsWidthAndHeightOptions(): void
+    {
+        $html = ImageHandler::render(self::$testImagePath, [
+            'alt' => 'Sized Image',
+            'width' => 40,
+            'height' => 30,
+        ]);
+
+        $this->assertStringContainsString('width="40"', $html);
+        $this->assertStringContainsString('height="30"', $html);
+        $this->assertStringContainsString('alt="Sized Image"', $html);
+    }
+
+    public function testRenderCanSkipWebpConversion(): void
+    {
+        $sourcePath = self::$testImageDir . 'no_convert.png';
+        $relativePath = '/CorianderCore/Tests/_tmp/assets/no_convert.png';
+        $webpPath = self::$testImageDir . self::$webpDir . 'no_convert_80.webp';
+
+        $this->createPngImage($sourcePath);
+        @unlink($webpPath);
+
+        $html = ImageHandler::render($relativePath, [
+            'alt' => 'No Convert',
+            'convert' => false,
+        ]);
+
+        $this->assertFileDoesNotExist($webpPath);
+        $this->assertStringNotContainsString('webp/no_convert_80.webp', $html);
+        $this->assertStringContainsString('src="/CorianderCore/Tests/_tmp/assets/no_convert.png"', $html);
+        $this->assertStringNotContainsString('convert=', $html);
+    }
+
+    public function testRenderSupportsExistingWebpWithoutConversion(): void
+    {
+        if (!function_exists('imagewebp')) {
+            $this->markTestSkipped('The GD WebP extension is not enabled.');
+        }
+
+        $sourcePath = self::$testImageDir . 'already.webp';
+        $relativePath = '/CorianderCore/Tests/_tmp/assets/already.webp';
+        $this->createWebpImage($sourcePath);
+
+        $html = ImageHandler::render($relativePath, ['alt' => 'Already WebP']);
+
+        $this->assertStringContainsString('<source srcset="/CorianderCore/Tests/_tmp/assets/already.webp" type="image/webp"', $html);
+        $this->assertStringContainsString('src="/CorianderCore/Tests/_tmp/assets/already.webp"', $html);
+        $this->assertStringNotContainsString('/webp/already_80.webp', $html);
+    }
+
+    public function testRenderSupportsSvgWithoutConversion(): void
+    {
+        $sourcePath = self::$testImageDir . 'icon.svg';
+        $relativePath = '/CorianderCore/Tests/_tmp/assets/icon.svg';
+        file_put_contents($sourcePath, '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="10"><rect width="20" height="10" /></svg>');
+
+        $html = ImageHandler::render($relativePath, ['alt' => 'SVG Icon']);
+
+        $this->assertStringContainsString('<picture class="">', $html);
+        $this->assertStringContainsString('alt="SVG Icon"', $html);
+        $this->assertStringContainsString('src="/CorianderCore/Tests/_tmp/assets/icon.svg"', $html);
+        $this->assertStringNotContainsString('<source srcset="/CorianderCore/Tests/_tmp/assets/icon.svg"', $html);
+        $this->assertStringNotContainsString('/webp/icon_80.webp', $html);
+    }
+
+    public function testRenderUsesJpegMimeTypeForJpgFallback(): void
+    {
+        if (!function_exists('imagejpeg')) {
+            $this->markTestSkipped('The GD JPEG extension is not enabled.');
+        }
+
+        $sourcePath = self::$testImageDir . 'photo.jpg';
+        $relativePath = '/CorianderCore/Tests/_tmp/assets/photo.jpg';
+        $this->createJpegImage($sourcePath);
+
+        $html = ImageHandler::render($relativePath, ['alt' => 'Photo']);
+
+        $this->assertStringContainsString('<source srcset="/CorianderCore/Tests/_tmp/assets/photo.jpg" type="image/jpeg"', $html);
+        $this->assertStringNotContainsString('type="image/jpg"', $html);
+    }
+
+    public function testConvertToWebpRegeneratesStaleGeneratedFile(): void
+    {
+        $sourcePath = self::$testImageDir . 'stale.png';
+        $relativePath = '/CorianderCore/Tests/_tmp/assets/stale.png';
+        $webpPath = self::$testImageDir . self::$webpDir . 'stale_80.webp';
+
+        $this->createPngImage($sourcePath, 255, 0, 0);
+        ImageHandler::convertToWebP($relativePath, 80);
+        touch($webpPath, time() - 20);
+        touch($sourcePath, time());
+
+        ImageHandler::convertToWebP($relativePath, 80);
+
+        $this->assertGreaterThanOrEqual(filemtime($sourcePath), filemtime($webpPath));
+    }
+
+    public function testRejectsTraversalPaths(): void
+    {
+        $this->assertFalse(
+            ImageHandler::convertToWebP('/../../windows/system32/drivers/etc/hosts', 80),
+            'Traversal paths must be rejected.'
+        );
+
+        $this->assertSame(
+            '',
+            ImageHandler::render('/../../windows/system32/drivers/etc/hosts'),
+            'Render should return empty output for rejected traversal paths.'
+        );
+    }
+
+    public function testRenderUsesConfiguredPublicUrlPrefix(): void
+    {
+        putenv('PUBLIC_URL_PREFIX=/public');
+        $_ENV['PUBLIC_URL_PREFIX'] = '/public';
+        $_SERVER['PUBLIC_URL_PREFIX'] = '/public';
+
+        $publicImageDir = PROJECT_ROOT . '/public/assets/_tmp_image_handler';
+        if (!is_dir($publicImageDir)) {
+            mkdir($publicImageDir, 0755, true);
+        }
+
+        $imagePath = $publicImageDir . '/test_image.png';
+        $image = imagecreatetruecolor(10, 10);
+        imagepng($image, $imagePath);
+        imagedestroy($image);
+
+        $html = ImageHandler::render('/public/assets/_tmp_image_handler/test_image.png', ['alt' => 'Test Image']);
+
+        $this->assertStringContainsString(
+            'srcset="/public/assets/_tmp_image_handler/webp/test_image_80.webp"',
+            $html
+        );
+        $this->assertStringContainsString(
+            'src="/public/assets/_tmp_image_handler/test_image.png"',
+            $html
+        );
+    }
+
+    private function createPngImage(string $path, int $red = 0, int $green = 0, int $blue = 0): void
+    {
+        $image = imagecreatetruecolor(10, 10);
+        $backgroundColor = imagecolorallocate($image, $red, $green, $blue);
+        imagefilledrectangle($image, 0, 0, 10, 10, $backgroundColor);
+        imagepng($image, $path);
+        imagedestroy($image);
+    }
+
+    private function createJpegImage(string $path): void
+    {
+        $image = imagecreatetruecolor(10, 10);
+        $backgroundColor = imagecolorallocate($image, 0, 0, 0);
+        imagefilledrectangle($image, 0, 0, 10, 10, $backgroundColor);
+        imagejpeg($image, $path);
+        imagedestroy($image);
+    }
+
+    private function createWebpImage(string $path): void
+    {
+        $image = imagecreatetruecolor(10, 10);
+        $backgroundColor = imagecolorallocate($image, 0, 0, 0);
+        imagefilledrectangle($image, 0, 0, 10, 10, $backgroundColor);
+        imagewebp($image, $path);
+        imagedestroy($image);
+    }
+}
