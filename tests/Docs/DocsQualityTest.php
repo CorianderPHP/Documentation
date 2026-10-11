@@ -79,9 +79,10 @@ final class DocsQualityTest extends TestCase
 
     public function testCodeHighlighterIsOnlyBundledBySharedAsset(): void
     {
-        foreach ($this->files(PROJECT_ROOT . '/nodejs/src') as $file) {
+        self::assertFileExists(PROJECT_ROOT . '/src/Scripts/documentation-code.ts');
+        foreach (array_merge($this->files(PROJECT_ROOT . '/src/Scripts'), $this->files(PROJECT_ROOT . '/src/Views')) as $file) {
             $normalized = str_replace('\\', '/', $file);
-            if (str_ends_with($normalized, 'nodejs/src/documentation/CodeHighlighter.ts') || str_ends_with($normalized, 'nodejs/src/documentation-code/index.ts')) {
+            if (str_ends_with($normalized, 'src/Scripts/documentation/CodeHighlighter.ts') || str_ends_with($normalized, 'src/Scripts/documentation-code.ts')) {
                 continue;
             }
 
@@ -92,7 +93,7 @@ final class DocsQualityTest extends TestCase
     public function testAnalyticsHostIsAllowedByContentSecurityPolicy(): void
     {
         $header = (string) file_get_contents(PROJECT_ROOT . '/src/Views/_header.php');
-        $policy = (string) file_get_contents(PROJECT_ROOT . '/src/Routes/_middleware.php');
+        $policy = (string) file_get_contents(PROJECT_ROOT . '/src/Views/_middleware.php');
 
         self::assertStringContainsString('https://analytics.corianderphp.com/script.js', $header);
         self::assertStringContainsString("script-src 'self' https://analytics.corianderphp.com", $policy);
@@ -202,12 +203,13 @@ final class DocsQualityTest extends TestCase
 
         self::assertStringContainsString('Static View Guide](/documentation/static-views)', $overview);
         self::assertStringContainsString('Dynamic View Guide](/documentation/dynamic-views)', $overview);
-        self::assertStringContainsString('Assets And Images](/documentation/assets)', $overview);
-        self::assertStringContainsString('src/Views/about.php', $static);
-        self::assertStringContainsString('src/Routes/about.get.php', $static);
+        self::assertStringContainsString('/documentation/assets', $overview);
+        self::assertStringContainsString('/documentation/page-scripts', $overview);
+        self::assertStringContainsString('src/Views/about/index.get.php', $static);
+        self::assertStringContainsString('src/Views/about/_metadata.php', $static);
         self::assertStringContainsString("Responses::view('articles/show'", $dynamic);
         self::assertStringContainsString('src/Views/articles/show.php', $dynamic);
-        self::assertStringContainsString('src/Routes/articles/[id].get.php', $dynamic);
+        self::assertStringContainsString('src/Views/articles/[id].get.php', $dynamic);
         self::assertStringContainsString('$request->getAttribute(\'id\')', $dynamic);
     }
 

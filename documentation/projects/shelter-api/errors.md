@@ -75,7 +75,7 @@ For a first internal API, `/api/shelter/...` is enough. If external clients depe
 /api/v1/shelter/shelters
 ```
 
-Keep versioning in the route directory, for example `src/Routes/api/v1/shelter`. The handler and service names do not need to contain `V1` until the behavior actually diverges. Update any narrowly scoped CSRF exemption when changing that prefix; secure public writes separately.
+Keep versioning in the route directory, for example `src/Views/api/v1/shelter`. The handler and service names do not need to contain `V1` until the behavior actually diverges. Update any narrowly scoped CSRF exemption when changing that prefix; secure public writes separately.
 
 The completed implementation treats archived animals as not found. If you later distinguish an edit conflict from a missing record, define that rule and return 409 explicitly; it is not automatic framework behavior.
 

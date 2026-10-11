@@ -1,52 +1,45 @@
 # Static View Guide
 
-A static view is a fixed page that does not need a data lookup. In 0.3.0 it still has a route file: copying a template alone does not expose a URL.
+A static page shows fixed content without a database lookup. CorianderPHP 0.4.0 can render it directly from a GET file, without a forwarding handler.
 
-## Goal
+## Create Your Page
 
-Create an `/about` page with a shared header and footer.
-
-## Create The Route And Template
-
-You can use the generators:
+For an `/about` page, you can run:
 
 ```bash
-php coriander make:route about
 php coriander make:view about
 ```
 
-Or create `src/Routes/about.get.php` and `src/Views/about.php` by hand. The generated view contains a section and heading, not a complete page layout.
+This creates `src/Views/about/index.get.php`. Replace its contents:
 
-Replace the route contents:
+```html
+<section>
+    <h1>About us</h1>
+    <p>We build tools for our community.</p>
+</section>
+```
+
+You can create the same file by hand. `index.get.php` serves the directory's URL; a plain `index.php` does not.
+
+Visit `/about`. Do not also create `about.get.php`: it would define the same GET endpoint.
+
+## Give The Page A Title
+
+Create `src/Views/about/_metadata.php`:
 
 ```php
 <?php
-declare(strict_types=1);
-
-use CorianderCore\Core\Http\Responses;
-use Psr\Http\Message\ServerRequestInterface;
-
-return static fn (ServerRequestInterface $request) =>
-    Responses::view('about', [
-        'title' => 'About us',
-        'description' => 'Learn about our team.',
-    ]);
+return [
+    'title' => 'About us',
+    'description' => 'Learn about our team.',
+];
 ```
 
-Edit `src/Views/about.php`:
+The metadata file returns an array and prints nothing. The framework merges root metadata first, then directory metadata. Use metadata for title/description defaults, not for database calls or authentication.
 
-```html
-<main>
-    <h1>About us</h1>
-    <p>We build practical tools for our community.</p>
-</main>
-```
+## Add A Shared Layout
 
-The render name `about` maps to `src/Views/about.php`. For `pages/about`, the template is `src/Views/pages/about.php`.
-
-## Add The Layout
-
-Create `src/Views/_header.php`:
+A fresh starter already has root layouts. Update them rather than creating competing copies. If your app has none, create `src/Views/_header.php`:
 
 ```html
 <!doctype html>
@@ -54,37 +47,55 @@ Create `src/Views/_header.php`:
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= $title ?? 'My app' ?></title>
-    <meta name="description" content="<?= $description ?? '' ?>">
+    <title><?= $page['title'] ?? 'My app' ?></title>
+    <meta name="description" content="<?= $page['description'] ?? '' ?>">
 </head>
 <body>
+<main>
 ```
 
 Create `src/Views/_footer.php`:
 
 ```html
+</main>
 </body>
 </html>
 ```
 
-The framework includes header, page, then footer. The route data is available to all three. There is no separate `metadata.php`; title/description are ordinary data.
+The title/description strings are already escaped by the framework. Output them directly rather than calling `htmlspecialchars()` again.
 
-If the starter already has these layouts, update them instead of creating competing copies.
+The direct page runs before the layouts, but variables assigned inside it are **not** forwarded to the header/footer. Put shared layout information in metadata. All three receive the same matched `$request`.
 
-## Check The Page
+## Understand The Rendering Flow
+
+```workflow
+Request|GET /about selects src/Views/about/index.get.php.
+Middleware|Inherited request gates run before any page code.
+Metadata|Root and about metadata merge into the escaped $page array.
+Page|The GET file executes once and produces the content.
+Layout|Nearest header and footer surround the content; compiled scripts are inserted before the footer.
+```
+
+A directory can override only its header and retain the root footer, or the other way around. If no layout exists, only the page HTML appears.
+
+## Add Browser Behavior Only When Needed
+
+Create `src/Views/about/index.ts` beside the page, then build:
+
+```bash
+php coriander nodejs run build-prod
+```
+
+The framework automatically includes its compiled module when present. Do not add a second manual script tag. See [Page Scripts](/documentation/page-scripts) for a working interaction and shared imports. PHP-only pages do not need TypeScript or Node.js.
+
+## Check Your Work
 
 ```bash
 php coriander routes:list
 ```
 
-Confirm GET/HEAD `/about` appears, then visit it. A 404 usually means the route filename/path is wrong. A missing-view error means the render name does not match the template path.
+Confirm GET and HEAD `/about` appear. Open the page and inspect its title. If the URL is 404, check file casing and the method suffix, not the template contents.
 
-The homepage uses `src/Routes/index.get.php`, even when its template is named `home.php`.
+The homepage is `src/Views/index.get.php`. For images and public files, use [Assets](/documentation/assets). Add public URLs to the [Sitemap](/documentation/sitemap); views are not scanned to infer sitemap entries.
 
-## Assets And Sitemap
-
-Keep CSS, JavaScript, and images under `public/assets`. Use [PublicUrl or ImageHandler](/documentation/assets) instead of hard-coded deployment paths.
-
-For search engines, add the public URL through [SitemapHandler](/documentation/sitemap). Views are not scanned for sitemap metadata.
-
-Move to a [dynamic view](/documentation/dynamic-views) when request data must be prepared before rendering.
+When data must come from the request or a repository, continue with [Dynamic View Guide](/documentation/dynamic-views).

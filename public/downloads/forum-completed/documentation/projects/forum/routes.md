@@ -1,12 +1,12 @@
 # Forum Routes
 
-In 0.3.0, the folder/filename defines each URL and method. The forum's web handlers belong under `src/Routes/forum-demo`; its JSON handlers belong under `src/Routes/api/forum-demo`.
+In 0.4.0, the folder/filename defines each URL and method. The forum's web handlers belong under `src/Views/forum-demo`; its JSON handlers belong under `src/Views/api/forum-demo`.
 
-Remove the temporary `src/Routes/forum-demo.get.php` from setup before creating `forum-demo/index.get.php`.
+Remove the temporary `src/Views/forum-demo.get.php` from setup before creating `forum-demo/index.get.php`.
 
 ## Route Map
 
-Paths below are relative to `src/Routes/forum-demo/`.
+Paths below are relative to `src/Views/forum-demo/`.
 
 | File | URL and method | ForumActions method |
 | --- | --- | --- |
@@ -29,7 +29,7 @@ Guests can read. Members can submit topics/replies. Admins can manage roles and 
 
 ## Connect Read Handlers
 
-Create `src/Routes/forum-demo/index.get.php`:
+Create `src/Views/forum-demo/index.get.php`:
 
 ```php
 <?php
@@ -67,7 +67,7 @@ Response|Renders src/Views/forum-demo/topic.php with prepared data.
 
 ## Validate The Dynamic Id
 
-`[id]` matches any segment. The old regex route constraint is not available. Add `src/Routes/forum-demo/topics/[id]/_middleware.php`:
+`[id]` matches any segment. The old regex route constraint is not available. Add `src/Views/forum-demo/topics/[id]/_middleware.php`:
 
 ```php
 <?php

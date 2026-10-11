@@ -1,6 +1,6 @@
 # Documentation
 
-Start with what you want to build. This documentation targets **CorianderPHP 0.3.0**. If you already have a 0.2.x application, read the [Upgrade Guide](/documentation/upgrades): this release changes routing, middleware, templates, and bootstrap code.
+Start with what you want to build. This documentation targets **CorianderPHP 0.4.0**. If you already have a 0.3.x or older application, read the [Upgrade Guide](/documentation/upgrades): this release changes routing, middleware, templates, and bootstrap code.
 
 ## Install The Framework
 
@@ -14,14 +14,13 @@ Configure and build|Set local environment values and build assets using the [Ins
 
 ## Create A Page
 
-A page needs a **route file** and usually a **view template**. A fixed page does not need an action class.
+A fixed page needs one direct GET file. You do not need an action class or a separate forwarding route.
 
 ```bash
-php coriander make:route about
 php coriander make:view about
 ```
 
-These create `src/Routes/about.get.php` and `src/Views/about.php`. In the route, return `Responses::view('about', ['title' => 'About'])`.
+This creates `src/Views/about/index.get.php`. Put your PHP/HTML there, add optional `_metadata.php` for the title, and visit `/about`. The framework supplies inherited layouts.
 
 - [Static View Guide](/documentation/static-views): complete fixed-page example and shared layout.
 - [Dynamic View Guide](/documentation/dynamic-views): validated path parameter, prepared data, template, and 404 behavior.
@@ -34,7 +33,7 @@ A method file returns a callable that accepts the request and returns a PSR resp
 - [Request Handlers](/documentation/handlers): read query/form/JSON data, validate it, and return HTML, JSON, views, or redirects.
 - [Recommended App Architecture](/documentation/app-architecture): responsibilities and when to extract reusable logic.
 
-There is no controller generator or automatic controller discovery in 0.3.0.
+There is no controller generator or automatic controller discovery in 0.4.0.
 
 ## Create An API
 
@@ -70,7 +69,8 @@ Authentication identifies a user. Authorization decides what that user may do.
 - [Modules](/documentation/modules): app-owned services and repositories.
 - [Cache](/documentation/cache): automatic route-map refresh.
 - [Sitemap](/documentation/sitemap): explicit public URLs.
-- [NodeJS Integration](/documentation/nodejs): Tailwind and TypeScript builds.
+- [Page Scripts](/documentation/page-scripts): colocated TypeScript, directory scripts, shared imports, and automatic loading.
+- [NodeJS Integration](/documentation/nodejs): Tailwind, builds, watchers, and deployments.
 - [Environment](/documentation/environment): local and production configuration.
 - [Production Checklist](/documentation/production): safe hosting and deployment.
 - [Errors And Debugging](/documentation/debugging): identify the failing layer.

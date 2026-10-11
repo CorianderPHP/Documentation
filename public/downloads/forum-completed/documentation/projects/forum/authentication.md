@@ -91,7 +91,7 @@ public function currentUser(): ?array
 }
 ```
 
-CorianderPHP 0.3.0 does not start sessions eagerly. Every method must start/resume the session before accessing `$_SESSION`; otherwise existing login state can appear missing. See [Sessions](/documentation/sessions).
+CorianderPHP 0.4.0 does not start sessions eagerly. Every method must start/resume the session before accessing `$_SESSION`; otherwise existing login state can appear missing. See [Sessions](/documentation/sessions).
 
 Quick role login is only for a protected educational demo. Never ship it as production authentication. The local project verifies seeded password hashes; the downloaded public-demo reference instead uses fixed in-memory accounts and does not provide production authentication.
 

@@ -1,6 +1,6 @@
 # File-Based Routing
 
-CorianderPHP 0.3.0 discovers routes from method files in `src/Routes`. The folder path describes the URL; the filename suffix describes the HTTP method. You do not include route files in `public/routes.php` or register them with `$router->get()`.
+CorianderPHP 0.4.0 discovers routes from method files in `src/Views`. The folder path describes the URL; the filename suffix describes the HTTP method. You do not include route files in `public/routes.php` or register them with `$router->get()`.
 
 ## Create Your First Route
 
@@ -11,7 +11,7 @@ php coriander make:route hello
 php coriander routes:list
 ```
 
-The first command creates `src/Routes/hello.get.php`. Replace its contents with:
+The first command creates `src/Views/hello.get.php`. Replace its contents with:
 
 ```php
 <?php
@@ -25,7 +25,11 @@ return static function (ServerRequestInterface $request) {
 };
 ```
 
-Open `/hello`. The file returns a callable; that callable receives the request and **returns a PSR response**. Do not echo HTML or return a plain string. Use `Responses::view()` for templates or `Responses::json()` for JSON.
+Open `/hello`. This example returns a callable; that callable receives the request and **returns a PSR response**. It must not print output. Use `Responses::view()` for prepared templates or `Responses::json()` for JSON.
+
+For a simple HTML page, you can instead put PHP/HTML directly in a `.get.php` file with no explicit return. The framework adds layouts, metadata, and compiled page scripts. `php coriander make:view hello` creates `src/Views/hello/index.get.php`; use it instead of `hello.get.php`, not alongside it, because both represent the same URL. See [Static View Guide](/documentation/static-views).
+
+Non-GET files must return callable handlers. Never mix printed HTML and a returned handler in one file.
 
 Creating these files by hand is also supported. Generators are conveniences, not a registration step.
 
@@ -79,7 +83,7 @@ These methods are available on the request created by the starter's `RequestFact
 
 Place `_middleware.php` in the route directory you want to protect. Root middleware runs first; child directories add their own middleware. Children cannot remove a parent's protection. See [Middleware](/documentation/middleware).
 
-Files and directories whose names start with `_` or `.` are private. Reusable classes belong in `src/Actions` or `src/Modules`, not disguised as routable PHP files. Views never create URLs.
+Files and directories whose names start with `_` or `.` are private. Reusable classes belong in `src/Actions` or `src/Modules`, not disguised as routable PHP files. Unsuffixed templates do not create URLs; method-suffixed files in the view tree do.
 
 ## Matching And Errors
 
@@ -105,4 +109,4 @@ This lists URLs, methods, handler files, HEAD fallbacks, and inherited middlewar
 
 For a custom bootstrap, use `(new Router())->handle($request)` and emit the response with the original request method. See [Request Lifecycle](/documentation/request-lifecycle).
 
-Upgrading from 0.2.x? Follow the [0.3.0 migration checklist](/documentation/upgrades) before replacing your old route registration.
+Upgrading from 0.2.x? Follow the [0.4.0 migration checklist](/documentation/upgrades) before replacing your old route registration.

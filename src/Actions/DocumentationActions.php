@@ -38,7 +38,7 @@ final class DocumentationActions
             'query' => '',
             'scope' => 'reference',
             'results' => [],
-            'page' => $page,
+            'article' => $page,
         ]);
     }
 
@@ -57,7 +57,7 @@ final class DocumentationActions
             'query' => '',
             'scope' => 'reference',
             'results' => [],
-            'page' => $page,
+            'article' => $page,
         ]);
 
     }
@@ -76,7 +76,7 @@ final class DocumentationActions
             'query' => $query,
             'scope' => $scope,
             'results' => $this->search->search($query, $scope),
-            'page' => null,
+            'article' => null,
         ]);
     }
 }

@@ -39,7 +39,7 @@ DemoAuth starts the session before reading login state. The permission service o
 
 ## Attach It Once
 
-Create `src/Routes/forum-demo/admin/_middleware.php`:
+Create `src/Views/forum-demo/admin/_middleware.php`:
 
 ```php
 <?php
@@ -50,7 +50,7 @@ return [new ForumDemoAdminMiddleware()];
 
 This protects admin/index.get.php, users.get.php, users.post.php, topics.post.php, and replies.post.php. Root CSRF, request limits, and security headers still apply. A child list cannot remove them.
 
-Create `src/Routes/forum-demo/admin/index.get.php`:
+Create `src/Views/forum-demo/admin/index.get.php`:
 
 ```php
 <?php

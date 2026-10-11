@@ -1,0 +1,2 @@
+// coriander-version:04bc96d56bb5656d5269be33dce50cebccda6b49f4d86d12c7d8a67bdd596879
+document.querySelectorAll("[data-demo-form]").forEach(r=>{r.addEventListener("submit",e=>{let t=e.submitter instanceof HTMLButtonElement?e.submitter:null;t&&(t.disabled=!0,t.setAttribute("aria-busy","true"))})});var o=document.querySelector("[data-demo-flash]");o&&o.scrollIntoView({block:"nearest",behavior:"smooth"});

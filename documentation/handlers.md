@@ -1,10 +1,10 @@
 # Request Handlers
 
-A request handler is the callable returned by a file in `src/Routes`. It reads input, calls application logic, and returns a response. CorianderPHP 0.3.0 does not discover controller methods or provide `make:controller`.
+A request handler is the callable returned by a file in `src/Views`. It reads input, calls application logic, and returns a response. CorianderPHP 0.4.0 does not discover controller methods or provide `make:controller`.
 
 ## A Complete JSON Handler
 
-Create `src/Routes/greeting.get.php`:
+Create `src/Views/greeting.get.php`:
 
 ```php
 <?php
@@ -31,11 +31,11 @@ Request `/greeting?name=Sam`. `Responses::json()` sets the JSON content type and
 ```php
 Responses::html('<p>Ready</p>');
 Responses::json(['data' => $items], 200);
-Responses::view('articles/show', ['title' => 'Article', 'article' => $article]);
+Responses::view('articles/show', ['page' => ['title' => 'Article'], 'article' => $article]);
 Responses::redirect('/articles', 303);
 ```
 
-All four return a `ResponseInterface`. A route must return that response; printing HTML, returning `null`, or returning an array directly is an error. You may also return your own PSR response.
+All four return a `ResponseInterface`. A callable handler must return that response; printing output, returning `null`, or returning an array directly is an error. Direct GET pages are a different contract: they may output PHP/HTML without returning a handler. You may also return your own PSR response.
 
 The default redirect status is 303. Use it after a successful form POST so refresh/back navigation returns to a GET page instead of resubmitting the form.
 
@@ -81,14 +81,14 @@ final class ArticleActions
         // Replace sample data with a repository call when adding persistence.
         $article = ['id' => (int) $id, 'title' => 'First article'];
         return Responses::view('articles/show', [
-            'title' => $article['title'],
+            'page' => ['title' => $article['title']],
             'article' => $article,
         ]);
     }
 }
 ```
 
-Then `src/Routes/articles/[id].get.php` returns the method:
+Then `src/Views/articles/[id].get.php` returns the method:
 
 ```php
 <?php

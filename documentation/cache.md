@@ -1,6 +1,6 @@
 # Route Cache
 
-CorianderPHP 0.3.0 caches the discovered route map automatically in production. This replaces controller-cache generation.
+CorianderPHP 0.4.0 caches the discovered route map automatically in production. This replaces controller-cache generation.
 
 ## Development And Production
 

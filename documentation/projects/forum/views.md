@@ -4,12 +4,14 @@ Views live under `src/Views`. The demo uses server-rendered templates so the app
 
 ## Goal
 
-Create forum templates that render prepared data and show controls based on permissions.
+Create unsuffixed forum templates that render prepared data and show controls based on permissions. These deliberately use explicit view responses rather than direct GET pages: the action prepares auth, permissions, and database results first. Keep method files and `_middleware.php` in the same private Views tree.
+
+Create these plain PHP templates by hand. `make:view` creates a direct GET endpoint in 0.4.0, so it is not the generator for these unsuffixed files.
 
 ## Files Created
 
 ```structure
-src/Views/forum-demo.php
+src/Views/forum-demo/_index.php
 src/Views/forum-demo/login.php
 src/Views/forum-demo/topics.php
 src/Views/forum-demo/topic.php
@@ -25,8 +27,8 @@ You are here in the flow:
 
 ```workflow
 Handler|`ForumActions::index()` prepares the landing page data.
-Render call|`$this->render('forum-demo', ['topics' => ...])` chooses the view name.
-View file|`src/Views/forum-demo.php` receives `$topics`, `$currentUser`, and `$permissions`.
+Render call|`$this->render('forum-demo/_index', ['topics' => ...])` chooses the view name.
+View file|`src/Views/forum-demo/_index.php` receives `$topics`, `$currentUser`, and `$permissions`.
 ```
 
 ```html
@@ -141,9 +143,11 @@ Create shared `_header.php`/`_footer.php` under `src/Views`, as described in [St
 TypeScript can improve interactions, but the core demo should work as server-rendered HTML. Add TypeScript for small enhancements only.
 
 ```structure
-nodejs/src/forum-demo/index.ts
-public/assets/js/forum-demo/index.js
+src/Views/forum-demo/_script.ts
+public/assets/js/pages/forum-demo/_script.js
 ```
+
+The framework includes this directory module automatically for full forum view responses. Do not add the same script manually in the footer. Build it with `php coriander nodejs run build-prod`; see [Page Scripts](/documentation/page-scripts) for shared imports and fragments.
 
 ## Checkpoint
 

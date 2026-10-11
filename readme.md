@@ -8,9 +8,10 @@ It is a CorianderPHP application that consumes the framework. It is intentionall
 
 - `documentation/` - Markdown documentation and guided project content.
 - `src/` - Discovered method routes, request action classes, modules, middleware, and demo logic.
-- `src/Views/` - Private PHP templates with inherited `_header.php`/`_footer.php` layouts.
+- `src/Views/` - Private method pages/handlers, templates, metadata, inherited middleware/layouts, and colocated scripts.
 - `public/assets/` - Built CSS, JavaScript, fonts, and images.
-- `nodejs/src/` - TypeScript source for interactions, demos, and code highlighting.
+- `src/Scripts/` - Shared TypeScript for navigation, demos, and code highlighting.
+- `nodejs/` - Build/watch tooling, npm dependencies, and TypeScript/Tailwind configuration.
 - `resources/downloads/` - Source files for generated downloadable project packages.
 - `public/downloads/` - Generated download folders and ZIP files.
 - `tests/` - Documentation website tests and quality checks.
@@ -27,7 +28,7 @@ Use app-owned folders for documentation website behavior:
 - `src`
 - `documentation`
 - `src/Views`
-- `nodejs/src`
+- `src/Scripts`
 - `resources`
 - `scripts`
 - `tests`

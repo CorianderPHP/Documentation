@@ -2,7 +2,7 @@
 
 Middleware runs before and after a selected route handler. Use it for request gates such as authentication, authorization, request limits, and response headers.
 
-In 0.3.0, middleware is declared in route-directory `_middleware.php` files, not router groups.
+In 0.4.0, middleware is declared in route-directory `_middleware.php` files, not router groups.
 
 ## Protect A Directory
 
@@ -39,7 +39,7 @@ final class AdminMiddleware implements MiddlewareInterface
 
 This minimal example checks a session role. For a real app, resolve the authenticated user and delegate to your permission service, as the [forum project](/guided-projects/forum/admin-area) does. Never trust a submitted role.
 
-Add `src/Routes/admin/_middleware.php`:
+Add `src/Views/admin/_middleware.php`:
 
 ```php
 <?php
@@ -48,12 +48,12 @@ use App\Middleware\AdminMiddleware;
 return [new AdminMiddleware()];
 ```
 
-Now every handler under `src/Routes/admin` inherits this gate. An `admin/users/index.get.php` handler cannot be reached through an unprotected controller alias because there is no controller discovery.
+Now every handler under `src/Views/admin` inherits this gate. An `admin/users/index.get.php` handler cannot be reached through an unprotected controller alias because there is no controller discovery.
 
 ## Order And Inheritance
 
 ```structure
-src/Routes/
+src/Views/
   _middleware.php
   index.get.php
   admin/
@@ -70,7 +70,7 @@ A middleware may stop the chain by returning a response without calling `$handle
 
 ## Root Security Policy
 
-The starter's `src/Routes/_middleware.php` returns framework middleware:
+The starter's `src/Views/_middleware.php` returns framework middleware:
 
 ```php
 <?php

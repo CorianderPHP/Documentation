@@ -1,0 +1,2 @@
+// coriander-version:3178169817cecc8a2756282f32da0a8456c682ac8e31d16597342eea60ac4d1a
+import{a as t}from"../_chunks/chunk-CIBRENT3.js";t();document.querySelectorAll("[data-scroll-memory]").forEach(o=>{let r=`scroll:${o.dataset.scrollMemory??""}`,s=window.sessionStorage.getItem(r);s!==null&&(o.scrollTop=Number.parseInt(s,10)||0),o.addEventListener("scroll",()=>{window.sessionStorage.setItem(r,String(o.scrollTop))},{passive:!0})});

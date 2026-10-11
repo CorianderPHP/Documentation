@@ -14,7 +14,7 @@ The preferred document root is `public/` with `PUBLIC_URL_PREFIX=`. See [Product
 php coriander routes:list
 ```
 
-Look for the exact path and method. `src/Routes/about.get.php` means GET /about; a view or action class alone is not a route. `index.get.php` represents its directory's root.
+Look for the exact path and method. `src/Views/about.get.php` means GET /about; a view or action class alone is not a route. `index.get.php` represents its directory's root.
 
 404 means no path or a missing application record. 405 means a path exists but does not accept that method; inspect the `Allow` header. Static paths take precedence over dynamic matches.
 
@@ -26,7 +26,7 @@ A handler must return a PSR response:
 
 ```php
 return \CorianderCore\Core\Http\Responses::view('articles/show', [
-    'title' => 'Article',
+    'page' => ['title' => 'Article'],
     'article' => $article,
 ]);
 ```

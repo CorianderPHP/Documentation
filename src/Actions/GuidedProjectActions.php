@@ -82,7 +82,7 @@ final class GuidedProjectActions
         return $this->view->response($project->view, $this->viewData($project, $navigation, $pages, [
             'mode' => 'show',
             'adjacent' => $navigation->adjacent($pages, $page->slug),
-            'page' => $page,
+            'article' => $page,
             'query' => '',
             'results' => [],
         ]));
@@ -104,7 +104,7 @@ final class GuidedProjectActions
         return $this->view->response($project->view, $this->viewData($project, $navigation, $pages, [
             'mode' => 'search',
             'adjacent' => ['previous' => null, 'next' => null],
-            'page' => null,
+            'article' => null,
             'query' => $query,
             'results' => $this->search->search($query, $project->key),
         ]));

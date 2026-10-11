@@ -3,6 +3,7 @@
         "target": "ES2020",
         "useDefineForClassFields": true,
         "module": "ESNext",
+        "moduleDetection": "force",
         "lib": [
             "ES2020",
             "DOM",
@@ -15,8 +16,6 @@
         "resolveJsonModule": true,
         "isolatedModules": true,
         "noEmit": true,
-        "outDir": "../public/assets/js/", // Directory for compiled JS files
-        "rootDir": "./src", // Directory for TS files
         /* Linting */
         "strict": true,
         "noUnusedLocals": true,
@@ -24,6 +23,7 @@
         "noFallthroughCasesInSwitch": true
     },
     "include": [
-        "src"
+        "../src/Views",
+        "../src/Scripts"
     ]
 }

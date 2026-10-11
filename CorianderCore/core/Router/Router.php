@@ -15,7 +15,7 @@ class Router implements RequestHandlerInterface
 {
     private RouteCache $cache;
 
-    public function __construct(private string $directory = PROJECT_ROOT . '/src/Routes', ?RouteCache $cache = null)
+    public function __construct(private string $directory = PROJECT_ROOT . '/src/Views', ?RouteCache $cache = null)
     {
         $this->cache = $cache ?? new RouteCache($directory);
     }
@@ -47,13 +47,8 @@ class Router implements RequestHandlerInterface
             sort($allowed);
             return $this->respond($request, reset($route['methods']), static fn() => new Response(405, ['Allow' => implode(', ', $allowed)], 'Method Not Allowed'));
         }
-        return $this->respond($request, $target, function ($request) use ($target) {
-            $handler = require SafePath::resolveFile($this->directory, $target['file']);
-            if (!is_callable($handler)) {
-                throw new \UnexpectedValueException('Route file must return a callable: ' . $target['file']);
-            }
-            return $handler($request);
-        });
+        return $this->respond($request, $target, fn($request) =>
+            (new ViewRenderer($this->directory))->dispatch($target['file'], $request));
     }
 
     /**

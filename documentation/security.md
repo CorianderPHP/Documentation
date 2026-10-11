@@ -1,6 +1,6 @@
 # Security Guide
 
-Security middleware is declared in `src/Routes/_middleware.php`. Keep framework protection and add app-specific authorization in child directories or services.
+Security middleware is declared in `src/Views/_middleware.php`. Keep framework protection and add app-specific authorization in child directories or services.
 
 ## CSRF: Web And Cookie-Based APIs
 
