@@ -1,6 +1,6 @@
 # Documentation
 
-Start with what you want to build. This documentation targets **CorianderPHP 0.4.0**. If you already have a 0.3.x or older application, read the [Upgrade Guide](/documentation/upgrades): this release changes routing, middleware, templates, and bootstrap code.
+Start with what you want to build. This documentation targets **CorianderPHP 0.4.1**. Existing applications should read the [Upgrade Guide](/documentation/upgrades): 0.4.0 changed the route/view tree, and 0.4.1 renames framework metadata to `$metadata` while leaving `$page` available for application data.
 
 ## Install The Framework
 
@@ -33,7 +33,7 @@ A method file returns a callable that accepts the request and returns a PSR resp
 - [Request Handlers](/documentation/handlers): read query/form/JSON data, validate it, and return HTML, JSON, views, or redirects.
 - [Recommended App Architecture](/documentation/app-architecture): responsibilities and when to extract reusable logic.
 
-There is no controller generator or automatic controller discovery in 0.4.0.
+There is no controller generator or automatic controller discovery in 0.4.1.
 
 ## Create An API
 

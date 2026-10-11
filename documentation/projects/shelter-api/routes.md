@@ -1,6 +1,6 @@
 # REST Routes
 
-Use noun-based URLs and HTTP methods to express operations. CorianderPHP 0.4.0 discovers the following method files automatically.
+Use noun-based URLs and HTTP methods to express operations. CorianderPHP 0.4.1 discovers the following method files automatically.
 
 ## Endpoint Files
 

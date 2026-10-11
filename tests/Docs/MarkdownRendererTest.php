@@ -39,6 +39,14 @@ MD);
         self::assertStringContainsString('data-language="structure"', $result['html']);
     }
 
+    public function testExternalReleaseLinksKeepTheirOriginAndEscapeAttributes(): void
+    {
+        $url = 'https://github.com/CorianderPHP/CorianderPHP/releases/tag/v0.4.1';
+        $rendered = (new MarkdownRenderer())->render('[Release](' . $url . '?a=1&b=2)');
+        self::assertStringContainsString('href="' . $url . '?a=1&amp;b=2"', $rendered['html']);
+        self::assertStringNotContainsString('href="/https:', $rendered['html']);
+    }
+
     public function testDownloadLinksRespectPublicUrlPrefix(): void
     {
         $previous = getenv('PUBLIC_URL_PREFIX');

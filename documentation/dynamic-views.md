@@ -60,7 +60,7 @@ return static function (ServerRequestInterface $request) {
     }
 
     return Responses::view('articles/show', [
-        'page' => ['title' => $article['title'], 'description' => 'Read this article.'],
+        'metadata' => ['title' => $article['title'], 'description' => 'Read this article.'],
         'article' => $article,
         'canEdit' => false,
     ]);
@@ -81,7 +81,7 @@ Create the separate **unsuffixed** `src/Views/articles/show.php` by hand:
 </article>
 ```
 
-Unlike direct-page local data, strings passed to `Responses::view()` are recursively HTML-escaped. Output these prepared strings directly. The `page` key is reserved for a metadata array; use `article` for the content record.
+Unlike direct-page local data, strings inside arrays passed to `Responses::view()` are recursively HTML-escaped. Output these prepared strings directly. The `metadata` key is reserved for a metadata array. We use `article` for the content record, but `page` is also a valid application data key. Object properties are not automatically escaped; encode them when rendering.
 
 The template does not expose `/articles/show`. The method file owns the URL and chooses a template. `Responses::view('articles/[id].get')` is invalid: method files must be dispatched by the router.
 
@@ -101,11 +101,11 @@ Response|The emitter sends HTML, or the handler's 404/redirect/JSON response.
 
 ## Layout Data And Request Attributes
 
-Direct pages/layouts receive the middleware-adjusted `$request` and escaped `$page` metadata. A variable set in a direct page is not available in its header/footer.
+Direct pages/layouts receive the middleware-adjusted `$request` and escaped `$metadata` array. A variable set in a direct page is not available in its header/footer.
 
 Explicit templates and layouts receive the variables passed to `Responses::view()`. Pass request-derived display values deliberately; do not assume the explicit renderer supplies a `$request` variable.
 
-Metadata shallow-merges root to leaf. Explicit `['page' => ['title' => 'Override']]` overrides matching metadata keys. Keep layout declarations free of database/business side effects.
+Metadata shallow-merges root to leaf. Explicit `['metadata' => ['title' => 'Override']]` overrides matching metadata keys. Keep layout declarations free of database/business side effects.
 
 ## Forms And Redirects
 

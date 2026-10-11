@@ -1,6 +1,6 @@
 # Shelter API Project Structure
 
-Start from an installed CorianderPHP **0.4.0** app. This project uses ordinary App classes and discovered method files; it does not need an API controller generator or manual route registration.
+Start from an installed CorianderPHP **0.4.1** app. This project uses ordinary App classes and discovered method files; it does not need an API controller generator or manual route registration.
 
 ## Verify Routing First
 

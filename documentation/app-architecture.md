@@ -1,6 +1,6 @@
 # Recommended App Architecture
 
-Keep framework files separate from application behavior. In 0.4.0, pages and HTTP handlers share one private Views tree; classes and browser helpers remain ordinary app-owned code.
+Keep framework files separate from application behavior. In 0.4.1, pages and HTTP handlers share one private Views tree; classes and browser helpers remain ordinary app-owned code.
 
 ```structure
 CorianderCore/                 # Framework-managed

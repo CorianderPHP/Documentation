@@ -2,7 +2,7 @@
 
 Middleware runs before and after a selected route handler. Use it for request gates such as authentication, authorization, request limits, and response headers.
 
-In 0.4.0, middleware is declared in route-directory `_middleware.php` files, not router groups.
+In 0.4.1, middleware is declared in route-directory `_middleware.php` files, not router groups.
 
 ## Protect A Directory
 

@@ -24,8 +24,9 @@ final class DocumentationSearch
             $haystack = strtolower($page->title . ' ' . $page->description . ' ' . strip_tags($page->html));
             $score = 0;
             foreach ($terms as $term) {
-                $score += substr_count(strtolower($page->title), $term) * 5;
-                $score += substr_count($haystack, $term);
+                $score += preg_match_all('/(?<![a-z0-9_])' . preg_quote($term, '/') . '(?![a-z0-9_])/i', $page->title) * 5;
+                // Repetition in a long guide should not overwhelm relevant titles.
+                $score += (int) ceil(log(1 + substr_count($haystack, $term), 2));
             }
 
             if ($score <= 0) {

@@ -1,10 +1,10 @@
 # Forum Completed Demo Reference
 
-These are app-owned files for **CorianderPHP 0.4.0**. The framework is not included. This is the documentation site's read-only demo reference, not the local persisted forum described in the SQL chapters.
+These are app-owned files for **CorianderPHP 0.4.1**. The framework is not included. This is the documentation site's read-only demo reference, not the local persisted forum described in the SQL chapters.
 
 ## Install In A Fresh Local Starter
 
-1. Download/install the 0.4.0 framework and its Composer/Node dependencies.
+1. Download/install the 0.4.1 framework and its Composer/Node dependencies.
 2. Copy this package's src, nodejs, and public assets into that starter, except src/Views/_middleware.php. The bundled layout/theme is intended for a fresh app; merge instead of replacing existing app layouts/assets.
 3. Keep the starter's public/index.php and root src/Views/_middleware.php. The package includes a sample root policy for comparison; do not exempt api/forum-demo from CSRF.
 4. Use the starter's `"App\\": "src/"` Composer mapping and run composer dump-autoload.

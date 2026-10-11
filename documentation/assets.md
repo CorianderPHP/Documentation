@@ -14,13 +14,34 @@ public/
     js/
 ```
 
-Reference public assets with absolute paths:
+Use the framework URL helper so the same template works with either document root:
 
 ```html
-<img src="/public/assets/img/logo.png" alt="Site logo">
+<img src="<?= \CorianderCore\Core\Support\PublicUrl::asset('assets/img/logo.png') ?>" alt="Site logo">
 ```
 
 If your web server document root is already `public/`, configure `PUBLIC_URL_PREFIX=` in `.env`. If your server exposes the project root, configure `PUBLIC_URL_PREFIX=/public`.
+
+## Version CSS And JavaScript
+
+Use `PublicUrl::versionedAsset()` for browser-cache invalidation:
+
+```html
+<link rel="stylesheet" href="<?= \CorianderCore\Core\Support\PublicUrl::versionedAsset('assets/css/output.css') ?>">
+```
+
+In 0.4.1, CSS and JavaScript URLs include a content hash. Changing the bytes changes the version even if deployment preserves modification times. Generated files carry a fingerprint that PHP reads from a bounded prefix; unmarked/manual/watch output uses a content-hash fallback. Other asset types use modification timestamps. Missing files receive an unversioned URL, so the helper does not replace build/deployment checks.
+
+Pass a **raw relative path**. The helper encodes each URL segment; pre-encoding spaces or brackets would encode them twice. For a custom asset root, its optional second argument is the physical file to version, while the first argument remains the public URL path.
+
+```php
+use CorianderCore\Core\Support\PublicUrl;
+
+$url = PublicUrl::versionedAsset('assets/js/pages/users/[id].js');
+$customUrl = PublicUrl::versionedAsset('assets/css/theme.css', '/srv/shared/theme.css');
+```
+
+The physical path must be an app-controlled file, not visitor input. Automatic page scripts use this same helper. Do not hard-code or interpret the version as a timestamp. The standard build adds CSS fingerprints automatically; see [NodeJS Integration](/documentation/nodejs) and [Page Scripts](/documentation/page-scripts).
 
 ## Rendering Images With ImageHandler
 

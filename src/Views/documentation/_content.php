@@ -96,7 +96,7 @@ $quickAnswers = [
         'title' => 'Render a dynamic view',
         'summary' => 'Use a direct GET page for simple HTML, or an unsuffixed template with Responses::view() for prepared data.',
         'language' => 'php',
-        'code' => "use CorianderCore\\Core\\Http\\Responses;\nreturn Responses::view('articles/show', [\n    'page' => ['title' => 'Article'],\n    'article' => \$article,\n]);",
+        'code' => "use CorianderCore\\Core\\Http\\Responses;\nreturn Responses::view('articles/show', [\n    'metadata' => ['title' => 'Article'],\n    'article' => \$article,\n]);",
         'links' => [
             ['label' => 'Views reference', 'href' => '/documentation/views'],
             ['label' => 'Handler reference', 'href' => '/documentation/handlers'],

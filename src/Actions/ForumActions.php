@@ -183,7 +183,7 @@ final class ForumActions
          * each controller action.
          */
         return $this->view->response($view === 'forum-demo' ? 'forum-demo/_index' : $view, $data + [
-            'page' => ['title' => 'Forum Demo', 'description' => 'A CorianderPHP forum with permissions and protected demo writes.'],
+            'metadata' => ['title' => 'Forum Demo', 'description' => 'A CorianderPHP forum with permissions and protected demo writes.'],
             'requestedView' => $view,
             'title' => 'Forum Demo',
             'description' => 'A CorianderPHP forum with permissions and protected demo writes.',

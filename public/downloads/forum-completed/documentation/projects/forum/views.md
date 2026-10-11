@@ -6,7 +6,7 @@ Views live under `src/Views`. The demo uses server-rendered templates so the app
 
 Create unsuffixed forum templates that render prepared data and show controls based on permissions. These deliberately use explicit view responses rather than direct GET pages: the action prepares auth, permissions, and database results first. Keep method files and `_middleware.php` in the same private Views tree.
 
-Create these plain PHP templates by hand. `make:view` creates a direct GET endpoint in 0.4.0, so it is not the generator for these unsuffixed files.
+Create these plain PHP templates by hand. `make:view` creates a direct GET endpoint in 0.4.1, so it is not the generator for these unsuffixed files.
 
 ## Files Created
 

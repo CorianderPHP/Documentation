@@ -47,4 +47,4 @@ Do not expose a tutorial's fixed demo credentials as production authentication. 
 
 Production route maps refresh automatically, normally after 30 seconds. Clear caches after deploy when immediate route changes are required. Confirm the route list, logs, and health checks.
 
-Verify homepage, representative docs/pages, authentication, admin denial, writes, JSON errors, 404, 405/Allow, and body-free HEAD requests. See [Upgrade Guide](/documentation/upgrades) when moving from 0.3.x or earlier to 0.4.0.
+Verify homepage, representative docs/pages, authentication, admin denial, writes, JSON errors, 404, 405/Allow, and body-free HEAD requests. See [Upgrade Guide](/documentation/upgrades) before each update, including the metadata rename from 0.4.0 to 0.4.1.

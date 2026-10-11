@@ -1,6 +1,6 @@
 # Sitemap
 
-A sitemap lists public URLs for search engines. In 0.4.0, routes and templates do not automatically add URLs; metadata-file scanning is removed.
+A sitemap lists public URLs for search engines. In 0.4.1, routes and templates do not automatically add URLs; metadata-file scanning is removed.
 
 ## Create A Sitemap Route
 

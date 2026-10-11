@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace Tests\Docs;
 
 use App\Middleware\NotFoundMiddleware;
+use App\Modules\Docs\SiteView;
 use CorianderCore\Core\Router\Router;
+use CorianderCore\Core\Support\PublicUrl;
 use Nyholm\Psr7\Response;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
@@ -70,11 +72,34 @@ final class PageAssetsTest extends TestCase
     {
         $html = (string) (new Router())->handle(new ServerRequest('GET', '/'))->getBody();
         self::assertStringContainsString('<title>CorianderPHP - CorianderPHP</title>', $html);
+        self::assertStringContainsString('<meta name="description" content="CorianderPHP documentation and guided projects.">', $html);
         self::assertSame(1, substr_count($html, '<header '));
         self::assertSame(1, substr_count($html, '<footer '));
         self::assertSame(1, substr_count($html, '</footer>'));
         self::assertStringContainsString('CorianderPHP - ' . date('Y') . '</span>', $html);
         self::assertStringContainsString('Open documentation', $html);
+    }
+
+    public function testMetadataOverridesRemainSeparateFromApplicationPageObjects(): void
+    {
+        $html = (string) (new SiteView())->response('notfound', [
+            'page' => (object) ['title' => 'Application content, not metadata'],
+            'metadata' => ['title' => 'Guide & <example>', 'description' => 'A & B'],
+        ], 404)->getBody();
+        self::assertStringContainsString('<title>Guide &amp; &lt;example&gt; - CorianderPHP</title>', $html);
+        self::assertStringContainsString('<meta name="description" content="A &amp; B">', $html);
+        self::assertStringNotContainsString('&amp;amp;', $html);
+    }
+
+    public function testBuiltStylesheetCarriesTheContentVersionUsedByTheLayout(): void
+    {
+        $css = (string) file_get_contents(PROJECT_ROOT . '/public/assets/css/output.css');
+        self::assertSame(1, preg_match('~\A/\* coriander-version:([a-f0-9]{64}) \*/\n~', $css, $marker));
+        self::assertSame(hash('sha256', substr($css, strlen($marker[0]))), $marker[1]);
+        $url = PublicUrl::versionedAsset('assets/css/output.css');
+        self::assertStringEndsWith('?' . $marker[1], $url);
+        $html = (string) (new Router())->handle(new ServerRequest('GET', '/'))->getBody();
+        self::assertStringContainsString('href="' . $url . '"', $html);
     }
 
     public function testCustom404KeepsUnrelatedHeadersAndRemovesStaleRepresentationHeaders(): void

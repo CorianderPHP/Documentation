@@ -281,6 +281,29 @@ final class DocsQualityTest extends TestCase
         }
     }
 
+    public function testPatchUpgradeGuidanceCoversMetadataRequestUrisNullableConditionsAndAssetTooling(): void
+    {
+        $upgrade = (string) file_get_contents(PROJECT_ROOT . '/documentation/upgrades.md');
+        foreach (['Upgrade From 0.4.0 To 0.4.1', '$metadata', 'getUri()->getPath()', 'SQL NULL', 'fingerprint-css.js'] as $topic) {
+            self::assertStringContainsString($topic, $upgrade);
+        }
+        $static = (string) file_get_contents(PROJECT_ROOT . '/documentation/static-views.md');
+        self::assertStringContainsString("\$metadata['title']", $static);
+        foreach (['dynamic-views', 'handlers', 'projects/forum/handlers'] as $slug) {
+            $guide = (string) file_get_contents(PROJECT_ROOT . '/documentation/' . $slug . '.md');
+            self::assertStringContainsString("'metadata' => ['title'", $guide, $slug);
+            self::assertStringNotContainsString('`page` is the framework metadata array', $guide);
+            self::assertStringNotContainsString('`page` key is reserved', $guide);
+        }
+        $database = (string) file_get_contents(PROJECT_ROOT . '/documentation/database.md');
+        self::assertStringContainsString("'deleted_at' => null", $database);
+        self::assertStringContainsString('IS NULL', $database);
+        $scripts = json_decode((string) file_get_contents(PROJECT_ROOT . '/nodejs/package.json'), true, 512, JSON_THROW_ON_ERROR)['scripts'];
+        self::assertStringContainsString('fingerprint-css.js', $scripts['build-tw']);
+        self::assertStringContainsString('npm run build-tw', $scripts['build-prod']);
+        self::assertFileExists(PROJECT_ROOT . '/nodejs/fingerprint-css.js');
+    }
+
     /**
      * @return string[]
      */

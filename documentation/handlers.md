@@ -1,6 +1,6 @@
 # Request Handlers
 
-A request handler is the callable returned by a file in `src/Views`. It reads input, calls application logic, and returns a response. CorianderPHP 0.4.0 does not discover controller methods or provide `make:controller`.
+A request handler is the callable returned by a file in `src/Views`. It reads input, calls application logic, and returns a response. CorianderPHP 0.4.1 does not discover controller methods or provide `make:controller`.
 
 ## A Complete JSON Handler
 
@@ -31,13 +31,29 @@ Request `/greeting?name=Sam`. `Responses::json()` sets the JSON content type and
 ```php
 Responses::html('<p>Ready</p>');
 Responses::json(['data' => $items], 200);
-Responses::view('articles/show', ['page' => ['title' => 'Article'], 'article' => $article]);
+Responses::view('articles/show', ['metadata' => ['title' => 'Article'], 'article' => $article]);
 Responses::redirect('/articles', 303);
 ```
 
 All four return a `ResponseInterface`. A callable handler must return that response; printing output, returning `null`, or returning an array directly is an error. Direct GET pages are a different contract: they may output PHP/HTML without returning a handler. You may also return your own PSR response.
 
 The default redirect status is 303. Use it after a successful form POST so refresh/back navigation returns to a GET page instead of resubmitting the form.
+
+## Incoming Request URLs
+
+`RequestFactory::fromGlobals()` now creates a complete incoming URI when host information exists. The router still matches its path, not its origin:
+
+```php
+$path = $request->getUri()->getPath();        // /articles/42
+$query = $request->getQueryParams();          // Parsed query values
+$incomingUrl = (string) $request->getUri();   // https://example.com/articles/42?language=en
+```
+
+Use `getPath()` for path comparisons and middleware gates. Casting the whole URI to a string is no longer a reliable path-only comparison. Encoded paths and queries are preserved; hostless injected requests may still have relative URIs.
+
+Incoming `Host` headers take precedence over server fallback values. HTTPS detection follows `TRUSTED_PROXIES`; forwarded hosts are ignored, and internal proxy listener ports do not replace the incoming authority. Invalid authorities raise a `BadRequestException`, which the starter emits as 400.
+
+The host is visitor-controlled input, not a trusted canonical domain. For emails, password-reset URLs, or fixed-domain links, use your configured origin (for example `PROJECT_URL`) and an app-controlled path. Do not trust the incoming origin simply because it parses successfully.
 
 ## Read Forms And JSON
 
@@ -81,7 +97,7 @@ final class ArticleActions
         // Replace sample data with a repository call when adding persistence.
         $article = ['id' => (int) $id, 'title' => 'First article'];
         return Responses::view('articles/show', [
-            'page' => ['title' => $article['title']],
+            'metadata' => ['title' => $article['title']],
             'article' => $article,
         ]);
     }

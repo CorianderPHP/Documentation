@@ -9,8 +9,8 @@ $requestedView = $requestedView ?? 'home';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title><?= $page['title'] ?? 'CorianderPHP' ?> - CorianderPHP</title>
-    <meta name="description" content="<?= $page['description'] ?? 'CorianderPHP documentation.' ?>">
+    <title><?= $metadata['title'] ?? 'CorianderPHP' ?> - CorianderPHP</title>
+    <meta name="description" content="<?= $metadata['description'] ?? 'CorianderPHP documentation.' ?>">
 
     <link rel="stylesheet" href="<?= \CorianderCore\Core\Support\PublicUrl::versionedAsset('assets/css/output.css') ?>">
     <script defer src="https://analytics.corianderphp.com/script.js" data-website-id="6217b3ee-0db5-4cbe-a2ac-466d90c6c5c1"></script>

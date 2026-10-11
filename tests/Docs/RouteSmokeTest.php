@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Tests\Docs;
 
 use CorianderCore\Core\Router\Router;
+use CorianderCore\Core\Http\RequestFactory;
 use Nyholm\Psr7\Response;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
@@ -12,7 +13,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 final class RouteSmokeTest extends TestCase
 {
     #[DataProvider('publicPageProvider')]
-    public function testPublicDocumentationRoutesRespond(string $path): void
+    public function testPublicDocumentationRoutesRespond(string $path, string $title): void
     {
         $_SERVER['REQUEST_URI'] = $path;
         $_SESSION = [];
@@ -22,19 +23,19 @@ final class RouteSmokeTest extends TestCase
 
         self::assertSame(200, $response->getStatusCode(), $path);
         self::assertNotSame('', (string) $response->getBody());
-        self::assertStringNotContainsString('No configured title', (string) $response->getBody(), 'Each render must load the current metadata.');
+        self::assertStringContainsString('<title>' . $title . ' - CorianderPHP</title>', (string) $response->getBody(), 'Each render must load the current metadata.');
     }
 
     /**
-     * @return array<string,array{string}>
+     * @return array<string,array{string,string}>
      */
     public static function publicPageProvider(): array
     {
         return [
-            'home' => ['/'],
-            'documentation index' => ['/documentation'],
-            'forum guide' => ['/guided-projects/forum'],
-            'shelter guide' => ['/guided-projects/shelter-api'],
+            'home' => ['/', 'CorianderPHP'],
+            'documentation index' => ['/documentation', 'Documentation'],
+            'forum guide' => ['/guided-projects/forum', 'Forum Guided Project'],
+            'shelter guide' => ['/guided-projects/shelter-api', 'Shelter API Guided Project'],
         ];
     }
 
@@ -64,7 +65,13 @@ final class RouteSmokeTest extends TestCase
         $_SESSION = [];
 
         $router = new Router();
-        $response = $router->handle((new ServerRequest('GET', '/api/documentation/search?q=controller&scope=reference'))->withQueryParams(['q' => 'controller', 'scope' => 'reference']));
+        $request = RequestFactory::fromGlobals(
+            serverParams: ['REQUEST_METHOD' => 'GET', 'REQUEST_URI' => '/api/documentation/search?q=controller&scope=reference', 'HTTPS' => 'on'],
+            headers: ['Host' => 'docs.example.test:8443'],
+            postParams: [], rawBody: '', cookieParams: [], files: [],
+        );
+        self::assertSame('https://docs.example.test:8443/api/documentation/search?q=controller&scope=reference', (string) $request->getUri());
+        $response = $router->handle($request);
 
         self::assertSame(200, $response->getStatusCode());
         self::assertStringContainsString('"ok":true', (string) $response->getBody());

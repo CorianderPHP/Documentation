@@ -103,7 +103,7 @@ const response = await fetch('/api/forum-demo/topic', {
 const result = await response.json();
 ```
 
-0.4.0's built-in middleware reads `csrf_token` in the parsed body, **not X-CSRF-Token**. The session cookie and token must belong to the same session.
+0.4.1's built-in middleware reads `csrf_token` in the parsed body, **not X-CSRF-Token**. The session cookie and token must belong to the same session.
 
 Include `topic_id` for reply creation and `reply_id` for reply moderation. The action maps an endpoint to a fixed ability; never accept an arbitrary privileged ability from visitor input.
 

@@ -73,4 +73,11 @@ final class DocumentationSearchTest extends TestCase
     {
         self::assertSame([], (new DocumentationSearch(new DocumentationRepository()))->search('   ', 'reference'));
     }
+
+    public function testSearchFindsMetadataMigrationGuidance(): void
+    {
+        $results = (new DocumentationSearch(new DocumentationRepository()))->search('upgrade metadata', 'reference');
+        self::assertNotEmpty($results);
+        self::assertSame('upgrades', $results[0]['page']->slug);
+    }
 }

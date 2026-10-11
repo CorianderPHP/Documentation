@@ -1,6 +1,6 @@
 # Request Lifecycle
 
-This page follows one request through the 0.4.0 starter. It helps identify which layer to inspect when an endpoint fails.
+This page follows one request through the 0.4.1 starter. It helps identify which layer to inspect when an endpoint fails.
 
 ```workflow
 Front controller|public/index.php loads configuration and the framework autoloader.
