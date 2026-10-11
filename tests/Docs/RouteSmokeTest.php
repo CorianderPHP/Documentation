@@ -32,7 +32,6 @@ final class RouteSmokeTest extends TestCase
     {
         return [
             'home' => ['/'],
-            'home alias' => ['/home'],
             'documentation index' => ['/documentation'],
             'forum guide' => ['/guided-projects/forum'],
             'shelter guide' => ['/guided-projects/shelter-api'],
@@ -49,6 +48,13 @@ final class RouteSmokeTest extends TestCase
 
         self::assertSame(302, $response->getStatusCode());
         self::assertSame(['/documentation'], $response->getHeader('Location'));
+    }
+
+    public function testHomeAliasRedirectsToCanonicalHomepage(): void
+    {
+        $response = (new Router())->handle(new ServerRequest('GET', '/home'));
+        self::assertSame(301, $response->getStatusCode());
+        self::assertSame('/', $response->getHeaderLine('Location'));
     }
 
     public function testDocumentationSearchApiResponds(): void

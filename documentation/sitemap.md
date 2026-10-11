@@ -1,6 +1,6 @@
 # Sitemap
 
-A sitemap lists public URLs for search engines. In 0.3.0, routes and templates do not automatically add URLs; metadata-file scanning is removed.
+A sitemap lists public URLs for search engines. In 0.4.0, routes and templates do not automatically add URLs; metadata-file scanning is removed.
 
 ## Create A Sitemap Route
 
@@ -10,7 +10,7 @@ You can use:
 php coriander make:sitemap
 ```
 
-Or create `src/Routes/sitemap.xml.get.php`:
+Or create `src/Views/sitemap.xml.get.php`:
 
 ```php
 <?php
@@ -34,6 +34,8 @@ return static function (ServerRequestInterface $request) {
 ```
 
 Replace `https://example.com` with your public site URL. Although the method is named `addDynamicPage()`, it accepts fixed URLs too. Add public article URLs from a repository when needed.
+
+Custom `MakeSitemap` construction now accepts a destination directory, not a filename. The CLI command above uses the default Views tree and rejects an existing/conflicting definition rather than overwriting it.
 
 ## Inclusion Rules
 

@@ -1,17 +1,17 @@
 # Shelter API Completed App Files
 
-These app-owned files require **CorianderPHP 0.3.0** and do not include the framework. Unlike the hosted playground, this API persists writes to your local SQLite database.
+These app-owned files require **CorianderPHP 0.4.0** and do not include the framework. Unlike the hosted playground, this API persists writes to your local SQLite database.
 
 ## Install In A Fresh Local Starter
 
-1. Install the 0.3.0 framework, composer install, and frontend dependencies if needed.
+1. Install the 0.4.0 framework, composer install, and frontend dependencies if needed.
 2. Copy src and database into the starter. Keep its public/index.php.
 3. Use the starter's `"App\\": "src/"` Composer mapping and run composer dump-autoload.
 4. Configure DB_TYPE=sqlite and DB_NAME=database/shelter.sqlite in .env. Ensure the database directory is writable.
 5. Run php coriander migrate and php coriander routes:list.
 6. Request /api/shelter/animals; the migration seeds Milo, Nala, Pepper, and Kiwi.
 
-Method files under src/Routes/api/shelter are discovered automatically. There is no public/routes.php include or API controller discovery.
+Method files under src/Views/api/shelter are discovered automatically. These return explicit JSON responses, so they do not load HTML layouts, metadata decorations, or browser scripts. There is no public/routes.php include or API controller discovery.
 
 The included root _middleware.php retains headers/request limits and makes a narrow api/shelter CSRF exception for a stateless **local tutorial** API. In an existing app, merge that exception into the current root policy; do not overwrite authentication or other protection. This API has no production authentication: secure writable endpoints before making them public.
 

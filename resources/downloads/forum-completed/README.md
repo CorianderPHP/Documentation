@@ -1,17 +1,17 @@
 # Forum Completed Demo Reference
 
-These are app-owned files for **CorianderPHP 0.3.0**. The framework is not included. This is the documentation site's read-only demo reference, not the local persisted forum described in the SQL chapters.
+These are app-owned files for **CorianderPHP 0.4.0**. The framework is not included. This is the documentation site's read-only demo reference, not the local persisted forum described in the SQL chapters.
 
 ## Install In A Fresh Local Starter
 
-1. Download/install the 0.3.0 framework and its Composer/Node dependencies.
-2. Copy this package's src, nodejs, and public assets into that starter, except src/Routes/_middleware.php. The bundled layout/theme is intended for a fresh app; merge instead of replacing existing app layouts/assets.
-3. Keep the starter's public/index.php and root src/Routes/_middleware.php. The package includes a sample root policy for comparison; do not exempt api/forum-demo from CSRF.
+1. Download/install the 0.4.0 framework and its Composer/Node dependencies.
+2. Copy this package's src, nodejs, and public assets into that starter, except src/Views/_middleware.php. The bundled layout/theme is intended for a fresh app; merge instead of replacing existing app layouts/assets.
+3. Keep the starter's public/index.php and root src/Views/_middleware.php. The package includes a sample root policy for comparison; do not exempt api/forum-demo from CSRF.
 4. Use the starter's `"App\\": "src/"` Composer mapping and run composer dump-autoload.
 5. Run php coriander nodejs run build-prod, then php coriander routes:list.
 6. Visit /forum-demo. Use admin@example.com / demo-admin or user@example.com / demo-user.
 
-Method files under src/Routes are discovered automatically. Do not include an old forum-demo.php registration file. Private templates are under src/Views; the included root layouts link back to the online guide.
+Method files under src/Views are discovered automatically. Unsuffixed templates receive prepared data through explicit view responses, and forum-demo/_script.ts provides directory-wide interactions. The renderer loads the compiled directory module automatically; no manual footer script tag is needed. Do not include an old forum-demo.php registration file. Private templates are under src/Views; the included root layouts link back to the online guide.
 
 ## Behavior And Security
 

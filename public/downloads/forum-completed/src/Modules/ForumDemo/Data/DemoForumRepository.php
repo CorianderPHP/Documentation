@@ -42,14 +42,14 @@ final class DemoForumRepository
                 'id' => 2,
                 'category_id' => 2,
                 'category' => 'Handlers and Routes',
-                'title' => 'When should I use src/Routes?',
+                'title' => 'When should I use src/Views?',
                 'author' => 'Mira Admin',
                 'role' => 'admin',
                 'replies' => 1,
                 'locked' => false,
                 'status' => 'Open',
-                'excerpt' => 'Method files under src/Routes define URLs; directory middleware protects related endpoints.',
-                'body' => 'Create a method file under `src/Routes` for each endpoint, such as `forum-demo/topics/index.get.php`. CorianderPHP discovers it automatically. Put `_middleware.php` in a directory when all its child endpoints need shared protection.',
+                'excerpt' => 'Method files under src/Views define URLs; directory middleware protects related endpoints.',
+                'body' => 'Create a method file under `src/Views` for each endpoint, such as `forum-demo/topics/index.get.php`. CorianderPHP discovers it automatically. Put `_middleware.php` in a directory when all its child endpoints need shared protection.',
                 'created_at' => '2026-07-10 10:03',
                 'updated_at' => '2026-07-10 10:24',
             ],
@@ -108,7 +108,7 @@ final class DemoForumRepository
         return [
             ['id' => 3, 'type' => 'topic', 'title' => 'Locked topic', 'subject' => 'Review flagged onboarding replies', 'status' => 'Locked', 'author' => 'Nora Moderator', 'action' => 'unlock topic'],
             ['id' => 4, 'type' => 'reply', 'title' => 'Reply flagged for review', 'subject' => 'This reply is intentionally marked for review...', 'status' => 'Needs review', 'author' => 'Mira Admin', 'action' => 'hide reply'],
-            ['id' => 2, 'type' => 'topic', 'title' => 'Open topic', 'subject' => 'When should I use src/Routes?', 'status' => 'Open', 'author' => 'Mira Admin', 'action' => 'lock topic'],
+            ['id' => 2, 'type' => 'topic', 'title' => 'Open topic', 'subject' => 'When should I use src/Views?', 'status' => 'Open', 'author' => 'Mira Admin', 'action' => 'lock topic'],
         ];
     }
 }

@@ -2,7 +2,7 @@
 
 This guided project builds a JSON API for an animal shelter. The API exposes cats, dogs, bunnies, and birds, supports filtering, validates writes, returns consistent errors, and keeps the implementation outside `CorianderCore`.
 
-Use CorianderPHP **0.3.0**. The downloadable API performs real local SQLite writes; the hosted playground returns simulated results and never changes storage. Tutorial access is deliberately local: add authentication and authorization before exposing writable endpoints publicly.
+Use CorianderPHP **0.4.0**. The downloadable API performs real local SQLite writes; the hosted playground returns simulated results and never changes storage. Tutorial access is deliberately local: add authentication and authorization before exposing writable endpoints publicly.
 
 ## What you will build
 
@@ -52,7 +52,7 @@ JSON response|`ApiJson` returns a stable response shape.
 - Repositories own SQL.
 - `ApiJson` keeps every response shape consistent.
 
-The method files are discovered under `src/Routes/api/shelter`. Read parsed JSON with `getParsedBody()` and return `Responses`-based JSON responses. The root middleware policy is covered in [Project Structure](/guided-projects/shelter-api/setup).
+The method files are discovered under `src/Views/api/shelter`. Read parsed JSON with `getParsedBody()` and return `Responses`-based JSON responses. The root middleware policy is covered in [Project Structure](/guided-projects/shelter-api/setup).
 
 ## Download
 

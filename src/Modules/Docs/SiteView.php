@@ -19,7 +19,16 @@ final class SiteView
             $view === 'notfound' => 'Page Not Found',
             default => 'CorianderPHP',
         };
-        return Responses::view($view, $data + [
+        $template = match ($view) {
+            'documentation' => 'documentation/_content',
+            'examples' => 'guided-projects/_content',
+            'examples/forum' => 'guided-projects/forum/_content',
+            'examples/shelter-api' => 'guided-projects/shelter-api/_content',
+            'notfound' => '_notfound',
+            default => $view,
+        };
+        return Responses::view($template, $data + [
+            'page' => ['title' => $title, 'description' => 'CorianderPHP documentation and guided projects.'],
             'requestedView' => $view,
             'title' => $title,
             'description' => 'CorianderPHP documentation and guided projects.',

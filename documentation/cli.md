@@ -28,7 +28,9 @@ php coriander make:route "articles/[id].post"
 php coriander make:view articles/show
 ```
 
-The route generator defaults to GET and creates a method file under `src/Routes`. Files are discovered automatically; no registration follows. The view generator creates a PHP template under `src/Views`.
+The route generator defaults to GET and creates a callable method file under `src/Views`. Files are discovered automatically; no registration follows. The view generator creates a direct GET page: `make:view articles/show` creates `src/Views/articles/show/index.get.php`. Use an explicit `.get` suffix for a flat file, such as `make:view "articles/[id].get"`.
+
+`make:view index` creates the homepage. It does not generate unsuffixed templates for `Responses::view()`; create those plain PHP files by hand. Other HTTP methods use `make:route`.
 
 Generators are optional. They reject invalid/private names and route conflicts before writing files. Invalid syntax returns 2; conflicts or invalid existing definitions return 1.
 

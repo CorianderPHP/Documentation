@@ -2,7 +2,7 @@
 
 This guided project builds a small forum with real persistence. You will create routes, request handlers, custom modules, middleware, views, API endpoints, and a SQLite database without touching `CorianderCore`.
 
-This guide targets **CorianderPHP 0.3.0**. The local implementation persists writes; the live site and its downloadable forum reference intentionally retain read-only demo behavior. They share the routing, rendering, session, and permission patterns, but the download is not the local SQL write service.
+This guide targets **CorianderPHP 0.4.0**. The local implementation persists writes; the live site and its downloadable forum reference intentionally retain read-only demo behavior. They share the routing, rendering, session, and permission patterns, but the download is not the local SQL write service.
 
 ## Goal
 
@@ -38,8 +38,8 @@ database/
   migrations/
 
 src/
-  Routes/forum-demo/
-  Routes/api/forum-demo/
+  Views/forum-demo/
+  Views/api/forum-demo/
   Actions/ForumActions.php
   Actions/ForumApiActions.php
   Middleware/ForumDemoAdminMiddleware.php
@@ -54,7 +54,7 @@ src/
 src/Views/
   _header.php
   _footer.php
-  forum-demo.php
+  forum-demo/_index.php
   forum-demo/
     login.php
     topics.php

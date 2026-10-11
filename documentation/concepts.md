@@ -4,7 +4,7 @@ CorianderPHP combines file-based routing, PSR request/response objects, PHP view
 
 ## Routes
 
-A method file defines a URL: `src/Routes/about.get.php` serves GET /about. It returns a callable; the callable returns a PSR response. Discovery does not execute every route file.
+A method file defines a URL: `src/Views/about.get.php` serves GET /about. A GET file can render PHP/HTML directly, or return a callable producing a PSR response. Other method files must return callables. Discovery does not execute every route file.
 
 ## Handlers
 
@@ -16,11 +16,11 @@ Custom modules are your own services, repositories, validators, and permission c
 
 ## Views
 
-Templates live in `src/Views`. A handler returns `Responses::view()`; the renderer includes the nearest `_header.php` and `_footer.php` and supplies prepared data. Views never create routes.
+The Views tree holds direct GET pages and unsuffixed templates. Method files create URLs; unsuffixed templates are explicitly rendered with `Responses::view()`. Metadata, independent nearest layouts, and compiled directory/page scripts support rendering. See [View Overview](/documentation/views) and [Page Scripts](/documentation/page-scripts).
 
 ## Middleware
 
-`src/Routes/_middleware.php` declares root protection. Child directories can add gates for admin or API areas. Middleware receives matched parameters before the handler runs.
+`src/Views/_middleware.php` declares root protection. Child directories can add gates for admin or API areas. Middleware receives matched parameters before the handler runs.
 
 ## Database And Sessions
 
@@ -32,9 +32,9 @@ Migrations describe tables. Repositories use `SQLManager` and parameterized `sql
 Request factory|Builds a bounded, parsed PSR request from the incoming HTTP request.
 Router|Discovers the matching method file and path parameters.
 Middleware|Checks request gates and can stop with an error response.
-Handler|Reads input and calls app modules or repositories.
+Page or handler|A direct GET renders content; a callable reads input, calls modules, and chooses a response.
 Response|Returns HTML, a rendered view, JSON, or a redirect.
 Emitter|Sends status, headers, and body; suppresses the body for HEAD.
 ```
 
-Start with [Installation](/documentation/installation), [Routing](/documentation/routing), and [Views](/documentation/views). Existing 0.2.x apps need the [Upgrade Guide](/documentation/upgrades).
+Start with [Installation](/documentation/installation), [Routing](/documentation/routing), and [Views](/documentation/views). Existing 0.3.x and older apps need the [Upgrade Guide](/documentation/upgrades).

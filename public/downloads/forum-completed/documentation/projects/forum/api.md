@@ -66,7 +66,7 @@ The local write service persists authorized input. The hosted guard returns `dem
 
 ## Create Three Method Files
 
-Create `src/Routes/api/forum-demo/topic.post.php`:
+Create `src/Views/api/forum-demo/topic.post.php`:
 
 ```php
 <?php
@@ -103,7 +103,7 @@ const response = await fetch('/api/forum-demo/topic', {
 const result = await response.json();
 ```
 
-0.3.0's built-in middleware reads `csrf_token` in the parsed body, **not X-CSRF-Token**. The session cookie and token must belong to the same session.
+0.4.0's built-in middleware reads `csrf_token` in the parsed body, **not X-CSRF-Token**. The session cookie and token must belong to the same session.
 
 Include `topic_id` for reply creation and `reply_id` for reply moderation. The action maps an endpoint to a fixed ability; never accept an arbitrary privileged ability from visitor input.
 

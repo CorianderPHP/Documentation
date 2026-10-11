@@ -1,124 +1,93 @@
 # NodeJS Integration Guide
 
-CorianderPHP provides NodeJS tooling for compiling TypeScript and TailwindCSS assets.
+CorianderPHP's optional Node.js toolchain type-checks TypeScript, bundles browser modules with esbuild, and builds Tailwind CSS. All commands run from the project root.
 
-## Requirements
+## Requirements And Installation
 
-Install Node.js with npm before using the NodeJS commands. On Windows, the official
-installer usually provides npm at:
+Use Node.js 24 for CI; Node.js 22 is also supported locally. Install Node.js with npm, then install the project's locked dependencies:
 
-```powershell
-C:\Program Files\nodejs\npm.cmd
+```bash
+php coriander nodejs ci
 ```
 
-If you use a portable or custom Node.js installation, make sure npm is included and
-available from your shell. You can verify which npm executable is used with:
-
-```powershell
-where.exe npm
-Get-Command npm -All
-```
-
-With the official Windows installer, npm is normally found under
-`C:\Program Files\nodejs\`. A portable installation should resolve npm from the
-portable Node.js directory, for example:
-
-```text
-F:\dev\nodejs\npm.cmd
-```
-
-The exact internal npm files can vary between Node.js/npm versions. Do not rely
-on internal paths such as `node_modules\npm\bin\npm-cli.js` for normal setup
-checks. Instead, verify that `npm -v` works and that `where.exe npm` or
-`Get-Command npm -All` points first to the Node.js installation you intend to use.
-
-## Installing Dependencies
-
-Install packages defined in `package.json`:
+For a new project or when adding packages:
 
 ```bash
 php coriander nodejs install
-```
-
-Add a new package (e.g. `axios`):
-
-```bash
 php coriander nodejs install axios
 ```
 
-Coriander runs npm internally from the project `nodejs/` directory, so the command
-above is equivalent to running `npm install` there. Do not include `npm` in the
-Coriander command; `php coriander nodejs npm install` would try to run
-`npm npm install`.
+The wrapper runs npm in `nodejs`. Do not include another `npm` word in the command. Check its exit status in CI.
 
-## Available Scripts
+## Source And Output
 
-Run all commands from the project root.
-
-- **Watch TypeScript**
-  ```bash
-  php coriander nodejs run watch-ts
-  ```
-- **Watch TypeScript and TailwindCSS**
-  ```bash
-  php coriander nodejs run watch-all
-  ```
-- **Build JavaScript assets**
-  ```bash
-  php coriander nodejs run build-ts
-  ```
-- **Watch TailwindCSS**
-  ```bash
-  php coriander nodejs run watch-tw
-  ```
-- **Build TailwindCSS**
-  ```bash
-  php coriander nodejs run build-tw
-  ```
-- **Build All (development)**
-  ```bash
-  php coriander nodejs run build-all
-  ```
-- **Build for Production**
-  ```bash
-  php coriander nodejs run build-prod
-  ```
-
-  This runs TypeScript compilation, minified JavaScript bundling, and minified
-  TailwindCSS generation. Use it before deployment or before committing built
-  assets.
-
-## Project Layout
-
-- TypeScript source: `nodejs/src`
-- Compiled JavaScript: `public/assets/js`
-- Tailwind input: `public/assets/css/input.css`
-- Tailwind output: `public/assets/css/output.css`
-
-## Best Practices
-
-- Commit only compiled assets needed for production; ignore `node_modules/`.
-- Run `install` after pulling changes to ensure packages are up to date.
-- For troubleshooting, run the underlying npm command directly inside the `nodejs` directory.
-
-## Troubleshooting Windows npm Resolution
-
-Coriander resolves npm automatically. If a custom or portable Node.js installation
-causes npm to resolve incorrectly, point Coriander to the npm launcher explicitly:
-
-```powershell
-$env:CORIANDER_NPM_EXECUTABLE = "C:\Program Files\nodejs\npm.cmd"
-php coriander nodejs install
+```structure
+nodejs/
+  package.json
+  package-lock.json
+  tsconfig.json
+  build.js
+  watch.all.js
+  tailwind.config.js
+src/
+  Views/                    # Pages and colocated browser entries
+  Scripts/                  # Ordinary imported helpers and types
+public/assets/
+  css/input.css
+  css/output.css
+  js/pages/                 # Generated entries and shared _chunks
 ```
 
-You can also use `NPM_EXECUTABLE` if you already rely on that environment variable:
+Keep npm dependencies/configuration in `nodejs`, not browser source. The [Page Scripts Guide](/documentation/page-scripts) shows a complete interaction, directory inheritance, and shared imports.
 
-```powershell
-$env:NPM_EXECUTABLE = "C:\Program Files\nodejs\npm.cmd"
-php coriander nodejs install
+## Daily Commands
+
+```bash
+php coriander nodejs run check-types
+php coriander nodejs run watch-all
+php coriander nodejs run build-prod
 ```
 
-Inspect the executables found by your shell:
+`check-types` uses `tsc --noEmit`. `build-prod` checks types, bundles/minifies with esbuild, and builds minified Tailwind CSS. TypeScript does not publish JavaScript itself.
+
+`watch-all` keeps the TypeScript and Tailwind watchers running. Stop it with Ctrl+C. New/renamed/deleted entries and shared-source changes rebuild the output. Type errors preserve the last good bundles; fixing and saving resumes builds.
+
+For one part of the toolchain:
+
+```bash
+php coriander nodejs run watch-ts
+php coriander nodejs run watch-tw
+php coriander nodejs run build-ts
+php coriander nodejs run build-tw
+php coriander nodejs run build-all
+```
+
+Script availability depends on your app-owned `package.json`. The commands above are provided by the 0.4.0 starter.
+
+## Tailwind Source Discovery
+
+The 0.4.0 input CSS explicitly scans Views and Scripts:
+
+```text
+@source "../../../src/Views";
+@source "../../../src/Scripts";
+```
+
+These paths are relative to `public/assets/css/input.css`. Add another `@source` when application code outside those folders contains utility classes. Preserve your custom theme when adopting updated starter tooling.
+
+The released lockfile pins Tailwind and its CLI to 4.3.0 with the patched watcher chain. Review dependency changes and run a clean install/audit rather than blindly replacing a customized lockfile.
+
+## Deploy Prebuilt Assets
+
+Deploy CSS and the **entire** `public/assets/js/pages` directory, including `_chunks`. PHP inserts existing modules automatically; missing bundles are omitted rather than built on demand.
+
+Node.js, node_modules, and TypeScript sources are unnecessary on a server serving prebuilt assets. Keep your PHP method files, layouts, and metadata.
+
+Generated files include a content fingerprint used in script URLs. The build-only `.generated.json` list tracks cleanup ownership: keep it locally between builds, ignore it in Git, and omit it from deployment. Do not delete handwritten JavaScript when removing obsolete unrecorded output.
+
+## Windows npm Resolution
+
+Verify the intended Node/npm installation:
 
 ```powershell
 where.exe node
@@ -126,8 +95,17 @@ where.exe npm
 Get-Command npm -All
 ```
 
-If npm fails with a path like `project\nodejs\node_modules\npm\bin\npm-cli.js`,
-the npm launcher is probably resolving npm internals relative to the project
-directory instead of the Node.js installation. Check the first result from
-`where.exe npm`, repair the Node.js installation if needed, or set
-`CORIANDER_NPM_EXECUTABLE` to the intended `npm.cmd` path.
+For a custom installation, explicitly select the launcher:
+
+```powershell
+$env:CORIANDER_NPM_EXECUTABLE = "C:\Program Files\nodejs\npm.cmd"
+php coriander nodejs install
+```
+
+`NPM_EXECUTABLE` is also supported. Do not configure npm's internal JavaScript files as a substitute for a working launcher.
+
+## Updating An Older App
+
+The core updater does not migrate asset tooling. Compare the released `build.js`, `watch.all.js`, TypeScript configuration, package/lock files, Tailwind configuration, and CSS source declarations with your application.
+
+Move browser code from `nodejs/src` to the view tree/shared Scripts folder, update imports, remove old `build.min.js`/`build.watch.js` commands, and remove duplicate manual script tags. Follow [Upgrade Guide](/documentation/upgrades) before deployment.

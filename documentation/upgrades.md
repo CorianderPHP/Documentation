@@ -1,100 +1,119 @@
 # Upgrade Guide
 
-The framework updater replaces managed core files, not application code. Documentation, routes, templates, middleware policy, Composer mappings, and `public/index.php` need a separate compatibility review.
+The updater replaces `CorianderCore` and `coriander`, not your application. Review routes/pages, middleware policy, templates, browser tooling, Composer mappings, and bootstrap code before deployment.
 
 ## Safe Update Routine
 
 ```workflow
-Record the version|Run php coriander version and read that release's migration notes.
-Protect your work|Commit app changes and back up the database and environment configuration.
-Preview|Run php coriander update --dry-run and inspect skipped or changed files.
-Update on a branch|Run the updater, then migrate affected app-owned code.
-Validate|Build assets, run app tests, and exercise pages, authentication, writes, and errors.
-Deploy|Release only after the app and downloadable examples work on the same version.
+Record|Run php coriander version and read the release's migration notes.
+Protect|Commit app changes and back up database/environment configuration.
+Preview|Run php coriander update --dry-run and inspect the managed-file plan.
+Migrate on a branch|Update the framework, then adapt affected app-owned files.
+Validate|Build assets, run app tests, and check authentication, writes, errors, and downloads.
+Deploy|Release the PHP app and its rebuilt assets together.
 ```
 
-Keep `CorianderCore` and `coriander` untouched. Report core defects upstream instead of maintaining patches that the next update replaces.
+Do not patch framework-managed files. Report defects upstream instead of maintaining changes the next update replaces.
 
-## Upgrade From 0.2.x To 0.3.0
+## Upgrade From 0.3.0 To 0.4.0
 
-This is a breaking routing/view release. See the [0.3.0 release notes](https://github.com/CorianderPHP/CorianderPHP/releases/tag/v0.3.0). Do not deploy a core-only update into an app still using the old bootstrap.
+This release moves routing into the view tree and changes browser tooling. A core-only update is not a completed migration. Read the [0.4.0 release notes](https://github.com/CorianderPHP/CorianderPHP/releases/tag/v0.4.0).
 
-### Replace Route Registration
+### Move Routes And Their Protection Together
 
-Move each registered method into a method file:
+Move method files from `src/Routes` into corresponding paths under `src/Views`. Move **every** `_middleware.php` with them, including the root policy and nested admin gates.
 
-| Old definition | New file |
-| --- | --- |
-| GET / | `src/Routes/index.get.php` |
-| GET /articles/{id} | `src/Routes/articles/[id].get.php` |
-| POST /articles | `src/Routes/articles/index.post.php` |
+Resolve overlapping files before moving. Use exact `src/Views` casing on Linux. Remove the old route tree only after checking the discovered URLs.
 
-Each file returns a callable which returns a `ResponseInterface`. Remove `public/routes.php` includes, `$router->get/post/group()`, controller discovery, action attributes, and view fallback. Put regex/id constraints in handlers or middleware.
+```structure
+src/Routes/admin/index.get.php       -> src/Views/admin/index.get.php
+src/Routes/admin/_middleware.php     -> src/Views/admin/_middleware.php
+src/Routes/_middleware.php           -> src/Views/_middleware.php
+```
+
+Keep authentication, CSRF, request limits, and analytics/security headers. Directory children cannot disable a parent's middleware.
+
+### Choose Direct Pages Or Explicit Templates
+
+Replace trivial GET forwarding handlers with page HTML at a `.get.php` filename. A direct page has no explicit return; it receives `$request` and `$page` and renders with inherited layouts.
+
+Keep JSON, redirects, and non-GET writes as request-to-response callables. A file cannot both print HTML and return a handler.
+
+Complex pages may still return `Responses::view('articles/show', $data)` using an **unsuffixed** `show.php` template. Explicit rendering rejects method files and reserved layout/declaration names. See [Dynamic View Guide](/documentation/dynamic-views).
+
+### Adopt Metadata Without Reusing Its Data Key
+
+Optional `_metadata.php` files return arrays without output. Defaults merge root to leaf with shallow child overrides. Layouts read `$page['title']`; variables set inside a direct page are not forwarded to layouts.
+
+Explicit rendering may override metadata with:
 
 ```php
-<?php
-use CorianderCore\Core\Http\Responses;
-use Psr\Http\Message\ServerRequestInterface;
-
-return static fn (ServerRequestInterface $request) =>
-    Responses::view('home', ['title' => 'Home']);
+return \CorianderCore\Core\Http\Responses::view('articles/show', [
+    'page' => ['title' => 'Article'],
+    'article' => $article,
+]);
 ```
 
-### Replace The Bootstrap
+`page` must be an array. Rename an old `page` document/paginator object key to `article`, `document`, or another app-specific name.
 
-Use the 0.3.0 starter as a reference for your app-owned `public/index.php`. Preserve environment/timezone/cookie configuration. Build a request with `RequestFactory::fromGlobals()`, call `Router::handle()`, catch failures with `ErrorResponse::fromException()`, and emit with the original method.
+Metadata and explicit string-array data are escaped recursively. Raw request values and direct-page local data still require output encoding.
 
-The old Container and `dispatch()` are removed. See [Request Lifecycle](/documentation/request-lifecycle) for the exact request-handling excerpt.
+### Update 404 Handling And Compatibility URLs
 
-### Move Views And Metadata
+The starter uses a private `_notfound.php` template. Update custom 404 middleware so it preserves unrelated response headers while replacing the body, and removes obsolete content framing/validators.
 
-- `public/public_views/home/index.php` becomes `src/Views/home.php`.
-- `public/public_views/articles/show/index.php` becomes `src/Views/articles/show.php`.
-- Shared header/footer become `src/Views/_header.php` and `_footer.php`.
-- Pass title/description as view data instead of including `metadata.php`.
-- Return `Responses::view()` or `ViewRenderer::response()`; do not call removed `render()`.
+The starter no longer includes `/home`. Keep an explicit redirect to `/` if your existing application has bookmarks or inbound links.
 
-Review layouts for nearest-ancestor inheritance. Header/footer resolve independently, do not stack, and may be omitted. Use `layout: false` for fragments.
+A custom Router or generator targeting an old directory needs review. Custom `MakeSitemap` construction now takes a destination **directory**, not a filename.
 
-String values passed in arrays are escaped by the renderer; remove duplicate HTML escaping of those values. Objects and executable contexts still need explicit handling.
+### Migrate Browser Code And Tooling
 
-Sitemap metadata scanning is removed. Add public URLs through `SitemapHandler::addDynamicPage()` and return `toXml()`.
+Move paired entries beside GET pages. Put directory initialization in `_script.ts` and shared imported helpers/types in `src/Scripts`.
 
-### Move Middleware To Directories
+```structure
+src/Views/about/index.get.php
+src/Views/about/index.ts
+src/Views/_script.ts
+src/Scripts/menu.ts
+public/assets/js/pages/
+  about/index.js
+  _script.js
+  _chunks/
+```
 
-Root `src/Routes/_middleware.php` returns an array of PSR-15 middleware instances. Add admin gates in `src/Routes/admin/_middleware.php` and retain root security protections.
+Compare and adopt the released `nodejs/package.json`, lockfile, `tsconfig.json`, `build.js`, `watch.all.js`, Tailwind configuration, and CSS source declarations. Preserve your custom theme and app scripts.
 
-There is no implicit CSRF exemption for `/api`. Cookie-authenticated APIs send `csrf_token` in parsed JSON/form bodies. Explicitly exempt only stateless prefixes that do not use browser login cookies.
+Remove old `build.min.js`/`build.watch.js` command references. Type checks now use `tsc --noEmit`; esbuild publishes JavaScript. Keep `moduleDetection: "force"` and explicit CSS `@source` declarations for Views/Scripts.
 
-### Start Sessions Where Needed
+Use Node.js 24 for CI or supported Node.js 22 locally. The 0.4.0 lockfile pins Tailwind/CLI 4.3.0 with the patched watcher chain.
 
-The bootstrap configures cookies but does not eagerly open a session. Call `SessionBootstrap::start()` before auth or flash reads/writes. CSRF helpers start sessions when needed. Test that logged-in users remain recognized.
+Remove manual script tags after adopting automatic loading. Explicit full views load template-directory modules; direct pages also load their paired entry. JSON, redirects, explicit HTML, and fragments remain undecorated.
 
-### Update Application Autoloading
-
-The starter uses `"App\\": "src/"`. Update imports/namespaces when adopting it, then run `composer dump-autoload`.
-
-Existing coordination classes can remain ordinary application classes; they are not automatically exposed as endpoints. `src/Actions` is a useful convention, not a required framework API.
-
-### Remove Old Cache Commands
-
-Route maps refresh automatically in production, normally on a 30-second interval. Remove controller-cache builds from deploy scripts. `php coriander routes:list` inspects current files independently of cache.
-
-### Review Hosting And Dependencies
-
-Prefer a web document root pointing at `public/`. Keep deny rules for private files if root hosting is unavoidable. Only the front controller should be directly executable as public PHP.
-
-Set `APP_ENV=production`/`APP_DEBUG=0` explicitly. Existing environments are not automatically rewritten. Reinstall frontend dependencies from the release's updated lockfile; 0.3.0 includes the patched `source-map-js` dependency.
-
-## Migration Checks
+### Rebuild And Deploy Complete Assets
 
 ```bash
-composer dump-autoload
-php coriander routes:list
+php coriander nodejs ci
 php coriander nodejs run build-prod
+php coriander routes:list
 composer test
 ```
 
-Test GET/HEAD, missing paths, 405/Allow, layouts, form tokens, login/logout, admin permissions, parsed JSON, body limits, and actual repository writes. If distributing guided project downloads, regenerate and run them too.
+Deploy the whole generated `public/assets/js/pages` tree, including shared `_chunks`. Keep the build-only `.generated.json` locally for safe cleanup; do not deploy it. Review old unrecorded output before removing it.
 
-The [0.2.3.3 security release notes](https://github.com/CorianderPHP/CorianderPHP/releases/tag/v0.2.3.3) describe the previous router model; use this page's 0.3.0 steps for current applications.
+Script URLs use content fingerprints, including timestamp-preserving deployments. PHP-only/prebuilt deployments need no Node.js or TypeScript sources on the server.
+
+See [Page Scripts](/documentation/page-scripts) and [NodeJS Integration](/documentation/nodejs) for the full tooling contract.
+
+## Earlier 0.2.x Applications
+
+Apply the [0.3.0 framework migration](https://github.com/CorianderPHP/CorianderPHP/blob/v0.4.0/docs/migration-0.3.0.md) first, then the 0.4.0 steps above.
+
+That earlier change removed manual route registration, controller discovery/attributes, the Container, and controller-cache builds. It introduced PSR response handlers, private Views, nearest layouts, and explicit on-demand session startup.
+
+Do not copy old route includes or controller discovery into a 0.4.0 app.
+
+## Before Deployment
+
+Verify GET/HEAD, missing paths, 405/Allow, direct and explicit pages, metadata, layouts, script/chunk URLs, forms/CSRF, login/logout, admin denial, parsed JSON, request limits, and actual repository writes.
+
+Regenerate and run downloadable examples when distributing them. Production route maps refresh automatically, normally within 30 seconds; no deploy-time route-build command is required. Keep OPcache timestamp validation enabled or restart PHP workers when replacing PHP files.

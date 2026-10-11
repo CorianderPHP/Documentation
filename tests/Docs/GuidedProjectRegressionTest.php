@@ -158,7 +158,7 @@ final class GuidedProjectRegressionTest extends TestCase
     {
         $this->assertZipContains('public/downloads/forum-completed.zip', [
             'README.md',
-            'src/Routes/forum-demo/index.get.php',
+            'src/Views/forum-demo/index.get.php',
             'src/Actions/ForumActions.php',
             'src/Actions/ForumApiActions.php',
             'src/Middleware/ForumDemoAdminMiddleware.php',
@@ -166,16 +166,17 @@ final class GuidedProjectRegressionTest extends TestCase
             'src/Modules/ForumDemo/Data/DemoForumRepository.php',
             'src/Modules/ForumDemo/Permissions/DemoPermissionService.php',
             'src/Modules/ForumDemo/Writes/DemoWriteGuard.php',
-            'src/Views/forum-demo.php',
+            'src/Views/forum-demo/_index.php',
             'src/Views/forum-demo/topic.php',
-            'nodejs/src/forum-demo/index.ts',
+            'src/Views/forum-demo/_script.ts',
+            'public/assets/js/pages/forum-demo/_script.js',
             'documentation/projects/forum/routes.md',
         ]);
 
         $this->assertZipContains('public/downloads/shelter-api-completed.zip', [
             'README.md',
             'database/migrations/20260711000000_create_shelter_api_tables.php',
-            'src/Routes/api/shelter/animals/index.get.php',
+            'src/Views/api/shelter/animals/index.get.php',
             'src/Actions/ShelterAnimalActions.php',
             'src/Actions/ShelterLookupActions.php',
             'src/Modules/ShelterApi/AnimalRepository.php',

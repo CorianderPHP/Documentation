@@ -1,6 +1,6 @@
 # Forum Project Structure
 
-Start from an installed **CorianderPHP 0.3.0** app; see [Installation](/documentation/installation). This chapter establishes app-owned folders before adding SQLite, permissions, and forms.
+Start from an installed **CorianderPHP 0.4.0** app; see [Installation](/documentation/installation). This chapter establishes app-owned folders before adding SQLite, permissions, and forms.
 
 ## Create The First Route
 
@@ -10,7 +10,7 @@ You can run:
 php coriander make:route forum-demo
 ```
 
-This creates `src/Routes/forum-demo.get.php`. Replace its contents with a temporary response:
+This creates `src/Views/forum-demo.get.php`. Replace its contents with a temporary response:
 
 ```php
 <?php
@@ -29,9 +29,6 @@ For the finished feature we will move this root handler to `forum-demo/index.get
 
 ```structure
 src/
-  Routes/
-    forum-demo/
-    api/forum-demo/
   Actions/
     ForumActions.php
     ForumApiActions.php
@@ -45,21 +42,22 @@ src/
   Views/
     _header.php
     _footer.php
-    forum-demo.php
+    forum-demo/_index.php
+    api/forum-demo/
     forum-demo/
 database/migrations/
-nodejs/src/forum-demo/
+src/Views/forum-demo/_script.ts
 ```
 
-Create action and module classes as normal PHP files. There is no action/controller generator in 0.3.0. With the starter's `"App\\": "src/"` Composer mapping, `src/Actions/ForumActions.php` uses namespace `App\Actions`.
+Create action and module classes as normal PHP files. There is no action/controller generator; create these ordinary app classes by hand. With the starter's `"App\\": "src/"` Composer mapping, `src/Actions/ForumActions.php` uses namespace `App\Actions`.
 
-- `Routes`: one method file per URL/method, plus inherited middleware.
+- `Views`: method files define URLs, `_middleware.php` declares inherited gates, and unsuffixed templates render prepared data.
 - `Actions`: request coordination, response selection, and redirects.
 - `Auth`: current user from the session.
 - `Data`: SQLite reads.
 - `Permissions`: the shared ability matrix.
 - `Writes`: real local writes and the optional public-demo guard.
-- `Views`: HTML only; templates do not expose endpoints.
+- Unsuffixed templates do not expose endpoints; method files in the same tree do.
 
 Run `composer dump-autoload` if you changed Composer mappings.
 

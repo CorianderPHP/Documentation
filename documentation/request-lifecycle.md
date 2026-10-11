@@ -1,13 +1,13 @@
 # Request Lifecycle
 
-This page follows one request through the 0.3.0 starter. It helps identify which layer to inspect when an endpoint fails.
+This page follows one request through the 0.4.0 starter. It helps identify which layer to inspect when an endpoint fails.
 
 ```workflow
 Front controller|public/index.php loads configuration and the framework autoloader.
 Request factory|RequestFactory::fromGlobals() bounds the body and parses query, form/JSON, cookies, and uploads.
 Router|Router::handle() selects a discovered method file and assigns path parameters.
 Middleware|Root-to-child middleware can return early or delegate to the next handler.
-Handler and modules|The handler coordinates app logic and returns a response.
+Page or handler|A direct GET renders with metadata/layouts/scripts; a callable coordinates modules and returns a response.
 Emitter|ResponseEmitter sends headers/status and suppresses bodies for HEAD.
 ```
 

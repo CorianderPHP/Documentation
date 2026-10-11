@@ -56,21 +56,21 @@ private function render(string $name, array $data): ResponseInterface
 {
     $user = $this->auth->currentUser();
     return Responses::view($name, $data + [
-        'title' => 'Forum',
+        'page' => ['title' => 'Forum'],
         'currentUser' => $user,
         'permissions' => $this->permissions->matrix($user),
     ]);
 }
 ```
 
-This private `render()` is **our helper**, not the removed framework method. It returns a response and supplies shared variables to every template. `Responses::view()` renders `src/Views` and recursively escapes string-array data.
+`page` is the framework metadata array; do not pass a document object under that key. This private `render()` is **our helper**, not the removed framework method. It returns a response and supplies shared variables to every template. `Responses::view()` renders `src/Views` and recursively escapes string-array data.
 
 ## Read Pages And Missing Topics
 
 ```php
 public function index(ServerRequestInterface $request): ResponseInterface
 {
-    return $this->render('forum-demo', ['topics' => $this->forum->topics()]);
+    return $this->render('forum-demo/_index', ['topics' => $this->forum->topics()]);
 }
 
 public function topics(): ResponseInterface
@@ -89,7 +89,7 @@ public function showTopic(string $id): ResponseInterface
         return Responses::html('Topic not found.', 404);
     }
     return $this->render('forum-demo/topic', [
-        'title' => $topic['title'],
+        'page' => ['title' => $topic['title']],
         'topic' => $topic,
         'replies' => $this->forum->repliesForTopic($topic['id']),
         'flash' => $this->consumeFlash(),

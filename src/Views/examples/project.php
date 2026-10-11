@@ -2,17 +2,17 @@
 /** @var \App\Modules\Docs\GuidedProject $project */
 /** @var array<int,\App\Modules\Docs\DocumentationPage> $pages */
 /** @var array<string,array<int,array{page:\App\Modules\Docs\DocumentationPage,number:int,label:string,path:string}>> $navigationGroups */
-/** @var \App\Modules\Docs\DocumentationPage|null $page */
+/** @var \App\Modules\Docs\DocumentationPage|null $article */
 /** @var array<int,array{page:\App\Modules\Docs\DocumentationPage,score:int,excerpt:string}> $results */
 /** @var array{previous:?array{page:\App\Modules\Docs\DocumentationPage,path:string,label:string},next:?array{page:\App\Modules\Docs\DocumentationPage,path:string,label:string}} $adjacent */
 $mode = $mode ?? 'show';
 $pages = $pages ?? [];
 $navigationGroups = $navigationGroups ?? [];
-$page = $page ?? null;
+$article = $article ?? null;
 $query = $query ?? '';
 $results = $results ?? [];
 $adjacent = $adjacent ?? ['previous' => null, 'next' => null];
-$activeSlug = $page?->slug ?? 'search';
+$activeSlug = $article?->slug ?? 'search';
 $demoReturnPath = $_SERVER['REQUEST_URI'] ?? $project->basePath;
 $flatNavigation = [];
 foreach ($navigationGroups as $groupItems) {
@@ -23,7 +23,7 @@ foreach ($navigationGroups as $groupItems) {
 $totalSteps = count($flatNavigation);
 $activeStep = null;
 foreach ($flatNavigation as $item) {
-    if ($page !== null && $item['page']->slug === $page->slug) {
+    if ($article !== null && $item['page']->slug === $article->slug) {
         $activeStep = $item;
         break;
     }
@@ -104,16 +104,16 @@ foreach ($flatNavigation as $item) {
                     <a href="/guided-projects" class="hover:text-dark-green dark:hover:text-mint">Guided Projects</a>
                     <span class="mx-2">/</span>
                     <a href="<?= htmlspecialchars($project->basePath, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?>" class="hover:text-dark-green dark:hover:text-mint"><?= htmlspecialchars($project->navTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></a>
-                    <?php if ($page !== null && $page->slug !== $project->indexSlug()): ?>
+                    <?php if ($article !== null && $article->slug !== $project->indexSlug()): ?>
                         <span class="mx-2">/</span>
-                        <span><?= htmlspecialchars($page->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></span>
+                        <span><?= htmlspecialchars($article->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></span>
                     <?php endif; ?>
                 </nav>
 
                 <div class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-end">
                     <div>
                         <p class="text-sm font-semibold uppercase tracking-1 text-dark-green dark:text-mint"><?= htmlspecialchars($project->eyebrow, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></p>
-                        <h1 class="mt-2 font-concert-one text-3xl text-dark-green dark:text-mint sm:text-4xl md:text-5xl"><?= htmlspecialchars($mode === 'search' ? 'Search the project' : ($page?->title ?? $project->title), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></h1>
+                        <h1 class="mt-2 font-concert-one text-3xl text-dark-green dark:text-mint sm:text-4xl md:text-5xl"><?= htmlspecialchars($mode === 'search' ? 'Search the project' : ($article?->title ?? $project->title), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></h1>
                         <div class="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-black/55 dark:text-white/55">
                             <?php if ($activeStep !== null): ?>
                                 <span class="rounded-full border border-dark-green/15 px-2 py-1 dark:border-mint/20">Step <?= (int) $activeStep['number'] ?> / <?= (int) $totalSteps ?></span>
@@ -161,9 +161,9 @@ foreach ($flatNavigation as $item) {
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
-            <?php elseif ($page !== null): ?>
+            <?php elseif ($article !== null): ?>
                 <article class="mt-8 max-w-4xl">
-                    <?= $page->html ?>
+                    <?= $article->html ?>
                 </article>
                 <?php if ($project->liveDemo !== null): ?>
                     <?php $livePath = $project->liveDemo['path'] . ($project->liveDemo['withReturn'] ? '?from=' . urlencode($demoReturnPath) : ''); ?>
@@ -174,9 +174,9 @@ foreach ($flatNavigation as $item) {
                         <a href="<?= htmlspecialchars($livePath, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?>" class="mt-4 inline-flex rounded-md bg-dark-green px-4 py-2 font-semibold text-true-white transition hover:bg-dark-green/90 focus:outline-none focus:ring-2 focus:ring-dark-green/30 dark:bg-mint dark:text-black dark:hover:bg-mint/90 dark:focus:ring-mint/30"><?= htmlspecialchars($project->liveDemo['cta'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></a>
                     </div>
                 <?php endif; ?>
-                <?php if (isset($project->extraSections[$page->slug])): ?>
+                <?php if (isset($project->extraSections[$article->slug])): ?>
                     <?php
-                    $extraView = PROJECT_ROOT . '/src/Views/' . $project->extraSections[$page->slug] . '.php';
+                    $extraView = PROJECT_ROOT . '/src/Views/' . $project->extraSections[$article->slug] . '.php';
                     if (is_file($extraView)) {
                         require $extraView;
                     }
@@ -206,11 +206,11 @@ foreach ($flatNavigation as $item) {
         </div>
 
         <aside class="hidden xl:block">
-            <?php if ($page !== null && $page->headings !== []): ?>
+            <?php if ($article !== null && $article->headings !== []): ?>
                 <div class="y-slider sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto border-l border-dark-green/10 pl-4 pr-2 dark:border-mint/15" data-scroll-memory="<?= htmlspecialchars($project->key, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?>-page-nav">
                     <p class="text-xs font-semibold uppercase tracking-1 text-black/45 dark:text-white/45">On this page</p>
                     <nav class="mt-3 space-y-2 text-sm">
-                        <?php foreach ($page->headings as $heading): ?>
+                        <?php foreach ($article->headings as $heading): ?>
                             <?php if ($heading['level'] > 3) continue; ?>
                             <a href="#<?= htmlspecialchars($heading['id'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?>" class="block <?= $heading['level'] === 1 ? '' : 'pl-3' ?> text-black/60 hover:text-dark-green dark:text-white/60 dark:hover:text-mint">
                                 <?= htmlspecialchars($heading['text'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?>

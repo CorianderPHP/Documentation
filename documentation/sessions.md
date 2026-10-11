@@ -1,6 +1,6 @@
 # Sessions And Flash Messages
 
-CorianderPHP 0.3.0 configures session cookies during bootstrap but does not start a session for every page. A public GET page can remain session-free.
+CorianderPHP 0.4.0 configures session cookies during bootstrap but does not start a session for every page. A public GET page can remain session-free.
 
 ## Start Before Reading Or Writing
 

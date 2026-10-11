@@ -53,7 +53,7 @@ final class DownloadedShelterApiTest extends TestCase
         self::assertSame(1, $migrations->migrate()['applied']);
         self::assertSame(0, $migrations->migrate()['applied'], 'Running migrate again must not duplicate seed data.');
 
-        $router = new Router($package . '/src/Routes');
+        $router = new Router($package . '/src/Views');
         $get = $router->handle(new ServerRequest('GET', '/api/shelter/animals/1'));
         self::assertSame(200, $get->getStatusCode());
         self::assertSame('Milo', json_decode((string) $get->getBody(), true, 512, JSON_THROW_ON_ERROR)['data']['name']);

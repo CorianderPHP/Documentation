@@ -6,3 +6,5 @@ composer.phar
 /backups/
 /backups/coriander/
 /cache/.updater-rate-limit.json
+/cache/
+/public/assets/js/pages/.generated.json

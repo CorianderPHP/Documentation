@@ -171,7 +171,7 @@ INSERT INTO topics (category_id, user_id, title, body) VALUES
 INSERT INTO replies (topic_id, user_id, body) VALUES
 (1, 1, 'Create the view under src/Views and render it from a handler.'),
 (1, 2, 'Keep the template simple and pass prepared data from the handler.'),
-(2, 1, 'Use method files under src/Routes; CorianderPHP discovers them automatically.');
+(2, 1, 'Use method files under src/Views; CorianderPHP discovers them automatically.');
 ```
 
 ## Step: Create UserRepository
@@ -225,7 +225,7 @@ final class UserRepository
 }
 ```
 
-This guide uses CorianderPHP 0.3.0's `SQLManager::sqlScript()`. A SELECT returns an empty array, one associative row, or a list for multiple rows. Normalize that result in the repository, as shown here. Keep this boundary so handlers do not depend on the database driver.
+This guide uses CorianderPHP 0.4.0's `SQLManager::sqlScript()`. A SELECT returns an empty array, one associative row, or a list for multiple rows. Normalize that result in the repository, as shown here. Keep this boundary so handlers do not depend on the database driver.
 
 ## Step: Create ForumRepository
 

@@ -182,7 +182,8 @@ final class ForumActions
          * a new common variable, add it here instead of duplicating setup in
          * each controller action.
          */
-        return $this->view->response($view, $data + [
+        return $this->view->response($view === 'forum-demo' ? 'forum-demo/_index' : $view, $data + [
+            'page' => ['title' => 'Forum Demo', 'description' => 'A CorianderPHP forum with permissions and protected demo writes.'],
             'requestedView' => $view,
             'title' => 'Forum Demo',
             'description' => 'A CorianderPHP forum with permissions and protected demo writes.',
