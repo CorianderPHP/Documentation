@@ -6,6 +6,41 @@ use PHPUnit\Framework\TestCase;
 
 class HttpIntegrationTest extends TestCase
 {
+    public function testDirectPagesMetadataEscapingRedirectsAndInvalidOutputOverHttp(): void
+    {
+        $root = __DIR__ . '/fixtures/http';
+        $counter = __DIR__ . '/_tmp_http_page_counter';
+        $server = new HttpServer($root, $root . '/router.php', ['APP_ENV' => 'production', 'APP_DEBUG' => '0']);
+        try {
+            $page = $server->request('GET', '/articles/news/%3Cid%3E');
+            self::assertSame(200, $page['status']);
+            self::assertSame(['text/html; charset=utf-8'], $page['headers']['content-type']);
+            self::assertStringContainsString('<title>&lt;Article&gt;</title>', $page['body']);
+            self::assertStringContainsString('<h1>&lt;Article&gt;</h1>', $page['body']);
+            self::assertStringContainsString('<p>news:&lt;id&gt;</p>', $page['body']);
+            self::assertStringNotContainsString('&amp;lt;', $page['body']);
+            self::assertSame('x', file_get_contents($counter));
+            $head = $server->request('HEAD', '/articles/news/%3Cid%3E');
+            self::assertSame(200, $head['status']);
+            self::assertSame('', $head['body']);
+            self::assertSame('xx', file_get_contents($counter));
+            $redirect = $server->request('GET', '/redirect');
+            self::assertSame(303, $redirect['status']);
+            self::assertSame(['/'], $redirect['headers']['location']);
+            self::assertSame(['fixture'], $redirect['headers']['x-redirect']);
+            self::assertSame('', $redirect['body']);
+            $invalid = $server->request('GET', '/invalid');
+            self::assertSame(500, $invalid['status']);
+            self::assertSame('Internal Server Error', $invalid['body']);
+            foreach (['/_metadata', '/articles/_metadata', '/src/Views/index.get.php'] as $path) {
+                self::assertSame(404, $server->request('GET', $path)['status']);
+            }
+        } finally {
+            $server->stop();
+            if (file_exists($counter)) { unlink($counter); }
+        }
+    }
+
     public function testSessionsStartOnDemandAndPersistAfterClosing(): void
     {
         $root = __DIR__ . '/fixtures/http';
@@ -58,15 +93,17 @@ class HttpIntegrationTest extends TestCase
 
     public function testStarterOverActualHttpServesPagesAssetsAndErrors(): void
     {
-        $server = new HttpServer(PROJECT_ROOT . '/public', PROJECT_ROOT . '/public/index.php');
+        $server = new HttpServer(PROJECT_ROOT . '/public', PROJECT_ROOT . '/public/index.php', ['PUBLIC_URL_PREFIX' => '/']);
         try {
             $home = $server->request('GET', '/');
             self::assertSame(200, $home['status']);
             self::assertStringContainsString('<title>Welcome to CorianderPHP</title>', $home['body']);
             self::assertSame(['nosniff'], $home['headers']['x-content-type-options']);
             self::assertArrayNotHasKey('set-cookie', $home['headers']);
+            self::assertSame(1, substr_count($home['body'], '<script type="module" src="/assets/js/pages/index.js?'), substr($home['body'], -700));
+            self::assertSame(200, $server->request('GET', '/assets/js/pages/index.js')['status']);
             self::assertSame(200, $server->request('GET', '/assets/css/output.css')['status']);
-            foreach (['/missing' => 404, '/src/Routes/index.get.php' => 404, '/sitemap.xml' => 200] as $path => $status) {
+            foreach (['/missing' => 404, '/src/Views/index.get.php' => 404, '/sitemap.xml' => 200] as $path => $status) {
                 $response = $server->request('HEAD', $path);
                 self::assertSame($status, $response['status']);
                 self::assertSame('', $response['body']);
