@@ -1,6 +1,6 @@
 # View Overview
 
-In CorianderPHP 0.4.0, `src/Views` is the private tree for both URLs and rendering. A method suffix creates an endpoint; a plain `.php` template does not.
+In CorianderPHP 0.4.1, `src/Views` is the private tree for both URLs and rendering. A method suffix creates an endpoint; a plain `.php` template does not.
 
 ## Which View Do I Need?
 
@@ -42,7 +42,7 @@ A direct GET page outputs HTML and has **no explicit return statement**:
 <p>We build practical tools.</p>
 ```
 
-It receives `$request` and the escaped metadata array `$page`. The framework executes the page once, then combines the nearest header, page HTML, scripts, and nearest footer.
+It receives `$request` and the escaped metadata array `$metadata`. The framework executes the page once, then combines the nearest header, page HTML, scripts, and nearest footer.
 
 A method file can instead return a callable. Its response is not automatically wrapped:
 
@@ -70,7 +70,20 @@ Metadata comes from `_metadata.php` arrays, merged from root to leaf. A child re
 return ['title' => 'My application', 'description' => 'Our public website'];
 ```
 
-Layouts use `$page['title']`. Explicit rendering can override it with `['page' => ['title' => 'Article']]`; the `page` key must be an array. Use another key for a document object or paginator.
+Layouts use `$metadata['title']`. Explicit rendering can override it with `['metadata' => ['title' => 'Article']]`; the `metadata` key must be an array. Overrides are shallow-merged before one escaping pass.
+
+`page` is ordinary application data, not framework metadata. It may hold a document object, array, scalar, or null:
+
+```php
+Responses::view('articles/show', [
+    'page' => $document,
+    'metadata' => ['title' => 'Article'],
+]);
+```
+
+The template and layouts receive `$page` and `$metadata` separately. Strings inside view-data arrays are escaped recursively, but object properties remain raw and need output encoding. Direct pages may define their own `$page`; page-local variables still do not reach layouts.
+
+If you used `$page` for metadata in 0.4.0, rename those reads and overrides; there is no compatibility alias. See [Upgrade Guide](/documentation/upgrades).
 
 Metadata and explicit string-array data are HTML-escaped. Raw request values and locally prepared direct-page data are not. Encode them for the output context.
 

@@ -1,6 +1,6 @@
 # Static View Guide
 
-A static page shows fixed content without a database lookup. CorianderPHP 0.4.0 can render it directly from a GET file, without a forwarding handler.
+A static page shows fixed content without a database lookup. CorianderPHP 0.4.1 can render it directly from a GET file, without a forwarding handler.
 
 ## Create Your Page
 
@@ -47,8 +47,8 @@ A fresh starter already has root layouts. Update them rather than creating compe
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= $page['title'] ?? 'My app' ?></title>
-    <meta name="description" content="<?= $page['description'] ?? '' ?>">
+    <title><?= $metadata['title'] ?? 'My app' ?></title>
+    <meta name="description" content="<?= $metadata['description'] ?? '' ?>">
 </head>
 <body>
 <main>
@@ -71,7 +71,7 @@ The direct page runs before the layouts, but variables assigned inside it are **
 ```workflow
 Request|GET /about selects src/Views/about/index.get.php.
 Middleware|Inherited request gates run before any page code.
-Metadata|Root and about metadata merge into the escaped $page array.
+Metadata|Root and about metadata merge into the escaped $metadata array.
 Page|The GET file executes once and produces the content.
 Layout|Nearest header and footer surround the content; compiled scripts are inserted before the footer.
 ```

@@ -1,6 +1,6 @@
 # Forum Routes
 
-In 0.4.0, the folder/filename defines each URL and method. The forum's web handlers belong under `src/Views/forum-demo`; its JSON handlers belong under `src/Views/api/forum-demo`.
+In 0.4.1, the folder/filename defines each URL and method. The forum's web handlers belong under `src/Views/forum-demo`; its JSON handlers belong under `src/Views/api/forum-demo`.
 
 Remove the temporary `src/Views/forum-demo.get.php` from setup before creating `forum-demo/index.get.php`.
 

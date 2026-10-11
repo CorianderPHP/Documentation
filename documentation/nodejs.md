@@ -27,6 +27,7 @@ nodejs/
   package-lock.json
   tsconfig.json
   build.js
+  fingerprint-css.js
   watch.all.js
   tailwind.config.js
 src/
@@ -62,11 +63,11 @@ php coriander nodejs run build-tw
 php coriander nodejs run build-all
 ```
 
-Script availability depends on your app-owned `package.json`. The commands above are provided by the 0.4.0 starter.
+Script availability depends on your app-owned `package.json`. The commands above are provided by the 0.4.1 starter.
 
 ## Tailwind Source Discovery
 
-The 0.4.0 input CSS explicitly scans Views and Scripts:
+The 0.4.1 input CSS explicitly scans Views and Scripts:
 
 ```text
 @source "../../../src/Views";
@@ -83,7 +84,11 @@ Deploy CSS and the **entire** `public/assets/js/pages` directory, including `_ch
 
 Node.js, node_modules, and TypeScript sources are unnecessary on a server serving prebuilt assets. Keep your PHP method files, layouts, and metadata.
 
-Generated files include a content fingerprint used in script URLs. The build-only `.generated.json` list tracks cleanup ownership: keep it locally between builds, ignore it in Git, and omit it from deployment. Do not delete handwritten JavaScript when removing obsolete unrecorded output.
+Generated JavaScript and production CSS include content fingerprints used by `PublicUrl::versionedAsset()`. `build-tw` runs `fingerprint-css.js` after Tailwind; `build-all` and `build-prod` reuse that command. No extra deployment command is needed.
+
+Watch-mode, legacy, and manually generated CSS/JS without a marker still work: PHP hashes their content. Fingerprinted output avoids reading entire bundles on each request, so deploy production builds when possible. Changing content changes the URL even when modification timestamps are preserved. Images and other assets still use timestamp versions.
+
+The build-only `.generated.json` list tracks JavaScript cleanup ownership: keep it locally between builds, ignore it in Git, and omit it from deployment. Do not delete handwritten JavaScript when removing obsolete unrecorded output.
 
 ## Windows npm Resolution
 
@@ -106,6 +111,6 @@ php coriander nodejs install
 
 ## Updating An Older App
 
-The core updater does not migrate asset tooling. Compare the released `build.js`, `watch.all.js`, TypeScript configuration, package/lock files, Tailwind configuration, and CSS source declarations with your application.
+The core updater does not migrate asset tooling. Compare the released `build.js`, `watch.all.js`, `fingerprint-css.js`, TypeScript configuration, package/lock files, Tailwind configuration, and CSS source declarations with your application.
 
 Move browser code from `nodejs/src` to the view tree/shared Scripts folder, update imports, remove old `build.min.js`/`build.watch.js` commands, and remove duplicate manual script tags. Follow [Upgrade Guide](/documentation/upgrades) before deployment.

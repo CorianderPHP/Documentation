@@ -63,7 +63,7 @@ Copy-Item .env-example .env
 
 Update `.env` for your local URL, database, and public URL prefix.
 
-The 0.4.0 starter defaults to production with debug disabled. On a trusted local machine, explicitly use:
+The 0.4.1 starter defaults to production with debug disabled. On a trusted local machine, explicitly use:
 
 ```env
 APP_ENV=local
@@ -105,7 +105,7 @@ Use `PUBLIC_URL_PREFIX=` for this command. The PHP development server is not a p
 
 ## Next Steps
 
-The 0.4.0 starter discovers method files under `src/Views`. `index.get.php` defines the homepage. A direct `.get.php` page creates a URL; an unsuffixed template does not. Follow [Static View Guide](/documentation/static-views) for a fixed page or [Dynamic View Guide](/documentation/dynamic-views) for prepared data.
+The 0.4.1 starter discovers method files under `src/Views`. `index.get.php` defines the homepage. A direct `.get.php` page creates a URL; an unsuffixed template does not. Follow [Static View Guide](/documentation/static-views) for a fixed page or [Dynamic View Guide](/documentation/dynamic-views) for prepared data.
 
 After installation, create your first route and view:
 

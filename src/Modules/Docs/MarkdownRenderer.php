@@ -324,7 +324,9 @@ final class MarkdownRenderer
     {
         $escaped = self::escape($value);
         $escaped = preg_replace_callback('/\[([^\]]+)\]\(([^)]+)\)/', static function (array $match): string {
-            $url = \CorianderCore\Core\Support\PublicUrl::toPublicUrl($match[2]);
+            $url = preg_match('~\Ahttps?://~i', $match[2]) === 1
+                ? $match[2]
+                : \CorianderCore\Core\Support\PublicUrl::toPublicUrl($match[2]);
             return '<a class="font-semibold text-link-blue underline decoration-link-blue/35 decoration-2 underline-offset-4 hover:decoration-link-blue dark:text-link-blue-dark dark:decoration-link-blue-dark/45 dark:hover:decoration-link-blue-dark" href="' . $url . '">' . $match[1] . '</a>';
         }, $escaped) ?? $escaped;
         $escaped = preg_replace('/`([^`]+)`/', '<code class="rounded bg-dark-green/10 px-1.5 py-0.5 text-sm text-dark-green dark:bg-mint/10 dark:text-mint">$1</code>', $escaped) ?? $escaped;

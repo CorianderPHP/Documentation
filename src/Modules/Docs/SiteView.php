@@ -28,7 +28,7 @@ final class SiteView
             default => $view,
         };
         return Responses::view($template, $data + [
-            'page' => ['title' => $title, 'description' => 'CorianderPHP documentation and guided projects.'],
+            'metadata' => ['title' => $title, 'description' => 'CorianderPHP documentation and guided projects.'],
             'requestedView' => $view,
             'title' => $title,
             'description' => 'CorianderPHP documentation and guided projects.',

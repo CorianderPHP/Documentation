@@ -1,6 +1,6 @@
 # Forum Project Structure
 
-Start from an installed **CorianderPHP 0.4.0** app; see [Installation](/documentation/installation). This chapter establishes app-owned folders before adding SQLite, permissions, and forms.
+Start from an installed **CorianderPHP 0.4.1** app; see [Installation](/documentation/installation). This chapter establishes app-owned folders before adding SQLite, permissions, and forms.
 
 ## Create The First Route
 

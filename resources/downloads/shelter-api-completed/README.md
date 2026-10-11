@@ -1,10 +1,10 @@
 # Shelter API Completed App Files
 
-These app-owned files require **CorianderPHP 0.4.0** and do not include the framework. Unlike the hosted playground, this API persists writes to your local SQLite database.
+These app-owned files require **CorianderPHP 0.4.1** and do not include the framework. Unlike the hosted playground, this API persists writes to your local SQLite database.
 
 ## Install In A Fresh Local Starter
 
-1. Install the 0.4.0 framework, composer install, and frontend dependencies if needed.
+1. Install the 0.4.1 framework, composer install, and frontend dependencies if needed.
 2. Copy src and database into the starter. Keep its public/index.php.
 3. Use the starter's `"App\\": "src/"` Composer mapping and run composer dump-autoload.
 4. Configure DB_TYPE=sqlite and DB_NAME=database/shelter.sqlite in .env. Ensure the database directory is writable.

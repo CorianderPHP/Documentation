@@ -9,7 +9,7 @@ $forumGuideReturn = 'https://corianderphp.com' . ($forumGuideReturn ?? '/guided-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= $title ?? 'Forum Demo' ?></title>
+    <title><?= $metadata['title'] ?? 'Forum Demo' ?></title>
     <link rel="stylesheet" href="<?= PublicUrl::versionedAsset('assets/css/output.css') ?>">
 </head>
 <body class="bg-white text-black font-poppins">

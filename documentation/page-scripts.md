@@ -137,7 +137,7 @@ Type checks use `tsc --noEmit`; esbuild writes the modules. Watch detects additi
 
 Deploy **all of `public/assets/js/pages`, including `_chunks`**, plus the CSS. Prebuilt deployments need neither Node.js nor TypeScript source files on the server.
 
-Generated scripts carry content fingerprints, so cache URLs change even if timestamps do not. PHP reads a bounded prefix for these versions; older unmarked bundles use content hashing.
+Generated scripts and production CSS carry content fingerprints, so cache URLs change even if timestamps do not. PHP reads a bounded prefix for these versions; unmarked/manual/watch CSS and JavaScript use content hashing. Standard production builds add the CSS marker automatically. Both automatic module tags and manual CSS/JS links use `PublicUrl::versionedAsset()`; pass raw paths, not pre-encoded filenames.
 
 The local `.generated.json` list lets successful builds remove only recorded obsolete output. Keep it between local builds, ignore it in Git, and omit it from deployments. Old unrecorded output requires a reviewed manual cleanup; do not delete handwritten assets.
 

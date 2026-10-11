@@ -1,6 +1,6 @@
 # Documentation
 
-Start with what you want to build. This documentation targets **CorianderPHP 0.4.0**. If you already have a 0.3.x or older application, read the [Upgrade Guide](/documentation/upgrades): this release changes routing, middleware, templates, and bootstrap code.
+Start with what you want to build. This documentation targets **CorianderPHP 0.4.1**. Existing applications should read the [Upgrade Guide](/documentation/upgrades): 0.4.0 changed the route/view tree, and 0.4.1 renames framework metadata to `$metadata` while leaving `$page` available for application data.
 
 ## Install The Framework
 
@@ -33,7 +33,7 @@ A method file returns a callable that accepts the request and returns a PSR resp
 - [Request Handlers](/documentation/handlers): read query/form/JSON data, validate it, and return HTML, JSON, views, or redirects.
 - [Recommended App Architecture](/documentation/app-architecture): responsibilities and when to extract reusable logic.
 
-There is no controller generator or automatic controller discovery in 0.4.0.
+There is no controller generator or automatic controller discovery in 0.4.1.
 
 ## Create An API
 
@@ -56,7 +56,7 @@ The [Forum data-model chapter](/guided-projects/forum/data-model) and [Shelter d
 
 Authentication identifies a user. Authorization decides what that user may do.
 
-- [Sessions](/documentation/sessions): explicit startup, login state, and flash messages.
+- [Authentication and sessions](/documentation/sessions#login-and-logout): complete login form, credential check, protected directory, logout, and verification steps.
 - [Middleware](/documentation/middleware): inherited directory protection.
 - [Security](/documentation/security): CSRF tokens, cookies, request limits, and headers.
 - [Forum guided project](/guided-projects/forum): shared permission rules for web pages, admin actions, and JSON endpoints.

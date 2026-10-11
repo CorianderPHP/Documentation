@@ -225,7 +225,7 @@ final class UserRepository
 }
 ```
 
-This guide uses CorianderPHP 0.4.0's `SQLManager::sqlScript()`. A SELECT returns an empty array, one associative row, or a list for multiple rows. Normalize that result in the repository, as shown here. Keep this boundary so handlers do not depend on the database driver.
+This guide uses CorianderPHP 0.4.1's `SQLManager::sqlScript()`. A SELECT returns an empty array, one associative row, or a list for multiple rows. Normalize that result in the repository, as shown here. Keep this boundary so handlers do not depend on the database driver.
 
 ## Step: Create ForumRepository
 

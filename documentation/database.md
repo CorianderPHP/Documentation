@@ -1,6 +1,6 @@
 # Database Module Guide
 
-The database layer centralizes PDO connections through `DatabaseHandler` and exposes query helpers through `SQLManager`. A handler is created lazily on the first SQL call; no service-container registration is needed in 0.4.0.
+The database layer centralizes PDO connections through `DatabaseHandler` and exposes query helpers through `SQLManager`. A handler is created lazily on the first SQL call; no service-container registration is needed in 0.4.1.
 
 For tests or a custom connection lifecycle, inject a handler with `SQLManager::setDatabaseHandler($handler)` before querying. Keep the connection configured in app-owned environment/config files, not in view templates.
 
@@ -137,6 +137,30 @@ $activeUsers = SQLManager::findWhere(
 ```
 Fetches the ID and email for every user marked as active.
 
+### Nullable Conditions
+
+Condition maps in `findWhere()`, `updateWhere()`, and `deleteWhere()` combine with `AND`. A PHP `null` value generates `IS NULL`; other values use bound equality, including zero and empty strings.
+
+```php
+$users = SQLManager::findWhere(['id', 'email'], 'users', [
+    'tenant_id' => 10,
+    'deleted_at' => null,
+]);
+```
+
+This selects users in tenant 10 whose `deleted_at` is SQL NULL. It assumes your app has those columns; they are not framework-created fields. SQL `column = NULL` does not match these rows, so use `IS NULL` explicitly when writing custom `sqlScript()` queries.
+
+In 0.4.1, nullable updates and deletes now affect matching rows. Review existing calls before deployment, keep identifying conditions such as tenant/id where needed, and remember that an empty condition map is rejected. For example:
+
+```php
+SQLManager::updateWhere('users', ['status' => 'disabled'], [
+    'id' => 5,
+    'deleted_at' => null,
+]);
+```
+
+This updates user 5 only if its `deleted_at` is SQL NULL. `null` is not interchangeable with `''`, `0`, or the string `'NULL'`.
+
 ### Inserting Records
 
 ```php
@@ -232,3 +256,7 @@ $row = SQLManager::sqlScript(
 
 return $row === [] ? null : $row;
 ```
+
+## Practical Workflows
+
+Follow [Custom Modules](/documentation/modules#build-a-working-custom-module) for a complete schema, repository, and runnable read endpoint. Continue with [Pagination](/documentation/database-patterns#pagination) for bounded query parameters, record counts, and empty pages, or [Transactions](/documentation/database-patterns#transactions) for a service that commits two writes together and rolls both back on failure.

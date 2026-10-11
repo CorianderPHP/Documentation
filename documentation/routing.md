@@ -1,6 +1,6 @@
 # File-Based Routing
 
-CorianderPHP 0.4.0 discovers routes from method files in `src/Views`. The folder path describes the URL; the filename suffix describes the HTTP method. You do not include route files in `public/routes.php` or register them with `$router->get()`.
+CorianderPHP 0.4.1 discovers routes from method files in `src/Views`. The folder path describes the URL; the filename suffix describes the HTTP method. You do not include route files in `public/routes.php` or register them with `$router->get()`.
 
 ## Create Your First Route
 
@@ -109,4 +109,4 @@ This lists URLs, methods, handler files, HEAD fallbacks, and inherited middlewar
 
 For a custom bootstrap, use `(new Router())->handle($request)` and emit the response with the original request method. See [Request Lifecycle](/documentation/request-lifecycle).
 
-Upgrading from 0.2.x? Follow the [0.4.0 migration checklist](/documentation/upgrades) before replacing your old route registration.
+Upgrading from 0.2.x? Follow the [0.4.1 migration checklist](/documentation/upgrades) before replacing your old route registration.

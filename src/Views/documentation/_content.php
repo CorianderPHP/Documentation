@@ -13,153 +13,9 @@ $scope = $scope ?? 'all';
 $article = $article ?? null;
 $searchScope = 'reference';
 $searchSuggestions = ['install', 'cli help', 'handlers', 'routes', 'middleware', 'migrations', 'images', 'modules', 'production', 'debugging'];
-$quickAnswers = [
-    [
-        'keywords' => ['install', 'installation', 'download', 'composer install', 'nodejs install'],
-        'title' => 'Install a new project',
-        'summary' => 'Download a CorianderPHP framework release, keep the starter project files, skip repository-maintenance files, then install PHP and NodeJS dependencies.',
-        'language' => 'bash',
-        'code' => "composer install\nphp coriander nodejs run install\nphp coriander nodejs run build-prod",
-        'links' => [
-            ['label' => 'Installation guide', 'href' => '/documentation/installation'],
-            ['label' => 'NodeJS integration', 'href' => '/documentation/nodejs'],
-        ],
-    ],
-    [
-        'keywords' => ['cli help', 'command help', 'help command', 'php coriander help', '--help', '-h'],
-        'title' => 'Find CLI command help',
-        'summary' => 'Use the short CLI overview, detailed help, or focused help for command families like make, nodejs, and migrate.',
-        'language' => 'bash',
-        'code' => "php coriander\nphp coriander help\nphp coriander help make\nphp coriander nodejs --help",
-        'links' => [
-            ['label' => 'CLI guide', 'href' => '/documentation/cli'],
-            ['label' => 'NodeJS integration', 'href' => '/documentation/nodejs'],
-        ],
-    ],
-    [
-        'keywords' => ['controller', 'controllers', 'handler', 'handlers'],
-        'title' => 'Create a request handler',
-        'summary' => 'Create a method-file route. Its callable receives the request and returns a response; reusable app logic stays in services or repositories.',
-        'language' => 'bash',
-        'code' => "php coriander make:route \"articles/[id].get\"\nphp coriander routes:list",
-        'links' => [
-            ['label' => 'Handler reference', 'href' => '/documentation/handlers'],
-            ['label' => 'Routing reference', 'href' => '/documentation/routing'],
-        ],
-    ],
-    [
-        'keywords' => ['route', 'routes', 'routing', 'router'],
-        'title' => 'Create a route file',
-        'summary' => 'Files under src/Views are discovered automatically. A method suffix defines the HTTP method; no manual registration is needed.',
-        'language' => 'bash',
-        'code' => "php coriander make:route admin/index.get\nphp coriander make:route \"admin/users/[id].patch\"",
-        'links' => [
-            ['label' => 'Routing reference', 'href' => '/documentation/routing'],
-            ['label' => 'Documentation home', 'href' => '/documentation'],
-        ],
-    ],
-    [
-        'keywords' => ['middleware', 'auth', 'permission', 'permissions'],
-        'title' => 'Add route middleware',
-        'summary' => 'A directory _middleware.php returns PSR-15 middleware for that directory and its children. Parent authentication remains active.',
-        'language' => 'php',
-        'code' => "// src/Views/admin/_middleware.php\nuse App\\Middleware\\AdminMiddleware;\nreturn [new AdminMiddleware()];",
-        'links' => [
-            ['label' => 'Middleware reference', 'href' => '/documentation/middleware'],
-            ['label' => 'Security reference', 'href' => '/documentation/security'],
-        ],
-    ],
-    [
-        'keywords' => ['migration', 'migrations', 'sql', 'database', 'sqlite', 'mysql'],
-        'title' => 'Create database changes',
-        'summary' => 'Create migrations for schema changes and use sqlScript for custom SQL queries that need to stay readable.',
-        'language' => 'bash',
-        'code' => "php coriander make:migration create_posts_table\nphp coriander migrate",
-        'links' => [
-            ['label' => 'Database reference', 'href' => '/documentation/database'],
-            ['label' => 'Forum data model guide', 'href' => '/guided-projects/forum/data-model'],
-        ],
-    ],
-    [
-        'keywords' => ['module', 'modules'],
-        'title' => 'Use a custom module',
-        'summary' => 'Put app-specific reusable code in src/Modules. Official framework modules stay in the CorianderPHP project; app modules stay owned by this app.',
-        'language' => 'structure',
-        'code' => "src/\n  Modules/\n    Blog/\n      BlogRepository.php\n      BlogService.php",
-        'links' => [
-            ['label' => 'Modules reference', 'href' => '/documentation/modules'],
-            ['label' => 'Handler reference', 'href' => '/documentation/handlers'],
-        ],
-    ],
-    [
-        'keywords' => ['view', 'views', 'template', 'html', 'dynamic view', 'render view', 'pass data to view'],
-        'title' => 'Render a dynamic view',
-        'summary' => 'Use a direct GET page for simple HTML, or an unsuffixed template with Responses::view() for prepared data.',
-        'language' => 'php',
-        'code' => "use CorianderCore\\Core\\Http\\Responses;\nreturn Responses::view('articles/show', [\n    'page' => ['title' => 'Article'],\n    'article' => \$article,\n]);",
-        'links' => [
-            ['label' => 'Views reference', 'href' => '/documentation/views'],
-            ['label' => 'Handler reference', 'href' => '/documentation/handlers'],
-            ['label' => 'Routing reference', 'href' => '/documentation/routing'],
-            ['label' => 'Security reference', 'href' => '/documentation/security'],
-        ],
-    ],
-    [
-        'keywords' => ['image', 'images', 'imagehandler', 'webp', 'svg'],
-        'title' => 'Render images in views',
-        'summary' => 'Use ImageHandler with the options-array API so image URLs respect PUBLIC_URL_PREFIX and optional img attributes stay safe.',
-        'language' => 'php',
-        'code' => "<?= \\CorianderCore\\Core\\Image\\ImageHandler::render('/public/assets/img/logo.png', [\n    'alt' => 'Site logo',\n    'class' => 'h-10 w-auto',\n    'loading' => 'lazy',\n]); ?>",
-        'links' => [
-            ['label' => 'Views reference', 'href' => '/documentation/views'],
-            ['label' => 'Installation guide', 'href' => '/documentation/installation'],
-        ],
-    ],
-    [
-        'keywords' => ['architecture', 'structure', 'organize', 'lifecycle'],
-        'title' => 'Choose where code belongs',
-        'summary' => 'Use the architecture and lifecycle pages when you need to decide between a handler, middleware, module, repository, or view.',
-        'language' => 'structure',
-        'code' => "src/\n  Actions/\n  Middleware/\n  Modules/\n  Scripts/\n  Views/\npublic/\n  assets/\ndocumentation/",
-        'links' => [
-            ['label' => 'Architecture guide', 'href' => '/documentation/app-architecture'],
-            ['label' => 'Request lifecycle', 'href' => '/documentation/request-lifecycle'],
-        ],
-    ],
-    [
-        'keywords' => ['production', 'deploy', 'plesk', 'hosting'],
-        'title' => 'Prepare for production',
-        'summary' => 'Before deploying, check environment values, document root, HTTPS/proxies, migrations, writable paths, logs, and generated frontend assets.',
-        'language' => 'bash',
-        'code' => "composer test\ncomposer install --no-dev --optimize-autoloader\nphp coriander nodejs run build-prod",
-        'links' => [
-            ['label' => 'Production checklist', 'href' => '/documentation/production'],
-            ['label' => 'Debugging guide', 'href' => '/documentation/debugging'],
-        ],
-    ],
-    [
-        'keywords' => ['test', 'testing', 'tests'],
-        'title' => 'Test app-owned behavior',
-        'summary' => 'Start with modules, permissions, repositories, route smoke tests, and documentation quality checks before adding heavier browser tests.',
-        'language' => 'bash',
-        'code' => "composer test\nphp coriander nodejs run build-prod",
-        'links' => [
-            ['label' => 'Testing an app', 'href' => '/documentation/testing'],
-            ['label' => 'Upgrade guide', 'href' => '/documentation/upgrades'],
-        ],
-    ],
-];
-$normalizedQuery = strtolower(trim($query));
-$quickAnswer = null;
-if ($normalizedQuery !== '') {
-    foreach ($quickAnswers as $answer) {
-        foreach ($answer['keywords'] as $keyword) {
-            if (str_contains($normalizedQuery, $keyword)) {
-                $quickAnswer = $answer;
-                break 2;
-            }
-        }
-    }
+$quickAnswer = $results[0] ?? null;
+if ($quickAnswer !== null && $quickAnswer['snippet'] === null) {
+    $quickAnswer = null;
 }
 $renderDocumentationSearch = static function (string $query, string $searchScope, array $suggestions): void {
     ?>
@@ -183,11 +39,6 @@ $renderDocumentationSearch = static function (string $query, string $searchScope
     </form>
     <?php
 };
-$resultGroups = [];
-foreach ($results as $result) {
-    $resultGroups[$result['page']->section] ??= [];
-    $resultGroups[$result['page']->section][] = $result;
-}
 ?>
 
 <section class="min-h-[calc(100vh-14rem)] px-4 py-8 font-poppins sm:px-6 lg:px-8">
@@ -291,20 +142,18 @@ foreach ($results as $result) {
                 <div class="border-b border-dark-green/10 pb-8 dark:border-mint/15">
                     <p class="text-sm font-semibold uppercase tracking-1 text-dark-green dark:text-mint">Reference search</p>
                     <h1 class="mt-3 font-concert-one text-4xl text-dark-green dark:text-mint md:text-5xl">Results for "<?= htmlspecialchars($query, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?>"</h1>
-                    <p class="mt-3 max-w-3xl text-sm leading-6 text-black/55 dark:text-white/55">Search results focus on framework reference pages. Open a result when you need the full explanation, or use the quick answer below when it matches what you are trying to build.</p>
+                    <p class="mt-3 max-w-3xl text-sm leading-6 text-black/55 dark:text-white/55">Reference results link to the matching section. Follow its prerequisites before using a code extract.</p>
                 </div>
 
                 <div id="documentation-search-results" class="mt-8 space-y-8">
                     <?php if ($quickAnswer !== null): ?>
                         <section class="border-y border-dark-green/10 py-6 dark:border-mint/15">
-                            <p class="text-xs font-semibold uppercase tracking-1 text-black/45 dark:text-white/45">Quick answer</p>
-                            <h2 class="mt-2 font-concert-one text-3xl text-dark-green dark:text-mint"><?= htmlspecialchars($quickAnswer['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></h2>
-                            <p class="mt-2 max-w-3xl text-sm leading-6 text-black/65 dark:text-white/65"><?= htmlspecialchars($quickAnswer['summary'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></p>
-                            <pre class="mt-4 overflow-x-auto rounded-lg border border-dark-green/15 bg-true-white p-4 text-sm text-black shadow-sm dark:border-mint/20 dark:bg-true-black dark:text-white" data-language="<?= htmlspecialchars($quickAnswer['language'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?>"><code code-lang="<?= htmlspecialchars($quickAnswer['language'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?>"><?= htmlspecialchars($quickAnswer['code'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></code></pre>
+                            <p class="text-xs font-semibold uppercase tracking-1 text-black/45 dark:text-white/45">From the matching guide</p>
+                            <h2 class="mt-2 font-concert-one text-3xl text-dark-green dark:text-mint"><?= htmlspecialchars($quickAnswer['heading'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></h2>
+                            <p class="mt-2 max-w-3xl text-sm leading-6 text-black/65 dark:text-white/65"><?= htmlspecialchars($quickAnswer['excerpt'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></p>
+                            <pre class="mt-4 overflow-x-auto rounded-lg border border-dark-green/15 bg-true-white p-4 text-sm text-black shadow-sm dark:border-mint/20 dark:bg-true-black dark:text-white" data-language="<?= htmlspecialchars($quickAnswer['snippet']['language'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?>"><code code-lang="<?= htmlspecialchars($quickAnswer['snippet']['language'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?>"><?= htmlspecialchars($quickAnswer['snippet']['code'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></code></pre>
                             <div class="mt-4 flex flex-wrap gap-2 text-sm font-semibold">
-                                <?php foreach ($quickAnswer['links'] as $link): ?>
-                                    <a href="<?= htmlspecialchars($link['href'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?>" class="rounded-md border border-dark-green/15 px-3 py-2 text-link-blue underline decoration-link-blue/35 decoration-2 underline-offset-4 hover:border-dark-green/30 hover:decoration-link-blue dark:border-mint/20 dark:text-link-blue-dark dark:decoration-link-blue-dark/45 dark:hover:border-mint/40 dark:hover:decoration-link-blue-dark"><?= htmlspecialchars($link['label'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></a>
-                                <?php endforeach; ?>
+                                <a href="/documentation/<?= htmlspecialchars($quickAnswer['page']->slug . '#' . $quickAnswer['anchor'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?>" class="rounded-md border border-dark-green/15 px-3 py-2 text-link-blue underline decoration-link-blue/35 decoration-2 underline-offset-4 hover:border-dark-green/30 hover:decoration-link-blue dark:border-mint/20 dark:text-link-blue-dark dark:decoration-link-blue-dark/45 dark:hover:border-mint/40 dark:hover:decoration-link-blue-dark">Read the explanation and prerequisites</a>
                             </div>
                         </section>
                     <?php endif; ?>
@@ -322,19 +171,15 @@ foreach ($results as $result) {
                             </div>
                         </div>
                     <?php else: ?>
-                        <?php foreach ($resultGroups as $section => $sectionResults): ?>
-                            <section>
-                                <h2 class="border-b border-dark-green/10 pb-3 font-concert-one text-3xl text-dark-green dark:border-mint/15 dark:text-mint"><?= htmlspecialchars($section, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></h2>
-                                <div class="divide-y divide-dark-green/10 dark:divide-mint/10">
-                                    <?php foreach ($sectionResults as $result): ?>
-                                        <a href="/documentation/<?= htmlspecialchars($result['page']->slug, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?>" class="group block px-3 py-6 transition hover:bg-black/5">
-                                            <h3 class="font-concert-one text-2xl text-link-blue underline decoration-link-blue/35 decoration-2 underline-offset-4 group-hover:decoration-link-blue dark:text-link-blue-dark dark:decoration-link-blue-dark/45 dark:group-hover:decoration-link-blue-dark"><?= htmlspecialchars($result['page']->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></h3>
-                                            <p class="mt-2 text-sm leading-6 text-black/65 dark:text-white/65"><?= htmlspecialchars($result['excerpt'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></p>
-                                        </a>
-                                    <?php endforeach; ?>
-                                </div>
-                            </section>
-                        <?php endforeach; ?>
+                        <div class="divide-y divide-dark-green/10 dark:divide-mint/10">
+                            <?php foreach ($results as $result): ?>
+                                <a href="/documentation/<?= htmlspecialchars($result['page']->slug . '#' . $result['anchor'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?>" class="group block px-3 py-6 transition hover:bg-black/5">
+                                    <h2 class="font-concert-one text-2xl text-link-blue underline decoration-link-blue/35 decoration-2 underline-offset-4 group-hover:decoration-link-blue dark:text-link-blue-dark dark:decoration-link-blue-dark/45 dark:group-hover:decoration-link-blue-dark"><?= htmlspecialchars($result['page']->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></h2>
+                                    <p class="mt-2 text-xs font-semibold text-black/50 dark:text-white/50"><?= htmlspecialchars($result['heading'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></p>
+                                    <p class="mt-2 text-sm leading-6 text-black/65 dark:text-white/65"><?= htmlspecialchars($result['excerpt'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></p>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
                     <?php endif; ?>
                 </div>
             <?php elseif ($article !== null): ?>

@@ -26,6 +26,8 @@ class DocumentationSearchAction
                 'slug' => $result['page']->slug,
                 'section' => $result['page']->section,
                 'excerpt' => $result['excerpt'],
+                'anchor' => $result['anchor'],
+                'heading' => $result['heading'],
             ], $search->search($query, $scope)),
         ];
         return new Response(200, ['Content-Type' => 'application/json; charset=utf-8'], json_encode($payload, JSON_THROW_ON_ERROR));

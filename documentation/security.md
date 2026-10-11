@@ -74,9 +74,13 @@ Only method files expose endpoints; views and action classes do not. Use directo
 
 View paths must be normalized relative names under `src/Views`. Do not build them from raw request values. The renderer escapes string data recursively in arrays; objects, URL validation, and JavaScript/CSS contexts need your own care.
 
+Framework `$metadata` is merged and HTML-escaped separately from ordinary application data such as `$page`. Do not escape prepared metadata twice. Object properties and direct-page local values remain raw.
+
 ## Cookies, Proxies, And Errors
 
 Use HTTPS in production. `TRUSTED_PROXIES` accepts trusted IPs/CIDRs; forwarded TLS headers are trusted only for matching peers. Do not trust every proxy just to fix cookie settings.
+
+Incoming request URIs now include the origin when a host is available, but that host is still client-controlled. Use a configured canonical origin for password-reset links and other fixed-domain URLs. Use `getUri()->getPath()` for path gates; malformed authorities return 400 and forwarded hosts are ignored. See [Request Handlers](/documentation/handlers).
 
 Use `APP_ENV=production` and `APP_DEBUG=0`. `ErrorResponse` exposes detailed traces only for local/development with debug enabled; elsewhere it returns generic errors and logs unexpected exceptions. Keep PHP `display_errors=0` on the server.
 

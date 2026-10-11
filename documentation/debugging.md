@@ -26,7 +26,7 @@ A handler must return a PSR response:
 
 ```php
 return \CorianderCore\Core\Http\Responses::view('articles/show', [
-    'page' => ['title' => 'Article'],
+    'metadata' => ['title' => 'Article'],
     'article' => $article,
 ]);
 ```
@@ -34,6 +34,8 @@ return \CorianderCore\Core\Http\Responses::view('articles/show', [
 The template is `src/Views/articles/show.php`, not an `index.php` folder. Do not echo the result or return null. Check nearest `_header.php`/`_footer.php` when the page frame is missing or duplicated.
 
 If printed text appears before the response, move output into a template or `Responses::html()`.
+
+If a title disappeared after upgrading from 0.4.0, check that layouts read `$metadata['title']` and view calls pass `['metadata' => [...]]`. `_metadata.php` filenames stay unchanged. A `page` value is now application data and no longer overrides metadata.
 
 ## CSRF 403 Or Missing Login State
 

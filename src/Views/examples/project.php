@@ -154,8 +154,9 @@ foreach ($flatNavigation as $item) {
                         <p class="py-5 text-black/70 dark:text-white/70"><?= htmlspecialchars($project->noResultsText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></p>
                     <?php else: ?>
                         <?php foreach ($results as $result): ?>
-                            <a href="<?= htmlspecialchars($project->pathForSlug($result['page']->slug), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?>" class="group block px-3 py-5 transition hover:bg-black/5">
+                            <a href="<?= htmlspecialchars($project->pathForSlug($result['page']->slug) . '#' . $result['anchor'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?>" class="group block px-3 py-5 transition hover:bg-black/5">
                                 <h2 class="font-concert-one text-2xl text-link-blue underline decoration-link-blue/35 decoration-2 underline-offset-4 group-hover:decoration-link-blue dark:text-link-blue-dark dark:decoration-link-blue-dark/45 dark:group-hover:decoration-link-blue-dark"><?= htmlspecialchars($result['page']->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></h2>
+                                <p class="mt-2 text-xs font-semibold text-black/50 dark:text-white/50"><?= htmlspecialchars($result['heading'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></p>
                                 <p class="mt-2 text-sm leading-6 text-black/65 dark:text-white/65"><?= htmlspecialchars($result['excerpt'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) ?></p>
                             </a>
                         <?php endforeach; ?>
