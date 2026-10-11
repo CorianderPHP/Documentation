@@ -56,7 +56,7 @@ The [Forum data-model chapter](/guided-projects/forum/data-model) and [Shelter d
 
 Authentication identifies a user. Authorization decides what that user may do.
 
-- [Sessions](/documentation/sessions): explicit startup, login state, and flash messages.
+- [Authentication and sessions](/documentation/sessions#login-and-logout): complete login form, credential check, protected directory, logout, and verification steps.
 - [Middleware](/documentation/middleware): inherited directory protection.
 - [Security](/documentation/security): CSRF tokens, cookies, request limits, and headers.
 - [Forum guided project](/guided-projects/forum): shared permission rules for web pages, admin actions, and JSON endpoints.

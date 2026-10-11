@@ -76,6 +76,12 @@ Supported render options include:
 
 Unsafe attributes are ignored, including event-handler attributes such as `onclick`, and generated source attributes such as `src` and `srcset`.
 
+## Image Uploads Are Application Logic
+
+`ImageHandler` renders images already available to your application; it does not implement an image upload endpoint. For an upload, use a multipart form and read `$request->getUploadedFiles()` in a handler. The request factory normalizes PHP upload data into PSR-7 uploaded-file objects.
+
+Your application must check upload errors, size, actual content type, authorization, and CSRF before saving anything. Generate a server-owned filename, never trust the client's filename or MIME type, and keep executable content out of public storage. Rendering an image and accepting a user-supplied file are different responsibilities. See [Security](/documentation/security#input-and-body-limits) and [Request Handlers](/documentation/handlers).
+
 ## Public URL Prefix
 
 If your web server serves the project root instead of the `public/` directory, set:

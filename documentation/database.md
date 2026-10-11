@@ -256,3 +256,7 @@ $row = SQLManager::sqlScript(
 
 return $row === [] ? null : $row;
 ```
+
+## Practical Workflows
+
+Follow [Custom Modules](/documentation/modules#build-a-working-custom-module) for a complete schema, repository, and runnable read endpoint. Continue with [Pagination](/documentation/database-patterns#pagination) for bounded query parameters, record counts, and empty pages, or [Transactions](/documentation/database-patterns#transactions) for a service that commits two writes together and rolls both back on failure.

@@ -79,6 +79,34 @@ final class RouteSmokeTest extends TestCase
         $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
         self::assertSame('controller', $payload['query']);
         self::assertNotEmpty($payload['results']);
+        self::assertNotSame('', $payload['results'][0]['anchor']);
+        self::assertNotSame('', $payload['results'][0]['heading']);
+    }
+
+    public function testSearchPageUsesPublishedSnippetsAndSectionLinks(): void
+    {
+        $request = (new ServerRequest('GET', '/documentation/search'))->withQueryParams(['q' => 'SQL NULL']);
+        $response = (new Router())->handle($request);
+        self::assertSame(200, $response->getStatusCode());
+        $html = (string) $response->getBody();
+        self::assertStringContainsString('href="/documentation/database#nullable-conditions"', $html);
+        self::assertStringContainsString('From the matching guide', $html);
+        self::assertStringContainsString('code-lang="php"', $html);
+        self::assertStringNotContainsString('Create database changes', $html);
+        self::assertStringNotContainsString('&amp;gt;', $html);
+        self::assertStringNotContainsString('&amp;#039;', $html);
+
+        $projectRequest = (new ServerRequest('GET', '/guided-projects/forum/search'))->withQueryParams(['q' => 'permissions']);
+        $projectHtml = (string) (new Router())->handle($projectRequest)->getBody();
+        self::assertMatchesRegularExpression('~href="/guided-projects/forum/permissions#[a-z0-9-]+"~', $projectHtml);
+    }
+
+    public function testSearchQueryCannotInjectMarkupIntoThePage(): void
+    {
+        $request = (new ServerRequest('GET', '/documentation/search'))->withQueryParams(['q' => '<script>alert(1)</script>']);
+        $html = (string) (new Router())->handle($request)->getBody();
+        self::assertStringNotContainsString('<script>alert(1)</script>', $html);
+        self::assertStringContainsString('&lt;script&gt;alert(1)&lt;/script&gt;', $html);
     }
 
     public function testUnregisteredControllerAliasesCannotBypassAdminMiddleware(): void
